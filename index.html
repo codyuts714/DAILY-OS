@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script type="module">
-// ── FIREBASE + GOOGLE AUTH ────────────────────────────────────────────────────
+// -- FIREBASE + GOOGLE AUTH ----------------------------------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -31,7 +31,7 @@ const provider = new GoogleAuthProvider();
 
 let UID = null;
 
-// ── AUTH STATE ────────────────────────────────────────────────────────────────
+// -- AUTH STATE ----------------------------------------------------------------
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     UID = user.uid;
@@ -52,7 +52,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// ── SIGN IN ───────────────────────────────────────────────────────────────────
+// -- SIGN IN ------------------------------------------------------------------─
 window.googleSignIn = async function() {
   const loginBtn = document.getElementById('loginBtn');
   if (auth.currentUser) {
@@ -68,7 +68,7 @@ window.googleSignIn = async function() {
   }
 };
 
-// ── CLOUD READ/WRITE ──────────────────────────────────────────────────────────
+// -- CLOUD READ/WRITE ----------------------------------------------------------
 window.sv_cloud = async function(key, value) {
   if(!UID) return;
   try {
@@ -336,6 +336,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
     <span id="syncBadge" style="font-size:11px;color:var(--green);display:none;"></span>
+    <button onclick="openExportModal()" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);cursor:pointer;">📊 Export</button>
     <button id="loginBtn" onclick="googleSignIn()" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;background:var(--y);color:#000;cursor:pointer;">Sign in with Google</button>
     <div class="topbar-streak" id="topStreak">🔥 0 days</div>
   </div>
@@ -369,7 +370,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
-<!-- ═══ PERSONAL ═══ -->
+<!-- === PERSONAL === -->
 <div class="section-divider">
   <div class="section-divider-line"></div>
   <div class="section-divider-label personal">🌅 Personal Life</div>
@@ -490,7 +491,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
-<!-- ═══ BUSINESS ═══ -->
+<!-- === BUSINESS === -->
 <div class="section-divider">
   <div class="section-divider-line"></div>
   <div class="section-divider-label business">💼 Business</div>
@@ -615,7 +616,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
-<!-- ═══ WEEKLY SCHEDULE ═══ -->
+<!-- === WEEKLY SCHEDULE === -->
 <div class="section-divider">
   <div class="section-divider-line"></div>
   <div class="section-divider-label" style="color:var(--purple);border-color:var(--purple);background:rgba(168,85,247,.08);">📅 Weekly Schedule</div>
@@ -630,6 +631,39 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 </div>
 
 </div><!-- /dashboard -->
+
+<!-- EXPORT MODAL -->
+<div class="modal-ov" id="exportOv">
+  <div class="modal" style="max-height:85vh;overflow-y:auto;">
+    <div class="modal-title">📊 Export Data for AI Analysis</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.5;">Download your data then paste it into Claude or any AI to analyze patterns, habits, revenue trends and journal insights.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Time range</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="exportRangeRow">
+        <button class="fpill active" onclick="setExportRange('week',this)">This Week</button>
+        <button class="fpill" onclick="setExportRange('month',this)">This Month</button>
+        <button class="fpill" onclick="setExportRange('all',this)">All Time</button>
+      </div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:10px;margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">Your export will include:</div>
+      <div style="font-size:12px;color:var(--t);line-height:1.8;">
+        ✓ Daily completion % for every day<br>
+        ✓ Task-by-task breakdown (done vs skipped)<br>
+        ✓ Streak data<br>
+        ✓ All journal entries<br>
+        ✓ Revenue log with totals<br>
+        ✓ Business section completion rates
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Paste this prompt into Claude with your file:</div>
+    <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:6px;padding:10px;font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:14px;font-style:italic;" id="suggestedPrompt"></div>
+    <div class="modal-row">
+      <button class="modal-btn modal-cancel" onclick="closeExportModal()">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="doExport()">⬇ Download</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-ov" id="modalOv">
@@ -655,7 +689,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 </div>
 
 <script>
-// ── DEFAULTS ─────────────────────────────────────────────────────────────────
+// -- DEFAULTS ----------------------------------------------------------------─
 const DEF_MORNING=[
   {id:'m1',name:'Drink water',dur:'5 min'},
   {id:'m2',name:'Vitamins',dur:'5 min'},
@@ -744,7 +778,7 @@ const DEF_BIZ={
   ],
 };
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
+// -- HELPERS ------------------------------------------------------------------─
 const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{
   try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
@@ -755,7 +789,7 @@ const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${p2(d.getMont
 const fmtDate=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});};
 const nowStr=()=>new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
+// -- STATE --------------------------------------------------------------------─
 let morning=ld('morning',DEF_MORNING);
 let evening=ld('evening',DEF_EVENING);
 let weekly=ld('weekly',DEF_WEEKLY);
@@ -783,7 +817,7 @@ const weekKey=()=>{var d=new Date();var jan1=new Date(d.getFullYear(),0,1);var w
 const getDS=()=>{var day=ld('ds_'+viewKey(),{m:{},e:{},t:{},s:{},vn:{},v:{},c:{},mo:{},a:{},bt:{},co:{},pr:{}});var wk=ld('ws_'+weekKey(),{w:{},moves:{}});if(!wk.moves)wk.moves={};day.w=wk.w;day.moves=wk.moves;return day;}
 const setDS=s=>{var day={m:s.m,e:s.e,t:s.t,s:s.s,vn:s.vn,v:s.v,c:s.c,mo:s.mo,a:s.a,bt:s.bt,co:s.co,pr:s.pr};sv('ds_'+viewKey(),day);var wk=ld('ws_'+weekKey(),{w:{},moves:{}});if(!wk.moves)wk.moves={};sv('ws_'+weekKey(),wk);}
 
-// ── CLOCK ─────────────────────────────────────────────────────────────────────
+// -- CLOCK --------------------------------------------------------------------─
 function updateClock(){
   document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
 }
@@ -796,7 +830,7 @@ function initDates(){
   document.getElementById('revDate').value=todayKey();
 }
 
-// ── GOALS ─────────────────────────────────────────────────────────────────────
+// -- GOALS --------------------------------------------------------------------─
 function renderGoals(){
   document.getElementById('goalsItems').innerHTML=goals.length
     ?goals.map(g=>`<span class="goal-pill">${g}</span>`).join('')
@@ -829,7 +863,7 @@ function renderGoalEdit(){
 }
 function delGoal(i){goals.splice(i,1);sv('goals',goals);renderGoalEdit();renderGoals();}
 
-// ── TASK RENDERER ─────────────────────────────────────────────────────────────
+// -- TASK RENDERER ------------------------------------------------------------─
 function makeTaskRow(t,doneMap,toggleFn,delFn,color,chkClass=''){
   const done=!!doneMap[t.id];
   const ts=doneMap[t.id+'_ts']||'';
@@ -854,7 +888,7 @@ function applyBar(barId,pctId,pct,color){
   if(pctId)document.getElementById(pctId).textContent=pct+'%';
 }
 
-// ── PERSONAL SECTIONS ─────────────────────────────────────────────────────────
+// -- PERSONAL SECTIONS --------------------------------------------------------─
 function renderSection(sec){
   const tasks=sec==='morning'?morning:evening;
   const ds=getDS();
@@ -905,7 +939,7 @@ function openAddTask(sec){
   });
 }
 
-// ── SCHEDULED ─────────────────────────────────────────────────────────────────
+// -- SCHEDULED ----------------------------------------------------------------─
 function renderScheduled(){
   const today=new Date().getDay();
   const items=weekly.filter(w=>w.days.includes(today));
@@ -939,7 +973,7 @@ function openAddWeekly(){
   });
 }
 
-// ── TODO ──────────────────────────────────────────────────────────────────────
+// -- TODO ----------------------------------------------------------------------
 function renderTodo(){
   var el=document.getElementById('todoList');
   var emp=document.getElementById('todoEmpty');
@@ -994,7 +1028,7 @@ function openAddTodo(){
   });
 }
 
-// ── BIZ SECTIONS ──────────────────────────────────────────────────────────────
+// -- BIZ SECTIONS --------------------------------------------------------------
 const BIZ_MAP={
   sales:{list:()=>bizSales,sv:l=>{bizSales=l;sv('bizSales',l);},bar:'salesBar',pct:'salesPct',dm:'s'},
   visibility:{list:()=>bizVis,sv:l=>{bizVis=l;sv('bizVis',l);},bar:'visBar',pct:'visPct',dm:'v'},
@@ -1098,7 +1132,7 @@ function openAddBiz(key){
   });
 }
 
-// ── OVERALL ───────────────────────────────────────────────────────────────────
+// -- OVERALL ------------------------------------------------------------------─
 function renderOverall(){
   const ds=getDS();
   const today=new Date().getDay();
@@ -1175,7 +1209,7 @@ function renderCompChart(hist){
   });
 }
 
-// ── JOURNAL ───────────────────────────────────────────────────────────────────
+// -- JOURNAL ------------------------------------------------------------------─
 function saveJournal(){
   const text=document.getElementById('journalInput').value.trim();
   if(!text)return;
@@ -1199,7 +1233,7 @@ function renderJournalHistory(){
   </div>`).join('');
 }
 
-// ── REVENUE ───────────────────────────────────────────────────────────────────
+// -- REVENUE ------------------------------------------------------------------─
 function logRev(){
   const job=document.getElementById('revJob').value.trim();
   const amt=parseFloat(document.getElementById('revAmt').value);
@@ -1249,7 +1283,7 @@ function renderRevenue(){
     </div>`).join('');
 }
 
-// ── MODAL ─────────────────────────────────────────────────────────────────────
+// -- MODAL --------------------------------------------------------------------─
 let mCb=null;
 function openModal(title,ph1,ph2,showDays,cb){
   mCb=cb;
@@ -1276,7 +1310,7 @@ document.getElementById('modalConfirm').onclick=()=>{
 };
 document.querySelectorAll('.day-btn').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
 
-// ── DAY NAVIGATION ───────────────────────────────────────────────────────────
+// -- DAY NAVIGATION ----------------------------------------------------------─
 function changeDay(delta){
   viewingDay=Math.min(0,viewingDay+delta);
   updateDayNav();
@@ -1308,7 +1342,7 @@ function loadJournalForDay(){
   document.getElementById('journalInput').style.opacity=(viewingDay!==0)?'0.6':'1';
 }
 
-// ── WEEKLY GRID ───────────────────────────────────────────────────────────────
+// -- WEEKLY GRID --------------------------------------------------------------─
 function renderWeeklyGrid(){
   var DAYS_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var today=new Date().getDay();
@@ -1572,7 +1606,7 @@ function doMoveWeekly(id,targetKey){
   closeModal();renderScheduledFixed();renderWeeklyGrid();
 }
 
-// ── CALENDAR EVENTS ──────────────────────────────────────────────────────────
+// -- CALENDAR EVENTS ----------------------------------------------------------
 function renderCalEvents(){
   var events=ld('cal_'+viewKey(),[]);
   var el=document.getElementById('calEvents');
@@ -1618,7 +1652,213 @@ function showCalInfo(){
   alert('Google Calendar sync requires a backend server to handle OAuth. For now, add your daily events manually — they save per day. Firebase + Calendar API setup can be added as a next step.');
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+// -- EXPORT ------------------------------------------------------------------─
+let exportRange = 'month';
+
+function setExportRange(range, btn) {
+  exportRange = range;
+  document.querySelectorAll('#exportRangeRow .fpill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSuggestedPrompt();
+}
+
+function updateSuggestedPrompt() {
+  const labels = {week:'this week', month:'this month', all:'all time'};
+  document.getElementById('suggestedPrompt').textContent =
+    'Here is my life and business data for ' + labels[exportRange] + '. ' +
+    'Please analyze: (1) which habits I am completing vs skipping most, (2) patterns in my journal entries — what keeps coming up, (3) how my revenue correlates with my productivity, (4) where my biggest gaps are and what I should focus on. Give me honest, specific insights.';
+}
+
+function openExportModal() {
+  document.getElementById('exportOv').classList.add('open');
+  updateSuggestedPrompt();
+  checkMonthEndReminder();
+}
+
+function closeExportModal() {
+  document.getElementById('exportOv').classList.remove('open');
+}
+
+function checkMonthEndReminder() {
+  const d = new Date();
+  const lastDay = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  if(d.getDate() >= lastDay - 1) {
+    // last 2 days of month — show reminder
+    const rem = document.getElementById('exportOv').querySelector('.modal-title');
+    if(rem) rem.textContent = '📊 Export Data — End of Month!';
+  }
+}
+
+function getDateRange() {
+  const now = new Date();
+  if(exportRange === 'week') {
+    const start = new Date(now); start.setDate(now.getDate() - now.getDay());
+    return { start, end: now };
+  }
+  if(exportRange === 'month') {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return { start, end: now };
+  }
+  // all time
+  const start = new Date(2024, 0, 1);
+  return { start, end: now };
+}
+
+function dateInRange(dateStr, start, end) {
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  return dt >= start && dt <= end;
+}
+
+function doExport() {
+  var range = getDateRange();
+  var start = range.start; var end = range.end;
+  var hist = ld('hist', {});
+  var journals = ld('journals', {});
+  var revLogData = ld('revLog', []);
+  var streakData = ld('streakData', {current:0, best:0, total:0});
+  var nl = '\n';
+
+  var daysInRange = Object.keys(hist).filter(function(k){return dateInRange(k,start,end);}).sort();
+  var journalsInRange = Object.keys(journals).filter(function(k){return dateInRange(k,start,end);}).sort();
+  var revInRange = revLogData.filter(function(r){return dateInRange(r.date,start,end);});
+
+  // Task completion breakdown
+  var taskBreakdown = {};
+  var allTasks = [
+    {list:morning, dm_key:'m', sec:'Morning'},
+    {list:evening, dm_key:'e', sec:'Evening'},
+    {list:bizSales, dm_key:'s', sec:'Sales'},
+    {list:bizVisNon, dm_key:'vn', sec:'Visibility (must-do)'},
+    {list:bizVis, dm_key:'v', sec:'Visibility (choose one)'},
+    {list:bizClient, dm_key:'c', sec:'Client Comms'},
+    {list:bizMoney, dm_key:'mo', sec:'Money'},
+    {list:bizAdmin, dm_key:'a', sec:'Admin'},
+    {list:bizBottle, dm_key:'bt', sec:'Systems'},
+    {list:bizContent, dm_key:'co', sec:'Content'},
+    {list:bizProduct, dm_key:'pr', sec:'Product'},
+  ];
+  allTasks.forEach(function(g){
+    g.list.forEach(function(t){
+      taskBreakdown[t.id] = {name:t.name, sec:g.sec, dm_key:g.dm_key, done:0, total:0};
+    });
+  });
+  daysInRange.forEach(function(k){
+    var ds = ld('ds_'+k, {m:{},e:{},s:{},vn:{},v:{},c:{},mo:{},a:{},bt:{},co:{},pr:{}});
+    allTasks.forEach(function(g){
+      g.list.forEach(function(t){
+        if(taskBreakdown[t.id]){
+          taskBreakdown[t.id].total++;
+          if(ds[g.dm_key] && ds[g.dm_key][t.id]) taskBreakdown[t.id].done++;
+        }
+      });
+    });
+  });
+
+  // Revenue
+  var totalRev = revInRange.reduce(function(s,r){return s+r.amount;}, 0);
+  var byDay = {};
+  revInRange.forEach(function(r){ byDay[r.date]=(byDay[r.date]||0)+r.amount; });
+  var bestRevDay = Object.entries(byDay).sort(function(a,b){return b[1]-a[1];})[0];
+  var avgCompletion = daysInRange.length ? Math.round(daysInRange.reduce(function(s,k){return s+(hist[k]||0);},0)/daysInRange.length) : 0;
+
+  var rangeLabel = exportRange === 'week' ? 'This Week' : exportRange === 'month' ? 'This Month' : 'All Time';
+  var dateRange = start.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' to ' + end.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  var lines = [];
+  lines.push('DAILY OS -- DATA EXPORT');
+  lines.push(rangeLabel + ' | ' + dateRange);
+  lines.push('');
+  lines.push('== OVERVIEW ==');
+  lines.push('Days tracked: ' + daysInRange.length);
+  lines.push('Average completion: ' + avgCompletion + '%');
+  lines.push('Current streak: ' + streakData.current + ' days');
+  lines.push('Best streak ever: ' + streakData.best + ' days');
+  lines.push('Perfect 100% days: ' + streakData.total);
+  lines.push('');
+  lines.push('== DAILY COMPLETION ==');
+  daysInRange.forEach(function(k){
+    var pct = hist[k] || 0;
+    var filled = Math.round(pct/10);
+    var bar = '';
+    for(var i=0;i<10;i++) bar += i < filled ? '#' : '-';
+    lines.push(k + '  [' + bar + ']  ' + pct + '%');
+  });
+  lines.push('');
+
+  // Group tasks by section
+  var sections = {};
+  Object.values(taskBreakdown).forEach(function(t){
+    if(!sections[t.sec]) sections[t.sec] = [];
+    sections[t.sec].push(t);
+  });
+  lines.push('== TASK BREAKDOWN (sorted by completion rate) ==');
+  Object.entries(sections).forEach(function(entry){
+    var sec = entry[0]; var tasks = entry[1];
+    lines.push('');
+    lines.push('[' + sec.toUpperCase() + ']');
+    tasks.sort(function(a,b){
+      var ra = a.total ? a.done/a.total : 0;
+      var rb = b.total ? b.done/b.total : 0;
+      return rb - ra;
+    }).forEach(function(t){
+      var pct = t.total ? Math.round(t.done/t.total*100) : 0;
+      var flag = pct >= 80 ? 'STRONG' : pct >= 50 ? 'OK' : 'WEAK';
+      lines.push('  [' + flag + '] ' + t.name + ' -- ' + pct + '% (' + t.done + '/' + t.total + ' days)');
+    });
+  });
+  lines.push('');
+
+  lines.push('== REVENUE ==');
+  lines.push('Total: $' + Math.round(totalRev).toLocaleString());
+  if(bestRevDay) lines.push('Best day: $' + Math.round(bestRevDay[1]).toLocaleString() + ' on ' + fmtDate(bestRevDay[0]));
+  lines.push('');
+  lines.push('Log:');
+  revInRange.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(r){
+    lines.push('  ' + fmtDate(r.date) + '  $' + Number(r.amount).toLocaleString() + '  ' + r.job);
+  });
+  lines.push('');
+
+  lines.push('== JOURNAL ENTRIES ==');
+  journalsInRange.forEach(function(k){
+    var pct = hist[k] || 0;
+    lines.push('');
+    lines.push('[' + k + ' -- ' + pct + '% completion day]');
+    lines.push(journals[k]);
+    lines.push('---');
+  });
+  lines.push('');
+  lines.push('== SUGGESTED AI PROMPT ==');
+  lines.push(document.getElementById('suggestedPrompt').textContent);
+
+  var out = lines.join('\n');
+  var blob = new Blob([out], {type:'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var dateSlug = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = 'dailyos-' + exportRange + '-' + dateSlug + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  closeExportModal();
+}
+
+
+function checkMonthEnd() {
+  const d = new Date();
+  const lastDay = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  if(d.getDate() >= lastDay - 1) {
+    const btn = document.querySelector('[onclick="openExportModal()"]');
+    if(btn){
+      btn.style.background = 'var(--coral)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--coral)';
+      btn.textContent = '📊 Export — Month Ending!';
+    }
+  }
+}
+
+// -- INIT ----------------------------------------------------------------------
 function renderAll(){
   renderSection('morning');
   renderSection('evening');
@@ -1669,6 +1909,7 @@ initDates();
 updateDayNav();
 loadJournalForDay();
 renderAll();
+checkMonthEnd();
 </script>
 </body>
 </html>
