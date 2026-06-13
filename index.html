@@ -10,9 +10,10 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script type="module">
-// ── FIREBASE SETUP ────────────────────────────────────────────────────────────
+// ── FIREBASE + GOOGLE AUTH ────────────────────────────────────────────────────
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAN8AKGvvpmxg1sXbf7yJEQjXCYI492yas",
@@ -25,54 +26,69 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-// User ID — stored locally so same device = same user
-// In future we can add real auth, for now device-based
-if(!localStorage.getItem('_uid')){
-  localStorage.setItem('_uid','user_'+Math.random().toString(36).slice(2,10));
-}
-const UID = localStorage.getItem('_uid');
+let UID = null;
 
-// ── FIREBASE READ/WRITE ───────────────────────────────────────────────────────
-// sv_cloud: save a key/value to Firestore (async, fire and forget)
+// ── AUTH STATE ────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    UID = user.uid;
+    // Update UI
+    const badge = document.getElementById('syncBadge');
+    if(badge){ badge.textContent = '☁ ' + user.displayName.split(' ')[0]; badge.style.display='inline'; badge.style.color='var(--green)'; }
+    const loginBtn = document.getElementById('loginBtn');
+    if(loginBtn){ loginBtn.textContent = 'Sign out'; loginBtn.style.background='var(--bg4)'; loginBtn.style.color='var(--t2)'; }
+    // Sync from cloud
+    await window.sync_from_cloud();
+  } else {
+    UID = null;
+    const badge = document.getElementById('syncBadge');
+    if(badge){ badge.textContent = ''; badge.style.display='none'; }
+    const loginBtn = document.getElementById('loginBtn');
+    if(loginBtn){ loginBtn.textContent = 'Sign in with Google'; loginBtn.style.background='var(--y)'; loginBtn.style.color='#000'; }
+  }
+});
+
+// ── SIGN IN ───────────────────────────────────────────────────────────────────
+window.googleSignIn = async function() {
+  const loginBtn = document.getElementById('loginBtn');
+  if (auth.currentUser) {
+    await signOut(auth);
+    return;
+  }
+  try {
+    if(loginBtn){ loginBtn.textContent = 'Signing in...'; }
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    if(loginBtn){ loginBtn.textContent = 'Sign in with Google'; }
+    console.warn('Sign in failed:', e);
+  }
+};
+
+// ── CLOUD READ/WRITE ──────────────────────────────────────────────────────────
 window.sv_cloud = async function(key, value) {
+  if(!UID) return;
   try {
     await setDoc(doc(db, 'users', UID, 'data', key), { value: JSON.stringify(value) });
   } catch(e) { console.warn('Firebase write failed:', e); }
 };
 
-// ld_cloud: load all data from Firestore and merge into localStorage
 window.sync_from_cloud = async function() {
+  if(!UID) return;
   try {
     const snap = await getDocs(collection(db, 'users', UID, 'data'));
     snap.forEach(d => {
       try {
-        const val = JSON.parse(d.data().value);
-        localStorage.setItem(d.id, JSON.stringify(val));
+        localStorage.setItem(d.id, JSON.stringify(JSON.parse(d.data().value)));
       } catch(e) {}
     });
-    console.log('Synced from cloud ✓');
-    // re-render with fresh data
     if(window.reloadFromStorage) window.reloadFromStorage();
-  } catch(e) { console.warn('Firebase read failed:', e); }
+    const badge = document.getElementById('syncBadge');
+    if(badge){ badge.style.display='inline'; }
+  } catch(e) { console.warn('Firebase sync failed:', e); }
 };
-
-// Push all current localStorage keys to cloud (one-time migration)
-window.push_all_to_cloud = async function() {
-  const keys = Object.keys(localStorage).filter(k => !k.startsWith('_'));
-  for(const key of keys) {
-    try {
-      const val = localStorage.getItem(key);
-      await setDoc(doc(db, 'users', UID, 'data', key), { value: val });
-    } catch(e) {}
-  }
-  console.log('Pushed all to cloud ✓');
-};
-
-// Auto-sync on load
-window.addEventListener('load', async () => {
-  await window.sync_from_cloud();
-});
 </script>
 <style>
 :root {
@@ -308,8 +324,9 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div class="clock" id="clock">00:00:00</div>
     <div class="topbar-date" id="topDate"></div>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <span id="syncBadge" style="font-size:11px;color:var(--green);display:none;">☁ synced</span>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <span id="syncBadge" style="font-size:11px;color:var(--green);display:none;"></span>
+    <button id="loginBtn" onclick="googleSignIn()" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;border:none;background:var(--y);color:#000;cursor:pointer;">Sign in with Google</button>
     <div class="topbar-streak" id="topStreak">🔥 0 days</div>
   </div>
 </div>
