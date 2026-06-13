@@ -12,7 +12,7 @@
 <script type="module">
 // ── FIREBASE + GOOGLE AUTH ────────────────────────────────────────────────────
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -40,10 +40,11 @@ onAuthStateChanged(auth, async (user) => {
     if(badge){ badge.textContent = '☁ ' + user.displayName.split(' ')[0]; badge.style.display='inline'; badge.style.color='var(--green)'; }
     const loginBtn = document.getElementById('loginBtn');
     if(loginBtn){ loginBtn.textContent = 'Sign out'; loginBtn.style.background='var(--bg4)'; loginBtn.style.color='var(--t2)'; }
-    // Sync from cloud
-    await window.sync_from_cloud();
+    // Start live sync listener
+    window.sync_from_cloud();
   } else {
     UID = null;
+    if(_unsubscribe){ _unsubscribe(); _unsubscribe = null; }
     const badge = document.getElementById('syncBadge');
     if(badge){ badge.textContent = ''; badge.style.display='none'; }
     const loginBtn = document.getElementById('loginBtn');
@@ -75,19 +76,28 @@ window.sv_cloud = async function(key, value) {
   } catch(e) { console.warn('Firebase write failed:', e); }
 };
 
-window.sync_from_cloud = async function() {
+let _unsubscribe = null;
+
+window.sync_from_cloud = function() {
   if(!UID) return;
-  try {
-    const snap = await getDocs(collection(db, 'users', UID, 'data'));
-    snap.forEach(d => {
-      try {
-        localStorage.setItem(d.id, JSON.stringify(JSON.parse(d.data().value)));
-      } catch(e) {}
+  // Unsubscribe any previous listener
+  if(_unsubscribe) { _unsubscribe(); _unsubscribe = null; }
+  // Live listener — fires instantly whenever any data changes anywhere
+  _unsubscribe = onSnapshot(collection(db, 'users', UID, 'data'), (snap) => {
+    let changed = false;
+    snap.docChanges().forEach(change => {
+      if(change.type === 'added' || change.type === 'modified') {
+        try {
+          const d = change.doc;
+          localStorage.setItem(d.id, JSON.stringify(JSON.parse(d.data().value)));
+          changed = true;
+        } catch(e) {}
+      }
     });
-    if(window.reloadFromStorage) window.reloadFromStorage();
+    if(changed && window.reloadFromStorage) window.reloadFromStorage();
     const badge = document.getElementById('syncBadge');
-    if(badge){ badge.style.display='inline'; }
-  } catch(e) { console.warn('Firebase sync failed:', e); }
+    if(badge){ badge.textContent = '☁ live'; badge.style.display='inline'; badge.style.color='var(--green)'; }
+  }, (err) => { console.warn('Firestore listener error:', err); });
 };
 </script>
 <style>
