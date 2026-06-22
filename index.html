@@ -280,6 +280,51 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .day-btn{padding:3px 9px;border-radius:99px;border:1px solid var(--b2);background:var(--bg4);color:var(--t2);font-size:11px;cursor:pointer;transition:all .15s;}
 .day-btn.on{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:700;}
 
+/* PROJECT BOARD */
+.proj-card{background:var(--bg3);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;}
+.proj-card.complete{opacity:.6;}
+.proj-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.proj-name{font-size:14px;font-weight:700;color:var(--t);}
+.proj-name-input{display:block;width:100%;background:none;border:none;color:var(--t);font-size:14px;font-weight:700;padding:2px 0;outline:none;border-bottom:1px solid transparent;}
+.proj-name-input:focus{border-bottom-color:var(--y);}
+.proj-name-input::placeholder{color:var(--t3);font-weight:400;}
+.proj-client-input{display:block;width:100%;background:none;border:none;color:var(--t2);font-size:11px;padding:2px 0;outline:none;border-bottom:1px solid transparent;margin-top:1px;}
+.proj-client-input:focus{border-bottom-color:var(--y);}
+.proj-client-input::placeholder{color:var(--t3);}
+.proj-amt-input{background:none;border:none;color:var(--y);font-size:16px;font-weight:800;text-align:right;outline:none;border-bottom:1px solid transparent;width:90px;}
+.proj-amt-input:focus{border-bottom-color:var(--y);}
+.proj-amt-input::placeholder{color:var(--t3);}
+.proj-date-input{background:var(--bg4);border:1px solid var(--b2);color:var(--t);font-size:11px;border-radius:4px;padding:3px 5px;outline:none;margin-top:1px;width:100px;}
+.proj-date-input:focus{border-color:var(--y);}
+.proj-client{font-size:11px;color:var(--t2);margin-top:1px;}
+.proj-amt{font-size:16px;font-weight:800;color:var(--y);text-align:right;flex-shrink:0;}
+.proj-amt-sub{font-size:10px;color:var(--t2);text-align:right;}
+.proj-dates{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--t2);margin-bottom:10px;}
+.proj-date-item{display:flex;flex-direction:column;}
+.proj-date-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);}
+.proj-date-val{color:var(--t);font-size:12px;margin-top:1px;}
+.proj-stages{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.proj-stage{flex:1;min-width:110px;display:flex;align-items:center;gap:6px;background:var(--bg4);border:1px solid var(--b2);border-radius:6px;padding:6px 8px;cursor:pointer;transition:all .15s;}
+.proj-stage.done{background:rgba(0,214,143,.12);border-color:var(--green);}
+.proj-stage-chk{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--b3);background:none;flex-shrink:0;position:relative;}
+.proj-stage.done .proj-stage-chk{background:var(--green);border-color:var(--green);}
+.proj-stage.done .proj-stage-chk::after{content:'';position:absolute;top:1px;left:3px;width:4px;height:7px;border:1.5px solid #000;border-top:none;border-left:none;transform:rotate(45deg);}
+.proj-stage-label{font-size:11px;color:var(--t2);}
+.proj-stage.done .proj-stage-label{color:var(--green);}
+.proj-notes{margin-top:8px;}
+.proj-notes textarea{width:100%;background:var(--bg4);border:1px solid var(--b2);color:var(--t);border-radius:6px;padding:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:50px;outline:none;}
+.proj-notes textarea:focus{border-color:var(--y);}
+.proj-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.proj-del-link{font-size:11px;color:var(--t3);cursor:pointer;background:none;border:none;}
+.proj-del-link:hover{color:var(--coral);}
+.proj-progress-track{height:4px;background:var(--bg4);border-radius:99px;overflow:hidden;margin-bottom:10px;}
+.proj-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:99px;transition:width .4s;}
+.await-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--b);font-size:12px;}
+.await-row:last-child{border-bottom:none;}
+.await-name{color:var(--t);}
+.await-sub{font-size:10px;color:var(--t2);}
+.await-amt{color:var(--orange);font-weight:700;}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
@@ -389,10 +434,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       <div class="sec-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--y),#ffb300)"></div>
     </div>
     <div style="font-size:11px;color:var(--t2);margin-bottom:10px;" id="overallSub">0 of 0 complete</div>
-    <div class="stat-lbl" style="margin-bottom:3px;">Current streak</div>
-    <div style="font-size:26px;font-weight:900;color:var(--y);margin-bottom:8px;" id="streakNum">0</div>
-    <div class="stat-lbl" style="margin-bottom:4px;">Best streak: <span id="bestStreak" style="color:var(--t)">0</span> days</div>
-    <div class="s-dots" id="streakDots"></div>
+    <div class="stat-lbl" style="margin-bottom:4px;">Completion trend (14 days)</div>
+    <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
   </div>
 
   <!-- MORNING -->
@@ -428,14 +471,14 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   <div class="card">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--blue)"></span>To-Do</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--blue)" id="todoPct">0%</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddTodo()">+</button>
-      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openAddTodo()">+</button>
     </div>
-    <div class="sec-track"><div class="sec-fill" id="todoBar" style="width:0%;background:var(--blue)"></div></div>
     <div id="todoList"></div>
-    <div id="todoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">All clear 🎉</div>
+    <div id="todoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing pending 🎉</div>
+    <div id="todoArchiveToggle" style="display:none;margin-top:8px;">
+      <button onclick="toggleTodoArchive()" style="font-size:11px;color:var(--t3);background:none;border:none;cursor:pointer;padding:0;" id="archiveToggleBtn">▸ Show completed</button>
+      <div id="todoArchive" style="display:none;margin-top:6px;border-top:1px solid var(--b);padding-top:6px;"></div>
+    </div>
   </div>
 
   <!-- SCHEDULED + JOURNAL -->
@@ -582,6 +625,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="bottleBar" style="width:0%;background:var(--purple)"></div></div>
+    <div class="choose-label">Choose one daily</div>
     <div id="bottleList"></div>
   </div>
 </div>
@@ -598,6 +642,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="contentBar" style="width:0%;background:var(--pink)"></div></div>
+    <div class="choose-label" style="color:var(--t2);">Resets weekly — tracked across the whole week, not daily</div>
     <div id="contentList"></div>
   </div>
 
@@ -611,9 +656,31 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="productBar" style="width:0%;background:var(--orange)"></div></div>
-    <div class="choose-label">Choose one daily</div>
+    <div class="choose-label" style="color:var(--t2);">Resets weekly — tracked across the whole week, not daily</div>
     <div id="productList"></div>
   </div>
+</div>
+
+<!-- === PROJECT BOARD === -->
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <div class="section-divider-label" style="color:var(--green);border-color:var(--green);background:rgba(0,214,143,.08);">📁 Project Board</div>
+  <div class="section-divider-line"></div>
+</div>
+<div class="card" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--green)"></span>Active Projects</div>
+    <button class="btn btn-y btn-sm" onclick="openAddProject()">+ New Project</button>
+  </div>
+  <div id="projectBoard"></div>
+  <div id="projectBoardEmpty" style="font-size:12px;color:var(--t3);padding:10px 0;display:none;">No projects yet — add your first one.</div>
+</div>
+<div class="card" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Awaiting Payment</div>
+  </div>
+  <div id="awaitingPaymentLog"></div>
+  <div id="awaitingEmpty" style="font-size:12px;color:var(--t3);padding:6px 0;display:none;">Nothing pending — all caught up.</div>
 </div>
 
 <!-- === WEEKLY SCHEDULE === -->
@@ -796,8 +863,9 @@ let weekly=ld('weekly',DEF_WEEKLY);
 let todos=ld('todos',[]);
 let goals=ld('goals',DEF_GOALS);
 let revLog=ld('revLog',[]);
+let projects=ld('projects',[]);
 let revFilter='week';
-let revChart=null,compChart=null;
+let revChart=null,compChart=null,trendChart=null;
 
 // biz lists
 let bizSales=ld('bizSales',DEF_BIZ.sales);
@@ -977,47 +1045,69 @@ function openAddWeekly(){
 function renderTodo(){
   var el=document.getElementById('todoList');
   var emp=document.getElementById('todoEmpty');
-  var ds=getDS();
-  var active=todos.filter(function(t){return !ds.t[t.id+'_done'];});
-  var done=todos.filter(function(t){return ds.t[t.id+'_done'];});
-  var all=active.concat(done);
-  var pct=todos.length?Math.round(done.length/todos.length*100):0;
-  applyBar('todoBar','todoPct',pct);
-  if(!all.length){el.innerHTML='';emp.style.display='block';return;}
-  emp.style.display='none';
-  el.innerHTML=all.map(function(t){
-    var isDone=!!ds.t[t.id+'_done'];
-    var ts=ds.t[t.id+'_ts']||'';
-    var row='<div class="task-row" data-tid="'+t.id+'">'
-      +'<button class="chk chk-circle '+(isDone?'done':'')+'" onclick="todoChk(this)"></button>'
-      +'<div class="task-info">'
-      +'<div class="task-name '+(isDone?'done':'')+'">'+t.name+'</div>';
-    if(ts)row+='<div class="task-ts">&#10003; '+ts+'</div>';
-    if(t.dur&&!isDone)row+='<div class="task-dur">&#128336; '+t.dur+'</div>';
-    row+='</div>'
-      +'<button class="task-del" onclick="todoDel(this)">&#215;</button>'
-      +'</div>';
-    return row;
-  }).join('');
+  var archToggle=document.getElementById('todoArchiveToggle');
+  var archEl=document.getElementById('todoArchive');
+  var active=todos.filter(function(t){return !t.completedAt;});
+  var done=todos.filter(function(t){return !!t.completedAt;});
+  if(!active.length){el.innerHTML='';emp.style.display='block';}
+  else{
+    emp.style.display='none';
+    el.innerHTML=active.map(function(t){
+      var row='<div class="task-row" data-tid="'+t.id+'">'
+        +'<button class="chk chk-circle" onclick="todoChk(this)"></button>'
+        +'<div class="task-info"><div class="task-name">'+t.name+'</div>';
+      if(t.dur)row+='<div class="task-dur">&#128336; '+t.dur+'</div>';
+      row+='</div><button class="task-del" onclick="todoDel(this)">&#215;</button></div>';
+      return row;
+    }).join('');
+  }
+  // Archive
+  if(done.length){
+    archToggle.style.display='block';
+    archEl.innerHTML=done.slice().reverse().map(function(t){
+      var d=new Date(t.completedAt);
+      var dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
+      return '<div class="task-row" data-tid="'+t.id+'" style="opacity:.7;">'
+        +'<button class="chk chk-circle done" onclick="todoUnchk(this)" title="Mark incomplete"></button>'
+        +'<div class="task-info"><div class="task-name done">'+t.name+'</div>'
+        +'<div class="task-ts">Done '+dateStr+'</div></div>'
+        +'<button class="task-del" onclick="todoDel(this)">&#215;</button>'
+        +'</div>';
+    }).join('');
+  } else {
+    archToggle.style.display='none';
+  }
+}
+function toggleTodoArchive(){
+  var archEl=document.getElementById('todoArchive');
+  var btn=document.getElementById('archiveToggleBtn');
+  var done=todos.filter(function(t){return !!t.completedAt;});
+  if(archEl.style.display==='none'){
+    archEl.style.display='block';
+    btn.textContent='▾ Hide completed ('+done.length+')';
+  } else {
+    archEl.style.display='none';
+    btn.textContent='▸ Show completed ('+done.length+')';
+  }
 }
 function todoChk(btn){
   var id=btn.closest('.task-row').dataset.tid;
-  var ds=getDS();
-  var wasDone=!!ds.t[id+'_done'];
-  ds.t[id+'_done']=!wasDone;
-  if(!wasDone)ds.t[id+'_ts']=nowStr(); else delete ds.t[id+'_ts'];
-  setDS(ds);renderTodo();
+  var t=todos.find(function(x){return x.id===id;});
+  if(!t)return;
+  t.completedAt=new Date().toISOString();
+  sv('todos',todos);renderTodo();
+}
+function todoUnchk(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  var t=todos.find(function(x){return x.id===id;});
+  if(!t)return;
+  delete t.completedAt;
+  sv('todos',todos);renderTodo();
 }
 function todoDel(btn){
   var id=btn.closest('.task-row').dataset.tid;
   todos=todos.filter(function(t){return t.id!==id;});
   sv('todos',todos);renderTodo();
-}
-function toggleTodo(id){
-  var ds=getDS();var wasDone=!!ds.t[id+'_done'];
-  ds.t[id+'_done']=!wasDone;
-  if(!wasDone)ds.t[id+'_ts']=nowStr(); else delete ds.t[id+'_ts'];
-  setDS(ds);renderTodo();
 }
 function delTodo(id){todos=todos.filter(function(t){return t.id!==id;});sv('todos',todos);renderTodo();}
 function openAddTodo(){
@@ -1040,11 +1130,27 @@ const BIZ_MAP={
   product:{list:()=>bizProduct,sv:l=>{bizProduct=l;sv('bizProduct',l);},bar:'productBar',pct:'productPct',dm:'pr'},
 };
 
+var WEEKLY_BIZ_KEYS=['content','product'];
+function isWeeklyBiz(key){return WEEKLY_BIZ_KEYS.includes(key);}
+function getWeeklyBizDm(key){
+  var wk=ld('wbiz_'+weekKey(),{content:{},product:{}});
+  if(!wk.content)wk.content={};
+  if(!wk.product)wk.product={};
+  return wk[key];
+}
+function setWeeklyBizDm(key,dm){
+  var wk=ld('wbiz_'+weekKey(),{content:{},product:{}});
+  if(!wk.content)wk.content={};
+  if(!wk.product)wk.product={};
+  wk[key]=dm;
+  sv('wbiz_'+weekKey(),wk);
+}
+
 function renderBizSection(key,elId,dmKey){
   var cfg=BIZ_MAP[key];
   var tasks=cfg.list();
-  var ds=getDS();
-  var dm=ds[dmKey||cfg.dm];
+  var weekly_=isWeeklyBiz(key);
+  var dm=weekly_?getWeeklyBizDm(key):getDS()[dmKey||cfg.dm];
   var el=document.getElementById(elId);
   el.innerHTML=tasks.map(function(t){
     var done=!!dm[t.id];
@@ -1096,13 +1202,23 @@ function renderAllBiz(){
   renderBizSection('money','moneyList','mo');applyBar('moneyBar','moneyPct',calcPct(bizMoney,ds.mo));
   renderBizSection('admin','adminList','a');applyBar('adminBar','adminPct',calcPct(bizAdmin,ds.a));
   renderBizSection('bottle','bottleList','bt');applyBar('bottleBar','bottlePct',calcPct(bizBottle,ds.bt));
-  renderBizSection('content','contentList','co');applyBar('contentBar','contentPct',calcPct(bizContent,ds.co));
+  renderBizSection('content','contentList','co');
+  const contentDm=getWeeklyBizDm('content');
+  applyBar('contentBar','contentPct',calcPct(bizContent,contentDm));
   renderBizSection('product','productList','pr');
-  const productAnyDone=bizProduct.some(t=>ds.pr[t.id]);
-  applyBar('productBar','productPct',productAnyDone?100:0);
+  const productDm=getWeeklyBizDm('product');
+  applyBar('productBar','productPct',calcPct(bizProduct,productDm));
 }
 
 function toggleBiz(key,id){
+  if(isWeeklyBiz(key)){
+    var wdm=getWeeklyBizDm(key);
+    wdm[id]=!wdm[id];
+    if(wdm[id])wdm[id+'_ts']=nowStr();else delete wdm[id+'_ts'];
+    setWeeklyBizDm(key,wdm);
+    renderAllBiz();
+    return;
+  }
   const cfg=BIZ_MAP[key];const ds=getDS();const dm=ds[cfg.dm];
   dm[id]=!dm[id];
   if(dm[id])dm[id+'_ts']=nowStr();else delete dm[id+'_ts'];
@@ -1141,28 +1257,27 @@ function renderOverall(){
   const todayW=weekly.filter(w=>w.days.includes(today));
   total+=todayW.length;done+=todayW.filter(w=>ds.w[w.id]).length;
   // include biz — choose-one sections count as 1 task worth
-  // Sales: 1 task, done if any checked
+  // Sales: choose one = 1 task
   done += bizSales.some(t=>ds.s[t.id]) ? 1 : 0; total += 1;
-  // Vis non-non: normal
+  // Vis non-non: normal (daily)
   total+=bizVisNon.length; done+=bizVisNon.filter(t=>ds.vn[t.id]).length;
-  // Vis choose-one: 1 task, done if any checked
+  // Vis choose-one: 1 task
   done += bizVis.some(t=>ds.v[t.id]) ? 1 : 0; total += 1;
-  // Client, Money, Admin, Bottle, Content: normal
-  [{l:bizClient,dm:ds.c},{l:bizMoney,dm:ds.mo},{l:bizAdmin,dm:ds.a},{l:bizBottle,dm:ds.bt},{l:bizContent,dm:ds.co}]
+  // Client, Money, Admin: normal daily tasks
+  [{l:bizClient,dm:ds.c},{l:bizMoney,dm:ds.mo},{l:bizAdmin,dm:ds.a}]
     .forEach(({l,dm})=>{total+=l.length;done+=l.filter(t=>dm[t.id]).length;});
-  // Product: choose-one, 1 task
-  done += bizProduct.some(t=>ds.pr[t.id]) ? 1 : 0; total += 1;
+  // Bottlenecks/Systems: choose-one daily = 1 task
+  done += bizBottle.some(t=>ds.bt[t.id]) ? 1 : 0; total += 1;
+  // Content + Product: WEEKLY, not daily — excluded from daily overall total
   const pct=total?Math.round(done/total*100):0;
   document.getElementById('overallBar').style.width=pct+'%';
   document.getElementById('overallPct').textContent=pct+'%';
   document.getElementById('overallSub').textContent=`${done} of ${total} complete`;
   const hist=ld('hist',{});if(viewingDay===0){hist[todayKey()]=pct;sv('hist',hist);}
   const streak=calcStreak(hist);
-  document.getElementById('streakNum').textContent=streak.current;
-  document.getElementById('bestStreak').textContent=streak.best;
-  document.getElementById('topStreak').textContent='🔥 '+streak.current+' day'+(streak.current===1?'':'s');
   sv('streakData',streak);
-  renderStreakDots(hist);renderCompChart(hist);
+  document.getElementById('topStreak').textContent='🔥 '+streak.current+' day'+(streak.current===1?'':'s');
+  renderTrendChart(hist);renderCompChart(hist);
 }
 
 function calcStreak(hist){
@@ -1178,16 +1293,33 @@ function calcStreak(hist){
   return{current,best,total};
 }
 
-function renderStreakDots(hist){
-  let html='';
+function renderTrendChart(hist){
+  const labels=[],values=[];
   for(let i=13;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
     const k=`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
-    const pct=hist[k]||0;
-    const cls=pct===100?'full':pct>0?'partial':'';
-    html+=`<div class="s-dot ${cls}">${pct===100?'✓':d.getDate()}</div>`;
+    labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+    values.push(hist[k]||0);
   }
-  document.getElementById('streakDots').innerHTML=html;
+  if(trendChart)trendChart.destroy();
+  const canvas=document.getElementById('trendChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  trendChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[{
+      data:values,
+      borderColor:'#fed000',
+      backgroundColor:'rgba(254,208,0,0.08)',
+      fill:true,tension:0.35,
+      pointBackgroundColor:'#fed000',
+      pointRadius:2,
+      borderWidth:2
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#444',font:{size:8},maxTicksLimit:5},grid:{display:false}},
+              y:{ticks:{color:'#444',font:{size:8},stepSize:50},grid:{color:'#161616'},min:0,max:100}}}
+  });
 }
 
 function renderCompChart(hist){
@@ -1222,15 +1354,38 @@ function loadTodayJournal(){
   if(e)document.getElementById('journalInput').value=e;
 }
 function renderJournalHistory(){
-  const journals=ld('journals',{});const hist=ld('hist',{});
-  const keys=Object.keys(journals).sort().reverse();
-  const el=document.getElementById('journalHistory');const emp=document.getElementById('journalEmpty');
+  var journals=ld('journals',{});var hist=ld('hist',{});
+  var keys=Object.keys(journals).sort().reverse();
+  var el=document.getElementById('journalHistory');var emp=document.getElementById('journalEmpty');
   if(!keys.length){el.innerHTML='';emp.style.display='block';return;}
   emp.style.display='none';
-  el.innerHTML=keys.map(k=>`<div class="j-entry">
-    <div class="j-date">${fmtDate(k)} — ${hist[k]||0}% day</div>
-    <div class="j-text">${journals[k].replace(/\n/g,'<br>').slice(0,160)}${journals[k].length>160?'…':''}</div>
-  </div>`).join('');
+  el.innerHTML=keys.map(function(k){
+    var text=journals[k];
+    var pct=hist[k]||0;
+    var preview=text.replace(/\n/g,' ').slice(0,100)+(text.length>100?'...':'');
+    return '<div class="j-entry" id="je-'+k+'">'
+      +'<div class="j-date" data-jk="'+k+'" onclick="toggleJEntry(this.dataset.jk)" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">'
+      +'<span>'+fmtDate(k)+' <span style="color:var(--t2);font-weight:400;">— '+pct+'% day</span></span>'
+      +'<span id="je-arrow-'+k+'" style="color:var(--t3);font-size:11px;">▸</span>'
+      +'</div>'
+      +'<div id="je-preview-'+k+'" class="j-text" style="margin-top:3px;">'+preview+'</div>'
+      +'<div id="je-full-'+k+'" style="display:none;margin-top:6px;font-size:12px;color:var(--t);line-height:1.6;white-space:pre-wrap;">'+text+'</div>'
+      +'</div>';
+  }).join('');
+}
+function toggleJEntry(k){
+  var preview=document.getElementById('je-preview-'+k);
+  var full=document.getElementById('je-full-'+k);
+  var arrow=document.getElementById('je-arrow-'+k);
+  if(full.style.display==='none'){
+    full.style.display='block';
+    preview.style.display='none';
+    arrow.textContent='▾';
+  } else {
+    full.style.display='none';
+    preview.style.display='block';
+    arrow.textContent='▸';
+  }
 }
 
 // -- REVENUE ------------------------------------------------------------------─
@@ -1734,9 +1889,7 @@ function doExport() {
     {list:bizClient, dm_key:'c', sec:'Client Comms'},
     {list:bizMoney, dm_key:'mo', sec:'Money'},
     {list:bizAdmin, dm_key:'a', sec:'Admin'},
-    {list:bizBottle, dm_key:'bt', sec:'Systems'},
-    {list:bizContent, dm_key:'co', sec:'Content'},
-    {list:bizProduct, dm_key:'pr', sec:'Product'},
+    {list:bizBottle, dm_key:'bt', sec:'Systems (choose one)'},
   ];
   allTasks.forEach(function(g){
     g.list.forEach(function(t){
@@ -1752,6 +1905,27 @@ function doExport() {
           if(ds[g.dm_key] && ds[g.dm_key][t.id]) taskBreakdown[t.id].done++;
         }
       });
+    });
+  });
+
+  // Weekly-tracked sections (Content + Product) — summarized by week, not by day
+  var weeksInRange=[];
+  daysInRange.forEach(function(k){
+    var dt=new Date(k);
+    var jan1=new Date(dt.getFullYear(),0,1);
+    var wk=Math.ceil(((dt-jan1)/86400000+jan1.getDay()+1)/7);
+    var wkKey=dt.getFullYear()+'-W'+(''+wk).padStart(2,'0');
+    if(!weeksInRange.includes(wkKey))weeksInRange.push(wkKey);
+  });
+  var weeklyBizSummary=[];
+  weeksInRange.forEach(function(wkKey){
+    var wbiz=ld('wbiz_'+wkKey,{content:{},product:{}});
+    var contentDone=bizContent.filter(function(t){return wbiz.content&&wbiz.content[t.id];}).length;
+    var productDone=bizProduct.filter(function(t){return wbiz.product&&wbiz.product[t.id];}).length;
+    weeklyBizSummary.push({
+      week:wkKey,
+      content:contentDone+'/'+bizContent.length,
+      product:productDone+'/'+bizProduct.length
     });
   });
 
@@ -1859,6 +2033,194 @@ function checkMonthEnd() {
 }
 
 // -- INIT ----------------------------------------------------------------------
+// -- PROJECT BOARD --------------------------------------------------------------
+function fmtDateShort(s){
+  if(!s)return '';
+  var parts=s.split('-').map(Number);
+  return new Date(parts[0],parts[1]-1,parts[2]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function renderProjects(){
+  var el=document.getElementById('projectBoard');
+  var emp=document.getElementById('projectBoardEmpty');
+  if(!projects.length){el.innerHTML='';emp.style.display='block';renderAwaitingPayment();return;}
+  emp.style.display='none';
+
+  var sorted=projects.slice().sort(function(a,b){
+    var aDone=a.stages.final?1:0, bDone=b.stages.final?1:0;
+    if(aDone!==bDone)return aDone-bDone;
+    return (a.dueDate||'9999').localeCompare(b.dueDate||'9999');
+  });
+
+  el.innerHTML=sorted.map(function(p){
+    var stagesDone=['contract','deposit','delivered','final'].filter(function(s){return p.stages[s];}).length;
+    var pct=Math.round(stagesDone/4*100);
+    var isComplete=p.stages.final;
+    var amt=p.amount||0;
+    var half=amt/2;
+
+    var html='<div class="proj-card '+(isComplete?'complete':'')+'" data-pid="'+p.id+'">';
+
+    html+='<div class="proj-hd">';
+    html+='<div style="flex:1;">';
+    html+='<input class="proj-name-input" data-field="name" value="'+escAttr(p.name)+'" placeholder="Project name" onchange="updateProjField(this)">';
+    html+='<input class="proj-client-input" data-field="client" value="'+escAttr(p.client||'')+'" placeholder="Client name (optional)" onchange="updateProjField(this)">';
+    html+='</div>';
+    html+='<div style="text-align:right;flex-shrink:0;">';
+    html+='<div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;">';
+    html+='<span style="font-size:14px;color:var(--y);font-weight:800;">$</span>';
+    html+='<input class="proj-amt-input" data-field="amount" type="number" value="'+amt+'" placeholder="0" onchange="updateProjField(this)">';
+    html+='</div>';
+    html+='<div class="proj-amt-sub">$'+Math.round(half).toLocaleString()+' x2</div>';
+    html+='</div>';
+    html+='</div>';
+
+    html+='<div class="proj-progress-track"><div class="proj-progress-fill" style="width:'+pct+'%"></div></div>';
+
+    html+='<div class="proj-dates">';
+    html+='<div class="proj-date-item"><span class="proj-date-lbl">Start</span><input class="proj-date-input" data-field="startDate" type="date" value="'+(p.startDate||'')+'" onchange="updateProjField(this)"></div>';
+    html+='<div class="proj-date-item"><span class="proj-date-lbl">Shoot</span><input class="proj-date-input" data-field="shootDate" type="date" value="'+(p.shootDate||'')+'" onchange="updateProjField(this)"></div>';
+    html+='<div class="proj-date-item"><span class="proj-date-lbl">Due</span><input class="proj-date-input" data-field="dueDate" type="date" value="'+(p.dueDate||'')+'" onchange="updateProjField(this)"></div>';
+    html+='</div>';
+
+    html+='<div class="proj-stages">';
+    var stageDefs=[
+      {k:'contract',l:'Contract / deposit sent'},
+      {k:'deposit',l:'Deposit paid'},
+      {k:'delivered',l:'Delivered — awaiting final'},
+      {k:'final',l:'Final payment received'}
+    ];
+    stageDefs.forEach(function(sd){
+      var done=!!p.stages[sd.k];
+      html+='<div class="proj-stage '+(done?'done':'')+'" data-stage="'+sd.k+'" onclick="toggleProjStage(this)">';
+      html+='<div class="proj-stage-chk"></div><div class="proj-stage-label">'+sd.l+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+
+    html+='<div class="proj-notes"><textarea placeholder="Notes — where this project stands..." onchange="updateProjNote(this)">'+(p.notes||'')+'</textarea></div>';
+
+    html+='<div class="proj-footer">';
+    html+='<span style="font-size:10px;color:var(--t3);">'+stagesDone+'/4 stages</span>';
+    html+='<button class="proj-del-link" onclick="deleteProject(this)">Delete project</button>';
+    html+='</div>';
+
+    html+='</div>';
+    return html;
+  }).join('');
+
+  renderAwaitingPayment();
+}
+
+function escAttr(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+function updateProjField(input){
+  var card=input.closest('.proj-card');
+  var pid=card.dataset.pid;
+  var field=input.dataset.field;
+  var p=projects.find(function(x){return x.id===pid;});
+  if(!p)return;
+  var val=input.value;
+  if(field==='amount'){
+    val=parseFloat(val)||0;
+  }
+  p[field]=val;
+  sv('projects',projects);
+  // Re-render to update derived values (half amounts, progress, sort order)
+  renderProjects();
+  renderRevenue();
+}
+
+function toggleProjStage(el){
+  var card=el.closest('.proj-card');
+  var pid=card.dataset.pid;
+  var stage=el.dataset.stage;
+  var p=projects.find(function(x){return x.id===pid;});
+  if(!p)return;
+
+  var wasOn=!!p.stages[stage];
+  p.stages[stage]=!wasOn;
+
+  // Auto-post to revenue when deposit or final is checked ON
+  if(!wasOn && (stage==='deposit' || stage==='final')){
+    var half=Math.round(p.amount/2);
+    var label=(stage==='deposit'?'Deposit -- ':'Final payment -- ')+p.name;
+    revLog.unshift({id:'r'+Date.now(),job:label,amount:half,date:todayKey(),projectId:p.id,stage:stage});
+    sv('revLog',revLog);
+  }
+  // If unchecking, remove the matching revenue entry we auto-created
+  if(wasOn && (stage==='deposit' || stage==='final')){
+    revLog=revLog.filter(function(r){return !(r.projectId===p.id && r.stage===stage);});
+    sv('revLog',revLog);
+  }
+
+  sv('projects',projects);
+  renderProjects();
+  renderRevenue();
+}
+
+function updateProjNote(textarea){
+  var card=textarea.closest('.proj-card');
+  var pid=card.dataset.pid;
+  var p=projects.find(function(x){return x.id===pid;});
+  if(!p)return;
+  p.notes=textarea.value;
+  sv('projects',projects);
+}
+
+function deleteProject(btn){
+  var card=btn.closest('.proj-card');
+  var pid=card.dataset.pid;
+  projects=projects.filter(function(p){return p.id!==pid;});
+  // also clean up any revenue entries tied to this project
+  revLog=revLog.filter(function(r){return r.projectId!==pid;});
+  sv('projects',projects);sv('revLog',revLog);
+  renderProjects();renderRevenue();
+}
+
+function openAddProject(){
+  openModal('New Project','Project name...','',false,function(name){
+    if(!name.trim())return;
+    projects.unshift({
+      id:'p'+Date.now(),
+      name:name.trim(),
+      amount:0,
+      client:'',
+      startDate:'',
+      shootDate:'',
+      dueDate:'',
+      stages:{contract:false,deposit:false,delivered:false,final:false},
+      notes:''
+    });
+    sv('projects',projects);
+    renderProjects();
+  });
+}
+
+function renderAwaitingPayment(){
+  var el=document.getElementById('awaitingPaymentLog');
+  var emp=document.getElementById('awaitingEmpty');
+  var pending=projects.filter(function(p){
+    return !p.stages.final; // not fully paid yet
+  });
+  if(!pending.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  el.innerHTML=pending.map(function(p){
+    var half=Math.round(p.amount/2);
+    var waitingFor='';
+    var amt=half;
+    if(!p.stages.deposit){waitingFor='Deposit payment';amt=half;}
+    else if(!p.stages.delivered){waitingFor='Project delivery';amt=half;}
+    else if(!p.stages.final){waitingFor='Final payment';amt=half;}
+    return '<div class="await-row">'
+      +'<div><div class="await-name">'+p.name+(p.client?' -- '+p.client:'')+'</div><div class="await-sub">Waiting on: '+waitingFor+'</div></div>'
+      +'<div class="await-amt">$'+amt.toLocaleString()+'</div>'
+      +'</div>';
+  }).join('');
+}
+
 function renderAll(){
   renderSection('morning');
   renderSection('evening');
@@ -1871,6 +2233,7 @@ function renderAll(){
   renderRevenue();
   renderWeeklyGrid();
   renderCalEvents();
+  renderProjects();
 }
 
 function reloadFromStorage(){
@@ -1880,6 +2243,7 @@ function reloadFromStorage(){
   todos=ld('todos',[]);
   goals=ld('goals',DEF_GOALS);
   revLog=ld('revLog',[]);
+  projects=ld('projects',[]);
   bizSales=ld('bizSales',DEF_BIZ.sales);
   bizVisNon=ld('bizVisNon',DEF_BIZ.visNon);
   bizVis=ld('bizVis',DEF_BIZ.visibility);
