@@ -473,12 +473,14 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       <div class="card-title"><span class="dot" style="background:var(--blue)"></span>To-Do</div>
       <button class="btn btn-ghost btn-sm" onclick="openAddTodo()">+</button>
     </div>
+    <div class="filter-row" style="margin-bottom:8px;">
+      <div class="fpill active" id="todoViewActive" onclick="setTodoView('active',this)">To-Do</div>
+      <div class="fpill" id="todoViewDone" onclick="setTodoView('done',this)">Completed</div>
+    </div>
     <div id="todoList"></div>
     <div id="todoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing pending 🎉</div>
-    <div id="todoArchiveToggle" style="display:none;margin-top:8px;">
-      <button onclick="toggleTodoArchive()" style="font-size:11px;color:var(--t3);background:none;border:none;cursor:pointer;padding:0;" id="archiveToggleBtn">▸ Show completed</button>
-      <div id="todoArchive" style="display:none;margin-top:6px;border-top:1px solid var(--b);padding-top:6px;"></div>
-    </div>
+    <div id="todoArchive"></div>
+    <div id="todoArchiveEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing completed yet.</div>
   </div>
 
   <!-- SCHEDULED + JOURNAL -->
@@ -661,28 +663,6 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
-<!-- === PROJECT BOARD === -->
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label" style="color:var(--green);border-color:var(--green);background:rgba(0,214,143,.08);">📁 Project Board</div>
-  <div class="section-divider-line"></div>
-</div>
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--green)"></span>Active Projects</div>
-    <button class="btn btn-y btn-sm" onclick="openAddProject()">+ New Project</button>
-  </div>
-  <div id="projectBoard"></div>
-  <div id="projectBoardEmpty" style="font-size:12px;color:var(--t3);padding:10px 0;display:none;">No projects yet — add your first one.</div>
-</div>
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Awaiting Payment</div>
-  </div>
-  <div id="awaitingPaymentLog"></div>
-  <div id="awaitingEmpty" style="font-size:12px;color:var(--t3);padding:6px 0;display:none;">Nothing pending — all caught up.</div>
-</div>
-
 <!-- === WEEKLY SCHEDULE === -->
 <div class="section-divider">
   <div class="section-divider-line"></div>
@@ -695,6 +675,34 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()">+ Add Recurring</button>
   </div>
   <div class="weekly-grid" id="weeklyGrid"></div>
+</div>
+
+<!-- === PROJECT BOARD === -->
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <div class="section-divider-label" style="color:var(--green);border-color:var(--green);background:rgba(0,214,143,.08);">📁 Project Board</div>
+  <div class="section-divider-line"></div>
+</div>
+<div class="card" style="margin-bottom:10px;">
+  <div class="card-hd" onclick="toggleProjectBoard()" style="cursor:pointer;">
+    <div class="card-title"><span class="dot" style="background:var(--green)"></span>Active Projects</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-y btn-sm" onclick="event.stopPropagation();openAddProject()">+ New Project</button>
+      <span id="projBoardArrow" style="font-size:13px;color:var(--t2);">▾</span>
+    </div>
+  </div>
+  <div id="projectBoardWrap">
+    <div id="projectBoard"></div>
+    <div id="projectBoardEmpty" style="font-size:12px;color:var(--t3);padding:10px 0;display:none;">No projects yet — add your first one.</div>
+  </div>
+</div>
+<div class="card" style="margin-bottom:10px;" id="awaitingCard">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Awaiting Payment</div>
+    <div style="font-size:16px;font-weight:800;color:var(--orange);" id="awaitingTotal">$0</div>
+  </div>
+  <div id="awaitingPaymentLog"></div>
+  <div id="awaitingEmpty" style="font-size:12px;color:var(--t3);padding:6px 0;display:none;">Nothing pending — all caught up.</div>
 </div>
 
 </div><!-- /dashboard -->
@@ -1042,52 +1050,58 @@ function openAddWeekly(){
 }
 
 // -- TODO ----------------------------------------------------------------------
+var todoView=ld('todoView','active');
+
+function setTodoView(view,btn){
+  todoView=view;
+  sv('todoView',view);
+  document.getElementById('todoViewActive').classList.toggle('active',view==='active');
+  document.getElementById('todoViewDone').classList.toggle('active',view==='done');
+  renderTodo();
+}
+
 function renderTodo(){
   var el=document.getElementById('todoList');
   var emp=document.getElementById('todoEmpty');
-  var archToggle=document.getElementById('todoArchiveToggle');
   var archEl=document.getElementById('todoArchive');
+  var archEmp=document.getElementById('todoArchiveEmpty');
   var active=todos.filter(function(t){return !t.completedAt;});
   var done=todos.filter(function(t){return !!t.completedAt;});
-  if(!active.length){el.innerHTML='';emp.style.display='block';}
-  else{
-    emp.style.display='none';
-    el.innerHTML=active.map(function(t){
-      var row='<div class="task-row" data-tid="'+t.id+'">'
-        +'<button class="chk chk-circle" onclick="todoChk(this)"></button>'
-        +'<div class="task-info"><div class="task-name">'+t.name+'</div>';
-      if(t.dur)row+='<div class="task-dur">&#128336; '+t.dur+'</div>';
-      row+='</div><button class="task-del" onclick="todoDel(this)">&#215;</button></div>';
-      return row;
-    }).join('');
-  }
-  // Archive
-  if(done.length){
-    archToggle.style.display='block';
-    archEl.innerHTML=done.slice().reverse().map(function(t){
-      var d=new Date(t.completedAt);
-      var dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
-      return '<div class="task-row" data-tid="'+t.id+'" style="opacity:.7;">'
-        +'<button class="chk chk-circle done" onclick="todoUnchk(this)" title="Mark incomplete"></button>'
-        +'<div class="task-info"><div class="task-name done">'+t.name+'</div>'
-        +'<div class="task-ts">Done '+dateStr+'</div></div>'
-        +'<button class="task-del" onclick="todoDel(this)">&#215;</button>'
-        +'</div>';
-    }).join('');
+
+  document.getElementById('todoViewActive').classList.toggle('active',todoView==='active');
+  document.getElementById('todoViewDone').classList.toggle('active',todoView==='done');
+
+  if(todoView==='active'){
+    el.style.display='block';archEl.style.display='none';archEmp.style.display='none';
+    if(!active.length){el.innerHTML='';emp.style.display='block';}
+    else{
+      emp.style.display='none';
+      el.innerHTML=active.map(function(t){
+        var row='<div class="task-row" data-tid="'+t.id+'">'
+          +'<button class="chk chk-circle" onclick="todoChk(this)"></button>'
+          +'<div class="task-info"><div class="task-name">'+t.name+'</div>';
+        if(t.dur)row+='<div class="task-dur">&#128336; '+t.dur+'</div>';
+        row+='</div><button class="task-del" onclick="todoDel(this)">&#215;</button></div>';
+        return row;
+      }).join('');
+    }
   } else {
-    archToggle.style.display='none';
-  }
-}
-function toggleTodoArchive(){
-  var archEl=document.getElementById('todoArchive');
-  var btn=document.getElementById('archiveToggleBtn');
-  var done=todos.filter(function(t){return !!t.completedAt;});
-  if(archEl.style.display==='none'){
-    archEl.style.display='block';
-    btn.textContent='▾ Hide completed ('+done.length+')';
-  } else {
-    archEl.style.display='none';
-    btn.textContent='▸ Show completed ('+done.length+')';
+    el.style.display='none';emp.style.display='none';
+    if(!done.length){archEl.innerHTML='';archEmp.style.display='block';}
+    else{
+      archEmp.style.display='none';
+      archEl.style.display='block';
+      archEl.innerHTML=done.slice().reverse().map(function(t){
+        var d=new Date(t.completedAt);
+        var dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
+        return '<div class="task-row" data-tid="'+t.id+'" style="opacity:.7;">'
+          +'<button class="chk chk-circle done" onclick="todoUnchk(this)" title="Mark incomplete"></button>'
+          +'<div class="task-info"><div class="task-name done">'+t.name+'</div>'
+          +'<div class="task-ts">Done '+dateStr+'</div></div>'
+          +'<button class="task-del" onclick="todoDel(this)">&#215;</button>'
+          +'</div>';
+      }).join('');
+    }
   }
 }
 function todoChk(btn){
@@ -1345,7 +1359,7 @@ function renderCompChart(hist){
 function saveJournal(){
   const text=document.getElementById('journalInput').value.trim();
   if(!text)return;
-  const journals=ld('journals',{});journals[todayKey()]=text;sv('journals',journals);
+  const journals=ld('journals',{});journals[viewKey()]=text;sv('journals',journals);
   const s=document.getElementById('journalSaved');s.style.display='inline';
   setTimeout(()=>s.style.display='none',2000);renderJournalHistory();
 }
@@ -1369,7 +1383,13 @@ function renderJournalHistory(){
       +'<span id="je-arrow-'+k+'" style="color:var(--t3);font-size:11px;">▸</span>'
       +'</div>'
       +'<div id="je-preview-'+k+'" class="j-text" style="margin-top:3px;">'+preview+'</div>'
-      +'<div id="je-full-'+k+'" style="display:none;margin-top:6px;font-size:12px;color:var(--t);line-height:1.6;white-space:pre-wrap;">'+text+'</div>'
+      +'<div id="je-full-'+k+'" style="display:none;margin-top:6px;">'
+      +'<textarea data-jk="'+k+'" class="jta" style="height:auto;min-height:90px;font-size:12px;" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';">'+text+'</textarea>'
+      +'<div style="display:flex;gap:6px;margin-top:5px;align-items:center;">'
+      +'<button class="btn btn-y btn-sm" data-jk="'+k+'" onclick="saveJEntry(this)">Save</button>'
+      +'<span id="je-saved-'+k+'" style="font-size:11px;color:var(--green);display:none;">&#10003; Saved</span>'
+      +'</div>'
+      +'</div>'
       +'</div>';
   }).join('');
 }
@@ -1381,10 +1401,33 @@ function toggleJEntry(k){
     full.style.display='block';
     preview.style.display='none';
     arrow.textContent='▾';
+    var ta=full.querySelector('textarea');
+    if(ta){setTimeout(function(){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';},10);}
   } else {
     full.style.display='none';
     preview.style.display='block';
     arrow.textContent='▸';
+  }
+}
+function saveJEntry(btn){
+  var k=btn.dataset.jk;
+  var ta=document.querySelector('textarea[data-jk="'+k+'"]');
+  if(!ta)return;
+  var journals=ld('journals',{});
+  journals[k]=ta.value;
+  sv('journals',journals);
+  var saved=document.getElementById('je-saved-'+k);
+  if(saved){saved.style.display='inline';setTimeout(function(){saved.style.display='none';},2000);}
+  // update preview text without full re-render (keeps it expanded)
+  var preview=document.getElementById('je-preview-'+k);
+  if(preview){
+    var text=ta.value;
+    preview.textContent=text.replace(/\n/g,' ').slice(0,100)+(text.length>100?'...':'');
+  }
+  // if this is today, also update the main journal box
+  if(k===todayKey()){
+    var mainInput=document.getElementById('journalInput');
+    if(mainInput)mainInput.value=ta.value;
   }
 }
 
@@ -2034,6 +2077,15 @@ function checkMonthEnd() {
 
 // -- INIT ----------------------------------------------------------------------
 // -- PROJECT BOARD --------------------------------------------------------------
+function toggleProjectBoard(){
+  var wrap=document.getElementById('projectBoardWrap');
+  var arrow=document.getElementById('projBoardArrow');
+  var collapsed=ld('projBoardCollapsed',false);
+  collapsed=!collapsed;
+  sv('projBoardCollapsed',collapsed);
+  wrap.style.display=collapsed?'none':'block';
+  arrow.textContent=collapsed?'▸':'▾';
+}
 function fmtDateShort(s){
   if(!s)return '';
   var parts=s.split('-').map(Number);
@@ -2073,6 +2125,14 @@ function renderProjects(){
     html+='</div>';
     html+='<div class="proj-amt-sub">$'+Math.round(half).toLocaleString()+' x2</div>';
     html+='</div>';
+    html+='</div>';
+
+    var addons=p.addons||0;
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--t2);">';
+    html+='<span>+ Add-ons:</span>';
+    html+='<span style="color:var(--y);">$</span>';
+    html+='<input class="proj-amt-input" data-field="addons" type="number" value="'+addons+'" placeholder="0" onchange="updateProjField(this)" style="width:60px;font-size:12px;font-weight:700;text-align:left;">';
+    html+='<span style="color:var(--t3);">(added to final payment)</span>';
     html+='</div>';
 
     html+='<div class="proj-progress-track"><div class="proj-progress-fill" style="width:'+pct+'%"></div></div>';
@@ -2123,12 +2183,25 @@ function updateProjField(input){
   var p=projects.find(function(x){return x.id===pid;});
   if(!p)return;
   var val=input.value;
-  if(field==='amount'){
+  if(field==='amount'||field==='addons'){
     val=parseFloat(val)||0;
   }
   p[field]=val;
+
+  // If final payment already posted to revenue, update that entry's amount to reflect new total/addons
+  if((field==='amount'||field==='addons') && p.stages && p.stages.final){
+    var half=Math.round((p.amount||0)/2)+(p.addons||0);
+    var entry=revLog.find(function(r){return r.projectId===p.id && r.stage==='final';});
+    if(entry){entry.amount=half;sv('revLog',revLog);}
+  }
+  // Same for deposit if amount changes
+  if(field==='amount' && p.stages && p.stages.deposit){
+    var halfDep=Math.round((p.amount||0)/2);
+    var entryDep=revLog.find(function(r){return r.projectId===p.id && r.stage==='deposit';});
+    if(entryDep){entryDep.amount=halfDep;sv('revLog',revLog);}
+  }
+
   sv('projects',projects);
-  // Re-render to update derived values (half amounts, progress, sort order)
   renderProjects();
   renderRevenue();
 }
@@ -2145,7 +2218,8 @@ function toggleProjStage(el){
 
   // Auto-post to revenue when deposit or final is checked ON
   if(!wasOn && (stage==='deposit' || stage==='final')){
-    var half=Math.round(p.amount/2);
+    var half=Math.round((p.amount||0)/2);
+    if(stage==='final')half+=(p.addons||0); // add-ons get added to final payment
     var label=(stage==='deposit'?'Deposit -- ':'Final payment -- ')+p.name;
     revLog.unshift({id:'r'+Date.now(),job:label,amount:half,date:todayKey(),projectId:p.id,stage:stage});
     sv('revLog',revLog);
@@ -2187,6 +2261,7 @@ function openAddProject(){
       id:'p'+Date.now(),
       name:name.trim(),
       amount:0,
+      addons:0,
       client:'',
       startDate:'',
       shootDate:'',
@@ -2202,23 +2277,46 @@ function openAddProject(){
 function renderAwaitingPayment(){
   var el=document.getElementById('awaitingPaymentLog');
   var emp=document.getElementById('awaitingEmpty');
+  var totalEl=document.getElementById('awaitingTotal');
   var pending=projects.filter(function(p){
-    return !p.stages.final; // not fully paid yet
+    return !p.stages.deposit || !p.stages.final; // owed on deposit AND/OR final
   });
-  if(!pending.length){el.innerHTML='';emp.style.display='block';return;}
+  if(!pending.length){
+    el.innerHTML='';emp.style.display='block';
+    if(totalEl)totalEl.textContent='$0';
+    return;
+  }
   emp.style.display='none';
+
+  var grandTotal=0;
   el.innerHTML=pending.map(function(p){
-    var half=Math.round(p.amount/2);
-    var waitingFor='';
-    var amt=half;
-    if(!p.stages.deposit){waitingFor='Deposit payment';amt=half;}
-    else if(!p.stages.delivered){waitingFor='Project delivery';amt=half;}
-    else if(!p.stages.final){waitingFor='Final payment';amt=half;}
+    var half=Math.round((p.amount||0)/2);
+    var finalAmt=half+(p.addons||0);
+    var owedDeposit=!p.stages.deposit;
+    var owedFinal=!p.stages.final;
+    var rowTotal=0;
+    var waitingParts=[];
+
+    if(owedDeposit){
+      rowTotal+=half;
+      waitingParts.push('Deposit ($'+half.toLocaleString()+')');
+    }
+    if(owedFinal){
+      rowTotal+=finalAmt;
+      var finalLabel='Final ($'+finalAmt.toLocaleString()+')';
+      if(!p.stages.delivered)finalLabel+=' — not delivered yet';
+      waitingParts.push(finalLabel);
+    }
+
+    grandTotal+=rowTotal;
+
     return '<div class="await-row">'
-      +'<div><div class="await-name">'+p.name+(p.client?' -- '+p.client:'')+'</div><div class="await-sub">Waiting on: '+waitingFor+'</div></div>'
-      +'<div class="await-amt">$'+amt.toLocaleString()+'</div>'
+      +'<div><div class="await-name">'+p.name+(p.client?' -- '+p.client:'')+'</div><div class="await-sub">Waiting on: '+waitingParts.join(' + ')+'</div></div>'
+      +'<div class="await-amt">$'+rowTotal.toLocaleString()+'</div>'
       +'</div>';
   }).join('');
+
+  if(totalEl)totalEl.textContent='$'+grandTotal.toLocaleString();
 }
 
 function renderAll(){
@@ -2234,6 +2332,15 @@ function renderAll(){
   renderWeeklyGrid();
   renderCalEvents();
   renderProjects();
+  applyProjBoardCollapseState();
+}
+
+function applyProjBoardCollapseState(){
+  var collapsed=ld('projBoardCollapsed',false);
+  var wrap=document.getElementById('projectBoardWrap');
+  var arrow=document.getElementById('projBoardArrow');
+  if(wrap)wrap.style.display=collapsed?'none':'block';
+  if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
 
 function reloadFromStorage(){
