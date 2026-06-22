@@ -281,7 +281,9 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .day-btn.on{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:700;}
 
 /* PROJECT BOARD */
-.proj-card{background:var(--bg3);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;}
+#projectBoard{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:700px){#projectBoard{grid-template-columns:1fr;}}
+.proj-card{background:var(--bg3);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;margin-bottom:0;}
 .proj-card.complete{opacity:.6;}
 .proj-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
 .proj-name{font-size:14px;font-weight:700;color:var(--t);}
@@ -519,7 +521,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       <input class="inp" id="revDate" type="date" style="margin:0;flex:2;">
       <button class="btn btn-y btn-sm" onclick="logRev()">Log</button>
     </div>
-    <div id="revLogList" style="margin-top:7px;max-height:100px;overflow-y:auto;"></div>
+    <div id="revLogList" style="margin-top:7px;max-height:155px;overflow-y:auto;"></div>
   </div>
 </div>
 
