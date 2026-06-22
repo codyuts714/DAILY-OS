@@ -190,6 +190,12 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 /* TASK ROWS */
 .task-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--b);}
 .task-row:last-child{border-bottom:none;}
+.task-row.draggable-row{cursor:grab;}
+.task-row.dragging{opacity:.35;}
+.task-row.drag-over-top{box-shadow:inset 0 2px 0 var(--y);}
+.task-row.drag-over-bottom{box-shadow:inset 0 -2px 0 var(--y);}
+.drag-handle{color:var(--t3);font-size:12px;flex-shrink:0;cursor:grab;padding:2px 2px 2px 0;margin-top:1px;user-select:none;}
+.drag-handle:active{cursor:grabbing;}
 .chk{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--b3);background:none;cursor:pointer;flex-shrink:0;margin-top:1px;position:relative;transition:all .15s;}
 .chk.done{background:var(--y);border-color:var(--y);}
 .chk.done::after{content:'';position:absolute;top:2px;left:4px;width:5px;height:7px;border:1.5px solid #000;border-top:none;border-left:none;transform:rotate(45deg);}
@@ -438,6 +444,16 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div style="font-size:11px;color:var(--t2);margin-bottom:10px;" id="overallSub">0 of 0 complete</div>
     <div class="stat-lbl" style="margin-bottom:4px;">Completion trend (14 days)</div>
     <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
+        <div style="font-size:16px;font-weight:800;color:var(--y);" id="thisWeekAvg">0%</div>
+        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">This week avg</div>
+      </div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
+        <div style="font-size:16px;font-weight:800;" id="lastWeekAvg">0%</div>
+        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Last week avg</div>
+      </div>
+    </div>
   </div>
 
   <!-- MORNING -->
@@ -495,6 +511,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div id="scheduledEmpty" style="font-size:11px;color:var(--t3);padding:4px 0;display:none;">Nothing recurring today</div>
     <div style="margin-top:11px;">
       <div class="card-title" style="margin-bottom:6px;"><span class="dot" style="background:var(--pink)"></span>Journal</div>
+      <input class="inp" id="journalTitle" placeholder="Title this day (e.g. 'Slow start, strong finish')" style="margin-bottom:6px;">
       <textarea class="jta" id="journalInput" placeholder="How did today go? Wins, struggles, cycles..."></textarea>
       <div style="display:flex;gap:6px;margin-top:5px;align-items:center;">
         <button class="btn btn-y btn-sm" onclick="saveJournal()">Save</button>
@@ -967,14 +984,109 @@ function applyBar(barId,pctId,pct,color){
 }
 
 // -- PERSONAL SECTIONS --------------------------------------------------------─
+// -- DRAG TO REORDER (generic) -------------------------------------------------
+function makeListDraggable(container,onReorder){
+  if(!container)return;
+  var rows=container.querySelectorAll('.task-row');
+  var draggedEl=null;
+
+  rows.forEach(function(row){
+    row.classList.add('draggable-row');
+    row.draggable=true;
+
+    row.addEventListener('dragstart',function(e){
+      draggedEl=row;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+    });
+    row.addEventListener('dragend',function(){
+      row.classList.remove('dragging');
+      rows.forEach(function(r){r.classList.remove('drag-over-top','drag-over-bottom');});
+    });
+    row.addEventListener('dragover',function(e){
+      e.preventDefault();
+      if(row===draggedEl)return;
+      var rect=row.getBoundingClientRect();
+      var midpoint=rect.top+rect.height/2;
+      row.classList.remove('drag-over-top','drag-over-bottom');
+      if(e.clientY<midpoint)row.classList.add('drag-over-top');
+      else row.classList.add('drag-over-bottom');
+    });
+    row.addEventListener('dragleave',function(){
+      row.classList.remove('drag-over-top','drag-over-bottom');
+    });
+    row.addEventListener('drop',function(e){
+      e.preventDefault();
+      row.classList.remove('drag-over-top','drag-over-bottom');
+      if(!draggedEl||row===draggedEl)return;
+      var rect=row.getBoundingClientRect();
+      var midpoint=rect.top+rect.height/2;
+      if(e.clientY<midpoint)container.insertBefore(draggedEl,row);
+      else container.insertBefore(draggedEl,row.nextSibling);
+      // Build new order from DOM and notify
+      var newOrder=Array.from(container.querySelectorAll('.task-row')).map(function(r){return r.dataset.tid;});
+      onReorder(newOrder);
+    });
+
+    // Touch support (mobile) — simple long-press drag using touch events
+    var touchStartY=null;
+    row.addEventListener('touchstart',function(e){
+      touchStartY=e.touches[0].clientY;
+      draggedEl=row;
+      row.classList.add('dragging');
+    },{passive:true});
+    row.addEventListener('touchmove',function(e){
+      if(!draggedEl)return;
+      var touchY=e.touches[0].clientY;
+      var elAtPoint=document.elementFromPoint(e.touches[0].clientX,touchY);
+      var targetRow=elAtPoint?elAtPoint.closest('.task-row'):null;
+      rows.forEach(function(r){r.classList.remove('drag-over-top','drag-over-bottom');});
+      if(targetRow&&targetRow!==draggedEl&&container.contains(targetRow)){
+        var rect=targetRow.getBoundingClientRect();
+        var midpoint=rect.top+rect.height/2;
+        if(touchY<midpoint)targetRow.classList.add('drag-over-top');
+        else targetRow.classList.add('drag-over-bottom');
+      }
+    },{passive:true});
+    row.addEventListener('touchend',function(e){
+      if(!draggedEl)return;
+      var touchY=e.changedTouches[0].clientY;
+      var elAtPoint=document.elementFromPoint(e.changedTouches[0].clientX,touchY);
+      var targetRow=elAtPoint?elAtPoint.closest('.task-row'):null;
+      draggedEl.classList.remove('dragging');
+      rows.forEach(function(r){r.classList.remove('drag-over-top','drag-over-bottom');});
+      if(targetRow&&targetRow!==draggedEl&&container.contains(targetRow)){
+        var rect=targetRow.getBoundingClientRect();
+        var midpoint=rect.top+rect.height/2;
+        if(touchY<midpoint)container.insertBefore(draggedEl,targetRow);
+        else container.insertBefore(draggedEl,targetRow.nextSibling);
+        var newOrder=Array.from(container.querySelectorAll('.task-row')).map(function(r){return r.dataset.tid;});
+        onReorder(newOrder);
+      }
+      draggedEl=null;
+    });
+  });
+}
+
+function reorderListByIds(list,newOrderIds){
+  var map={};
+  list.forEach(function(t){map[t.id]=t;});
+  var reordered=newOrderIds.map(function(id){return map[id];}).filter(Boolean);
+  // Include any items not in newOrderIds (safety) at the end
+  list.forEach(function(t){if(!newOrderIds.includes(t.id))reordered.push(t);});
+  return reordered;
+}
+
 function renderSection(sec){
   const tasks=sec==='morning'?morning:evening;
   const ds=getDS();
   const dm=sec==='morning'?ds.m:ds.e;
-  document.getElementById(sec+'List').innerHTML=tasks.map(function(t){
+  var container=document.getElementById(sec+'List');
+  container.innerHTML=tasks.map(function(t){
     var done=!!dm[t.id];
     var ts=dm[t.id+'_ts']||'';
     var row='<div class="task-row">'
+      +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk '+(done?'done':'')+'" onclick="togglePersonal(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(done?'done':'')+'">'+t.name+'</div>';
     if(ts)row+='<div class="task-ts">&#10003; '+ts+'</div>';
@@ -984,10 +1096,14 @@ function renderSection(sec){
       +'</div>';
     return row;
   }).join('');
-  var rows=document.getElementById(sec+'List').querySelectorAll('.task-row');
+  var rows=container.querySelectorAll('.task-row');
   tasks.forEach(function(t,i){if(rows[i]){rows[i].dataset.tid=t.id;rows[i].dataset.sec=sec;}});
   var pct=calcPct(tasks,dm);
   applyBar(sec+'Bar',sec+'Pct',pct);
+  makeListDraggable(container,function(newOrderIds){
+    if(sec==='morning'){morning=reorderListByIds(morning,newOrderIds);sv('morning',morning);}
+    else{evening=reorderListByIds(evening,newOrderIds);sv('evening',evening);}
+  });
   return {done:tasks.filter(function(t){return dm[t.id];}).length,total:tasks.length,pct:pct};
 }
 
@@ -1080,12 +1196,17 @@ function renderTodo(){
       emp.style.display='none';
       el.innerHTML=active.map(function(t){
         var row='<div class="task-row" data-tid="'+t.id+'">'
+          +'<span class="drag-handle">&#8942;&#8942;</span>'
           +'<button class="chk chk-circle" onclick="todoChk(this)"></button>'
           +'<div class="task-info"><div class="task-name">'+t.name+'</div>';
         if(t.dur)row+='<div class="task-dur">&#128336; '+t.dur+'</div>';
         row+='</div><button class="task-del" onclick="todoDel(this)">&#215;</button></div>';
         return row;
       }).join('');
+      makeListDraggable(el,function(newOrderIds){
+        todos=reorderListByIds(todos,newOrderIds.concat(done.map(function(t){return t.id;})));
+        sv('todos',todos);
+      });
     }
   } else {
     el.style.display='none';emp.style.display='none';
@@ -1172,6 +1293,7 @@ function renderBizSection(key,elId,dmKey){
     var done=!!dm[t.id];
     var ts=dm[t.id+'_ts']||'';
     return '<div class="task-row">'
+      +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk '+(done?'done':'')+'" onclick="bizChk(this)"></button>'
       +'<div class="task-info">'
       +'<div class="task-name '+(done?'done':'')+'">'+t.name+'</div>'
@@ -1182,6 +1304,9 @@ function renderBizSection(key,elId,dmKey){
   }).join('');
   var rows=el.querySelectorAll('.task-row');
   tasks.forEach(function(t,i){if(rows[i]){rows[i].dataset.key=key;rows[i].dataset.tid=t.id;}});
+  makeListDraggable(el,function(newOrderIds){
+    cfg.sv(reorderListByIds(cfg.list(),newOrderIds));
+  });
   return {tasks:tasks,dm:dm};
 }
 function bizChk(btn){var row=btn.closest('.task-row');toggleBiz(row.dataset.key,row.dataset.tid);}
@@ -1195,16 +1320,21 @@ function renderAllBiz(){
   applyBar('salesBar','salesPct',salesAnyDone?100:0);
 
   // Visibility non-negotiable
-  {var vnDm=ds.vn;document.getElementById('visNonList').innerHTML=bizVisNon.map(function(t){
+  {var vnDm=ds.vn;var vnEl=document.getElementById('visNonList');vnEl.innerHTML=bizVisNon.map(function(t){
     var done=!!vnDm[t.id];var ts=vnDm[t.id+'_ts']||'';
     return '<div class="task-row">'
+      +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk '+(done?'done':'')+'" onclick="vnChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(done?'done':'')+'">'+t.name+'</div>'+(ts?'<div class="task-ts">&#10003; '+ts+'</div>':'')+'</div>'
       +'<button class="task-del" onclick="vnDel(this)">&#215;</button>'
       +'</div>';
   }).join('');
-  var vnRows=document.getElementById('visNonList').querySelectorAll('.task-row');
-  bizVisNon.forEach(function(t,i){if(vnRows[i]){vnRows[i].dataset.tid=t.id;}});}
+  var vnRows=vnEl.querySelectorAll('.task-row');
+  bizVisNon.forEach(function(t,i){if(vnRows[i]){vnRows[i].dataset.tid=t.id;}});
+  makeListDraggable(vnEl,function(newOrderIds){
+    bizVisNon=reorderListByIds(bizVisNon,newOrderIds);
+    sv('bizVisNon',bizVisNon);
+  });}
   renderBizSection('visibility','visList','v');
   // Visibility: non-non counts normally, choose-one = 50% of that half when any picked
   const nonNonPct=calcPct(bizVisNon,ds.vn); // 0 or 100
@@ -1310,12 +1440,16 @@ function calcStreak(hist){
 }
 
 function renderTrendChart(hist){
-  const labels=[],values=[];
+  const journals=ld('journals',{});
+  const labels=[],values=[],titles=[],dateKeys=[];
   for(let i=13;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
     const k=`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
     labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
     values.push(hist[k]||0);
+    dateKeys.push(k);
+    const entry=getJournalEntry(journals,k);
+    titles.push(entry?entry.title:'');
   }
   if(trendChart)trendChart.destroy();
   const canvas=document.getElementById('trendChart');
@@ -1332,10 +1466,59 @@ function renderTrendChart(hist){
       pointRadius:2,
       borderWidth:2
     }]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{
+      legend:{display:false},
+      tooltip:{
+        callbacks:{
+          title:function(items){
+            var idx=items[0].dataIndex;
+            return labels[idx];
+          },
+          label:function(item){
+            var idx=item.dataIndex;
+            var pct=values[idx];
+            var t=titles[idx];
+            return t ? [pct+'% complete', '"'+t+'"'] : pct+'% complete';
+          }
+        }
+      }
+    },
       scales:{x:{ticks:{color:'#444',font:{size:8},maxTicksLimit:5},grid:{display:false}},
               y:{ticks:{color:'#444',font:{size:8},stepSize:50},grid:{color:'#161616'},min:0,max:100}}}
   });
+
+  // Weekly averages
+  renderWeeklyAverages(hist);
+}
+
+function renderWeeklyAverages(hist){
+  var now=new Date();
+  var thisWeekStart=new Date(now);thisWeekStart.setDate(now.getDate()-now.getDay());
+  var lastWeekStart=new Date(thisWeekStart);lastWeekStart.setDate(thisWeekStart.getDate()-7);
+  var lastWeekEnd=new Date(thisWeekStart);lastWeekEnd.setDate(thisWeekStart.getDate()-1);
+
+  function avgForRange(start,end){
+    var sum=0,count=0;
+    var d=new Date(start);
+    while(d<=end&&d<=now){
+      var k=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+      if(hist[k]!==undefined){sum+=hist[k];count++;}
+      d.setDate(d.getDate()+1);
+    }
+    return count?Math.round(sum/count):0;
+  }
+
+  var thisWeekAvg=avgForRange(thisWeekStart,now);
+  var lastWeekAvg=avgForRange(lastWeekStart,lastWeekEnd);
+
+  var thisEl=document.getElementById('thisWeekAvg');
+  var lastEl=document.getElementById('lastWeekAvg');
+  if(thisEl)thisEl.textContent=thisWeekAvg+'%';
+  if(lastEl){
+    lastEl.textContent=lastWeekAvg+'%';
+    var diff=thisWeekAvg-lastWeekAvg;
+    lastEl.style.color=diff>=0?'var(--green)':'var(--coral)';
+  }
 }
 
 function renderCompChart(hist){
@@ -1358,16 +1541,30 @@ function renderCompChart(hist){
 }
 
 // -- JOURNAL ------------------------------------------------------------------─
+function getJournalEntry(journals,k){
+  var e=journals[k];
+  if(!e)return null;
+  if(typeof e==='string')return {title:'',text:e};
+  return e;
+}
 function saveJournal(){
   const text=document.getElementById('journalInput').value.trim();
+  const title=document.getElementById('journalTitle').value.trim();
   if(!text)return;
-  const journals=ld('journals',{});journals[viewKey()]=text;sv('journals',journals);
+  const journals=ld('journals',{});
+  journals[viewKey()]={title:title,text:text};
+  sv('journals',journals);
   const s=document.getElementById('journalSaved');s.style.display='inline';
-  setTimeout(()=>s.style.display='none',2000);renderJournalHistory();
+  setTimeout(()=>s.style.display='none',2000);
+  renderJournalHistory();
+  renderTrendChart(ld('hist',{}));
 }
 function loadTodayJournal(){
-  const journals=ld('journals',{});const e=journals[todayKey()];
-  if(e)document.getElementById('journalInput').value=e;
+  const journals=ld('journals',{});const e=getJournalEntry(journals,todayKey());
+  if(e){
+    document.getElementById('journalInput').value=e.text;
+    document.getElementById('journalTitle').value=e.title||'';
+  }
 }
 function renderJournalHistory(){
   var journals=ld('journals',{});var hist=ld('hist',{});
@@ -1376,16 +1573,19 @@ function renderJournalHistory(){
   if(!keys.length){el.innerHTML='';emp.style.display='block';return;}
   emp.style.display='none';
   el.innerHTML=keys.map(function(k){
-    var text=journals[k];
+    var entry=getJournalEntry(journals,k);
+    var text=entry.text;
+    var title=entry.title||'';
     var pct=hist[k]||0;
     var preview=text.replace(/\n/g,' ').slice(0,100)+(text.length>100?'...':'');
     return '<div class="j-entry" id="je-'+k+'">'
       +'<div class="j-date" data-jk="'+k+'" onclick="toggleJEntry(this.dataset.jk)" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">'
-      +'<span>'+fmtDate(k)+' <span style="color:var(--t2);font-weight:400;">— '+pct+'% day</span></span>'
+      +'<span>'+fmtDate(k)+(title?' — <span style="color:var(--t);font-weight:600;">'+title+'</span>':'')+' <span style="color:var(--t2);font-weight:400;">('+pct+'%)</span></span>'
       +'<span id="je-arrow-'+k+'" style="color:var(--t3);font-size:11px;">▸</span>'
       +'</div>'
       +'<div id="je-preview-'+k+'" class="j-text" style="margin-top:3px;">'+preview+'</div>'
       +'<div id="je-full-'+k+'" style="display:none;margin-top:6px;">'
+      +'<input class="inp" data-jk-title="'+k+'" value="'+(title.replace(/"/g,'&quot;'))+'" placeholder="Title this day..." style="margin-bottom:6px;font-size:12px;">'
       +'<textarea data-jk="'+k+'" class="jta" style="height:auto;min-height:90px;font-size:12px;" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';">'+text+'</textarea>'
       +'<div style="display:flex;gap:6px;margin-top:5px;align-items:center;">'
       +'<button class="btn btn-y btn-sm" data-jk="'+k+'" onclick="saveJEntry(this)">Save</button>'
@@ -1414,9 +1614,10 @@ function toggleJEntry(k){
 function saveJEntry(btn){
   var k=btn.dataset.jk;
   var ta=document.querySelector('textarea[data-jk="'+k+'"]');
+  var titleInput=document.querySelector('input[data-jk-title="'+k+'"]');
   if(!ta)return;
   var journals=ld('journals',{});
-  journals[k]=ta.value;
+  journals[k]={title:titleInput?titleInput.value.trim():'',text:ta.value};
   sv('journals',journals);
   var saved=document.getElementById('je-saved-'+k);
   if(saved){saved.style.display='inline';setTimeout(function(){saved.style.display='none';},2000);}
@@ -1427,10 +1628,13 @@ function saveJEntry(btn){
     preview.textContent=text.replace(/\n/g,' ').slice(0,100)+(text.length>100?'...':'');
   }
   // if this is today, also update the main journal box
-  if(k===todayKey()){
+  if(k===viewKey()){
     var mainInput=document.getElementById('journalInput');
+    var mainTitle=document.getElementById('journalTitle');
     if(mainInput)mainInput.value=ta.value;
+    if(mainTitle&&titleInput)mainTitle.value=titleInput.value;
   }
+  renderTrendChart(ld('hist',{}));
 }
 
 // -- REVENUE ------------------------------------------------------------------─
@@ -1536,10 +1740,9 @@ function updateDayNav(){
 }
 function loadJournalForDay(){
   const journals=ld('journals',{});
-  const entry=journals[viewKey()]||'';
-  document.getElementById('journalInput').value=entry;
-  document.getElementById('journalInput').disabled=(viewingDay!==0);
-  document.getElementById('journalInput').style.opacity=(viewingDay!==0)?'0.6':'1';
+  const entry=getJournalEntry(journals,viewKey());
+  document.getElementById('journalInput').value=entry?entry.text:'';
+  document.getElementById('journalTitle').value=entry?(entry.title||''):'';
 }
 
 // -- WEEKLY GRID --------------------------------------------------------------─
@@ -2041,9 +2244,10 @@ function doExport() {
   lines.push('== JOURNAL ENTRIES ==');
   journalsInRange.forEach(function(k){
     var pct = hist[k] || 0;
+    var entry = getJournalEntry(journals,k);
     lines.push('');
-    lines.push('[' + k + ' -- ' + pct + '% completion day]');
-    lines.push(journals[k]);
+    lines.push('[' + k + (entry.title?' -- '+entry.title:'') + ' -- ' + pct + '% completion day]');
+    lines.push(entry.text);
     lines.push('---');
   });
   lines.push('');
