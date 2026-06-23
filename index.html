@@ -102,13 +102,13 @@ window.sync_from_cloud = function() {
 </script>
 <style>
 :root {
-  --y:#fed000;--y2:#fed00018;--y3:#fed00044;
+  --y:#FFF3B0;--y2:#FFF3B018;--y3:#FFF3B044;
   --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#1e1e1e;--bg5:#252525;
   --b:#1e1e1e;--b2:#2a2a2a;--b3:#333;
   --t:#f0f0f0;--t2:#888;--t3:#444;
   --green:#00d68f;--blue:#5b8dee;--purple:#a855f7;
   --coral:#ff6b6b;--teal:#14b8a6;--orange:#f97316;--pink:#ec4899;
-  --biz:#fed000;
+  --biz:#FFF3B0;
   --r:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -351,7 +351,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .day-nav-btn:disabled{opacity:.3;cursor:default;}
 .day-nav-label{font-size:14px;font-weight:700;color:var(--t);min-width:160px;text-align:center;}
 .day-nav-today{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--y);color:#000;font-weight:700;cursor:pointer;border:none;}
-.viewing-past{display:none;background:rgba(254,208,0,.08);border:1px solid var(--y3);border-radius:var(--r);padding:8px 14px;margin-bottom:10px;text-align:center;font-size:12px;color:var(--y);}
+.viewing-past{display:none;background:rgba(255,243,176,.08);border:1px solid var(--y3);border-radius:var(--r);padding:8px 14px;margin-bottom:10px;text-align:center;font-size:12px;color:var(--y);}
 .viewing-past.show{display:block;}
 /* PAST DAY READ-ONLY */
 .past-overlay{pointer-events:none;opacity:.7;}
@@ -375,6 +375,40 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .week-chk.done{background:var(--y);border-color:var(--y);}
 .week-chk.done::after{content:'';position:absolute;top:1px;left:3px;width:4px;height:6px;border:1.5px solid #000;border-top:none;border-left:none;transform:rotate(45deg);}
 .week-drag-hint{font-size:9px;color:var(--t3);text-align:center;margin-top:6px;letter-spacing:.03em;}
+
+/* PAGE TABS */
+.page-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.page-tab{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--b2);background:var(--bg2);color:var(--t2);transition:all .15s;}
+.page-tab.active{background:var(--y);color:#1a1a1a;border-color:var(--y);}
+.page-section{display:none;}
+.page-section.active{display:block;}
+
+/* CLIENT RETAINER PAGE */
+.client-list-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;}
+.client-list-card:hover{border-color:var(--y3);}
+.client-list-name{font-size:15px;font-weight:700;color:var(--t);}
+.client-list-sub{font-size:11px;color:var(--t2);margin-top:2px;}
+.client-back-btn{background:var(--bg3);border:1px solid var(--b2);color:var(--t2);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;margin-bottom:10px;}
+.deliverable-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b);}
+.deliverable-row:last-child{border-bottom:none;}
+.deliverable-name{flex:1;font-size:13px;color:var(--t);}
+.status-select{background:var(--bg4);border:1px solid var(--b2);color:var(--t);border-radius:6px;padding:5px 8px;font-size:11px;font-weight:600;outline:none;cursor:pointer;}
+.status-select.status-todo{color:var(--t2);}
+.status-select.status-progress{color:var(--blue);border-color:var(--blue);}
+.status-select.status-revision{color:var(--orange);border-color:var(--orange);}
+.status-select.status-complete{color:var(--green);border-color:var(--green);}
+.sched-chk{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--b3);background:none;cursor:pointer;flex-shrink:0;position:relative;}
+.sched-chk.done{background:var(--y);border-color:var(--y);}
+.sched-chk.done::after{content:'';position:absolute;top:1px;left:4px;width:5px;height:8px;border:1.5px solid #1a1a1a;border-top:none;border-left:none;transform:rotate(45deg);}
+.login-card{background:var(--bg3);border:1px solid var(--b);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.login-platform{font-size:12px;font-weight:700;color:var(--y);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.login-field{display:flex;gap:6px;margin-bottom:5px;align-items:center;}
+.login-field input{flex:1;}
+.reveal-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px 6px;}
+.content-lib-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--y);color:#1a1a1a;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;width:100%;text-decoration:none;}
+.content-lib-btn:hover{opacity:.9;}
+.month-pill{display:inline-flex;align-items:center;gap:6px;background:var(--y2);border:1px solid var(--y3);color:var(--y);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;}
+.linked-project-banner{background:rgba(0,214,143,.08);border:1px solid var(--green);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--green);display:flex;align-items:center;justify-content:space-between;}
 </style>
 </head>
 <body>
@@ -394,6 +428,14 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div class="topbar-streak" id="topStreak">🔥 0 days</div>
   </div>
 </div>
+
+<!-- PAGE TABS -->
+<div class="page-tabs">
+  <div class="page-tab active" id="tabDashboard" onclick="switchPage('dashboard')">Dashboard</div>
+  <div class="page-tab" id="tabClients" onclick="switchPage('clients')">Clients</div>
+</div>
+
+<div class="page-section active" id="page-dashboard">
 
 <!-- GOALS -->
 <div class="goals-banner">
@@ -724,7 +766,101 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   <div id="awaitingEmpty" style="font-size:12px;color:var(--t3);padding:6px 0;display:none;">Nothing pending — all caught up.</div>
 </div>
 
+</div><!-- /page-dashboard -->
 </div><!-- /dashboard -->
+
+<!-- ═══ CLIENTS PAGE ═══ -->
+<div class="page-section" id="page-clients">
+<div class="dashboard">
+
+  <!-- Client list view -->
+  <div id="clientListView">
+    <div class="card-hd" style="margin-bottom:10px;">
+      <div class="card-title" style="font-size:14px;color:var(--t);"><span class="dot" style="background:var(--y)"></span>Retainer Clients</div>
+      <button class="btn btn-y btn-sm" onclick="openAddClient()">+ New Client</button>
+    </div>
+    <div id="clientList"></div>
+    <div id="clientListEmpty" style="font-size:12px;color:var(--t3);padding:10px 0;display:none;">No retainer clients yet.</div>
+  </div>
+
+  <!-- Single client detail view -->
+  <div id="clientDetailView" style="display:none;">
+    <button class="client-back-btn" onclick="closeClientDetail()">&larr; Back to Clients</button>
+
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-hd">
+        <div>
+          <input class="proj-name-input" id="clientNameInput" placeholder="Client name" style="font-size:18px;">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:var(--t2);">$</span>
+          <input class="proj-amt-input" id="clientMonthlyAmount" type="number" placeholder="0" onchange="saveClientField()" style="width:80px;">
+          <span style="font-size:10px;color:var(--t3);">/mo</span>
+        </div>
+        <div id="clientMonthPill" class="month-pill"></div>
+      </div>
+      <div id="clientLinkedBanner"></div>
+      <div class="proj-dates" style="margin-top:8px;">
+        <div class="proj-date-item"><span class="proj-date-lbl">Start</span><input class="proj-date-input" id="clientStartDate" type="date" onchange="saveClientField()"></div>
+        <div class="proj-date-item"><span class="proj-date-lbl">Due</span><input class="proj-date-input" id="clientDueDate" type="date" onchange="saveClientField()"></div>
+        <div class="proj-date-item"><span class="proj-date-lbl">Next shoot</span><input class="proj-date-input" id="clientShootDate" type="date" onchange="saveClientField()"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Deliverables -->
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-hd">
+          <div class="card-title"><span class="dot" style="background:var(--y)"></span>Monthly Deliverables</div>
+          <button class="btn btn-ghost btn-sm" onclick="openAddDeliverable()">+ Add</button>
+        </div>
+        <div id="deliverablesList"></div>
+        <div id="deliverablesEmpty" style="font-size:11px;color:var(--t3);padding:6px 0;display:none;">No deliverables set for this month.</div>
+      </div>
+
+      <!-- Posts Scheduled -->
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-hd">
+          <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Posts Scheduled</div>
+          <button class="btn btn-ghost btn-sm" onclick="openAddScheduled()">+ Add</button>
+        </div>
+        <div id="scheduledPostsList"></div>
+        <div id="scheduledPostsEmpty" style="font-size:11px;color:var(--t3);padding:6px 0;display:none;">Nothing scheduled yet.</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Logins -->
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-hd">
+          <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Login Reference</div>
+          <button class="btn btn-ghost btn-sm" onclick="openAddLogin()">+ Add</button>
+        </div>
+        <div id="loginsList"></div>
+        <div id="loginsEmpty" style="font-size:11px;color:var(--t3);padding:6px 0;display:none;">No logins saved.</div>
+      </div>
+
+      <!-- Content Library + Payments -->
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-hd">
+          <div class="card-title"><span class="dot" style="background:var(--coral)"></span>Content Library</div>
+        </div>
+        <div id="contentLibBtnWrap"></div>
+
+        <div style="margin-top:14px;">
+          <div class="card-title" style="margin-bottom:8px;"><span class="dot" style="background:var(--green)"></span>This Month's Payment</div>
+          <div id="clientPaymentStages"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:right;margin-top:6px;">
+      <button class="proj-del-link" onclick="deleteClient()">Delete this client</button>
+    </div>
+  </div>
+
+</div>
+</div><!-- /page-clients -->
 
 <!-- EXPORT MODAL -->
 <div class="modal-ov" id="exportOv">
@@ -891,6 +1027,22 @@ let todos=ld('todos',[]);
 let goals=ld('goals',DEF_GOALS);
 let revLog=ld('revLog',[]);
 let projects=ld('projects',[]);
+const DEF_CLIENTS=[{
+  id:'cl_cindy_gallo',
+  name:'Cindy Gallo',
+  projectId:null,
+  monthlyAmount:0,
+  template:{deliverables:[
+    {name:'Video 1'},{name:'Video 2'},{name:'Video 3'},{name:'Video 4'},
+    {name:'Carousel post 1'},{name:'Carousel post 2'},{name:'Carousel post 3'},{name:'Carousel post 4'}
+  ]},
+  monthlyData:{},
+  logins:[],
+  contentLibraryUrl:''
+}];
+let clients=ld('clients',DEF_CLIENTS);
+if(!clients||!clients.length){clients=DEF_CLIENTS.slice();sv('clients',clients);}
+let currentClientId=null;
 let revFilter='week';
 let revChart=null,compChart=null,trendChart=null;
 
@@ -1459,10 +1611,10 @@ function renderTrendChart(hist){
     type:'line',
     data:{labels,datasets:[{
       data:values,
-      borderColor:'#fed000',
-      backgroundColor:'rgba(254,208,0,0.08)',
+      borderColor:'#FFF3B0',
+      backgroundColor:'rgba(255,243,176,0.08)',
       fill:true,tension:0.35,
-      pointBackgroundColor:'#fed000',
+      pointBackgroundColor:'#FFF3B0',
       pointRadius:2,
       borderWidth:2
     }]},
@@ -1533,7 +1685,7 @@ function renderCompChart(hist){
   const ctx=document.getElementById('completionChart').getContext('2d');
   compChart=new Chart(ctx,{
     type:'bar',
-    data:{labels,datasets:[{data:values,backgroundColor:values.map(v=>v===100?'#fed000':v>50?'#fed00066':'#fed00022'),borderRadius:3}]},
+    data:{labels,datasets:[{data:values,backgroundColor:values.map(v=>v===100?'#FFF3B0':v>50?'#FFF3B066':'#FFF3B022'),borderRadius:3}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#444',font:{size:9},maxTicksLimit:8},grid:{color:'#161616'}},
               y:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'},min:0,max:100}}}
@@ -1672,7 +1824,7 @@ function renderRevenue(){
   if(revChart)revChart.destroy();
   const ctx=document.getElementById('revChart').getContext('2d');
   revChart=new Chart(ctx,{type:'line',
-    data:{labels:sorted.map(([k])=>fmtDate(k)),datasets:[{data:sorted.map(([,v])=>Math.round(v)),borderColor:'#fed000',backgroundColor:'rgba(254,208,0,0.07)',fill:true,tension:0.4,pointBackgroundColor:'#fed000',pointRadius:3,borderWidth:2}]},
+    data:{labels:sorted.map(([k])=>fmtDate(k)),datasets:[{data:sorted.map(([,v])=>Math.round(v)),borderColor:'#FFF3B0',backgroundColor:'rgba(255,243,176,0.07)',fill:true,tension:0.4,pointBackgroundColor:'#FFF3B0',pointRadius:3,borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'}},
               y:{ticks:{color:'#444',font:{size:9},callback:v=>'$'+v},grid:{color:'#161616'},beginAtZero:true}}}
@@ -2525,6 +2677,396 @@ function renderAwaitingPayment(){
   if(totalEl)totalEl.textContent='$'+grandTotal.toLocaleString();
 }
 
+// -- PAGE SWITCHING -------------------------------------------------------------
+function switchPage(page){
+  document.getElementById('page-dashboard').classList.toggle('active',page==='dashboard');
+  document.getElementById('page-clients').classList.toggle('active',page==='clients');
+  document.getElementById('tabDashboard').classList.toggle('active',page==='dashboard');
+  document.getElementById('tabClients').classList.toggle('active',page==='clients');
+  if(page==='clients'){
+    closeClientDetail();
+    renderClientList();
+  }
+}
+
+// -- CLIENT DATA MODEL ----------------------------------------------------------
+// Each client: { id, name, projectId, deliverables:[{id,name,status}],
+//   scheduledPosts:[{id,name,done}], logins:[{id,platform,username,password}],
+//   contentLibraryUrl, monthlyData: { "2026-06": {deliverables:[],scheduledPosts:[],
+//   stages:{deposit:false,final:false}} } }
+
+function monthKey(){
+  var d=new Date();
+  return d.getFullYear()+'-'+p2(d.getMonth()+1);
+}
+function monthLabel(mk){
+  var parts=mk.split('-');
+  var d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,1);
+  return d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+}
+
+function getClientMonthData(client){
+  var mk=monthKey();
+  if(!client.monthlyData)client.monthlyData={};
+  if(!client.monthlyData[mk]){
+    // Fresh month — seed deliverables/scheduled posts from template, reset statuses
+    client.monthlyData[mk]={
+      deliverables:(client.template&&client.template.deliverables?client.template.deliverables:[]).map(function(d){
+        return {id:'d'+Date.now()+Math.random().toString(36).slice(2,6),name:d.name,status:'todo'};
+      }),
+      scheduledPosts:[],
+      stages:{deposit:false,final:false},
+      addons:0
+    };
+    sv('clients',clients);
+  }
+  return client.monthlyData[mk];
+}
+
+function renderClientList(){
+  var el=document.getElementById('clientList');
+  var emp=document.getElementById('clientListEmpty');
+  if(!clients.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  el.innerHTML=clients.map(function(c){
+    var md=getClientMonthData(c);
+    var done=md.deliverables.filter(function(d){return d.status==='complete';}).length;
+    var total=md.deliverables.length;
+    return '<div class="client-list-card" data-cid="'+c.id+'" onclick="openClientDetail(this.dataset.cid)">'
+      +'<div class="client-list-name">'+(c.name||'Unnamed client')+'</div>'
+      +'<div class="client-list-sub">'+monthLabel(monthKey())+' — '+done+'/'+total+' deliverables complete</div>'
+      +'</div>';
+  }).join('');
+}
+
+function openAddClient(){
+  openModal('New Retainer Client','Client name...','',false,function(name){
+    if(!name.trim())return;
+    clients.push({
+      id:'cl'+Date.now(),
+      name:name.trim(),
+      projectId:null,
+      template:{deliverables:[]},
+      monthlyData:{},
+      logins:[],
+      contentLibraryUrl:''
+    });
+    sv('clients',clients);
+    renderClientList();
+  });
+}
+
+function openClientDetail(cid){
+  currentClientId=cid;
+  document.getElementById('clientListView').style.display='none';
+  document.getElementById('clientDetailView').style.display='block';
+  renderClientDetail();
+}
+
+function closeClientDetail(){
+  currentClientId=null;
+  document.getElementById('clientListView').style.display='block';
+  document.getElementById('clientDetailView').style.display='none';
+  renderClientList();
+}
+
+function getCurrentClient(){
+  return clients.find(function(c){return c.id===currentClientId;});
+}
+
+function renderClientDetail(){
+  var c=getCurrentClient();
+  if(!c)return;
+  var md=getClientMonthData(c);
+
+  document.getElementById('clientNameInput').value=c.name||'';
+  document.getElementById('clientMonthlyAmount').value=c.monthlyAmount||'';
+  document.getElementById('clientMonthPill').textContent=monthLabel(monthKey());
+  document.getElementById('clientStartDate').value=c.startDate||'';
+  document.getElementById('clientDueDate').value=c.dueDate||'';
+  document.getElementById('clientShootDate').value=c.shootDate||'';
+
+  // Linked project banner
+  var bannerEl=document.getElementById('clientLinkedBanner');
+  var linkedProj=c.projectId?projects.find(function(p){return p.id===c.projectId;}):null;
+  if(linkedProj){
+    bannerEl.innerHTML='<div class="linked-project-banner">'
+      +'<span>&#128279; Linked to project board: '+linkedProj.name+'</span>'
+      +'<button onclick="unlinkClientProject()" style="background:none;border:none;color:var(--green);cursor:pointer;font-size:11px;">Unlink</button>'
+      +'</div>';
+  } else {
+    bannerEl.innerHTML='<div style="margin-bottom:8px;"><button class="btn btn-ghost btn-sm" onclick="linkClientToNewProject()">+ Link to Project Board</button></div>';
+  }
+
+  renderDeliverables();
+  renderScheduledPosts();
+  renderClientLogins();
+  renderContentLibraryBtn();
+  renderClientPaymentStages();
+}
+
+function saveClientField(){
+  var c=getCurrentClient();
+  if(!c)return;
+  c.name=document.getElementById('clientNameInput').value;
+  c.monthlyAmount=parseFloat(document.getElementById('clientMonthlyAmount').value)||0;
+  c.startDate=document.getElementById('clientStartDate').value;
+  c.dueDate=document.getElementById('clientDueDate').value;
+  c.shootDate=document.getElementById('clientShootDate').value;
+  sv('clients',clients);
+  renderClientList();
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var nameInput=document.getElementById('clientNameInput');
+  if(nameInput)nameInput.addEventListener('change',saveClientField);
+});
+
+function deleteClient(){
+  var c=getCurrentClient();
+  if(!c)return;
+  clients=clients.filter(function(x){return x.id!==c.id;});
+  sv('clients',clients);
+  closeClientDetail();
+}
+
+// -- DELIVERABLES -----------------------------------------------------------────
+function renderDeliverables(){
+  var c=getCurrentClient();
+  if(!c)return;
+  var md=getClientMonthData(c);
+  var el=document.getElementById('deliverablesList');
+  var emp=document.getElementById('deliverablesEmpty');
+  if(!md.deliverables.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  el.innerHTML=md.deliverables.map(function(d){
+    return '<div class="deliverable-row" data-did="'+d.id+'">'
+      +'<span class="deliverable-name">'+d.name+'</span>'
+      +'<select class="status-select status-'+d.status+'" onchange="updateDeliverableStatus(this)">'
+      +'<option value="todo"'+(d.status==='todo'?' selected':'')+'>To do</option>'
+      +'<option value="progress"'+(d.status==='progress'?' selected':'')+'>In progress</option>'
+      +'<option value="revision"'+(d.status==='revision'?' selected':'')+'>In revision</option>'
+      +'<option value="complete"'+(d.status==='complete'?' selected':'')+'>Complete</option>'
+      +'</select>'
+      +'<button class="task-del" onclick="deleteDeliverable(this)">&#215;</button>'
+      +'</div>';
+  }).join('');
+}
+function updateDeliverableStatus(sel){
+  var c=getCurrentClient();if(!c)return;
+  var md=getClientMonthData(c);
+  var did=sel.closest('.deliverable-row').dataset.did;
+  var d=md.deliverables.find(function(x){return x.id===did;});
+  if(!d)return;
+  d.status=sel.value;
+  sel.className='status-select status-'+sel.value;
+  sv('clients',clients);
+  renderClientList();
+}
+function deleteDeliverable(btn){
+  var c=getCurrentClient();if(!c)return;
+  var md=getClientMonthData(c);
+  var did=btn.closest('.deliverable-row').dataset.did;
+  md.deliverables=md.deliverables.filter(function(x){return x.id!==did;});
+  sv('clients',clients);
+  renderDeliverables();
+}
+function openAddDeliverable(){
+  openModal('Add Deliverable','e.g. Video 1, Carousel post 2...','',false,function(name){
+    if(!name.trim())return;
+    var c=getCurrentClient();if(!c)return;
+    var md=getClientMonthData(c);
+    var newD={id:'d'+Date.now(),name:name.trim(),status:'todo'};
+    md.deliverables.push(newD);
+    // Also save to template so future months auto-seed with this deliverable
+    if(!c.template)c.template={deliverables:[]};
+    if(!c.template.deliverables.some(function(t){return t.name===name.trim();})){
+      c.template.deliverables.push({name:name.trim()});
+    }
+    sv('clients',clients);
+    renderDeliverables();
+    renderClientList();
+  });
+}
+
+// -- SCHEDULED POSTS --------------------------------------------------------────
+function renderScheduledPosts(){
+  var c=getCurrentClient();if(!c)return;
+  var md=getClientMonthData(c);
+  var el=document.getElementById('scheduledPostsList');
+  var emp=document.getElementById('scheduledPostsEmpty');
+  if(!md.scheduledPosts.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  el.innerHTML=md.scheduledPosts.map(function(p){
+    return '<div class="deliverable-row" data-pid="'+p.id+'">'
+      +'<button class="sched-chk '+(p.done?'done':'')+'" onclick="toggleScheduledPost(this)"></button>'
+      +'<span class="deliverable-name" style="'+(p.done?'color:var(--t3);text-decoration:line-through;':'')+'">'+p.name+'</span>'
+      +'<button class="task-del" onclick="deleteScheduledPost(this)">&#215;</button>'
+      +'</div>';
+  }).join('');
+}
+function toggleScheduledPost(btn){
+  var c=getCurrentClient();if(!c)return;
+  var md=getClientMonthData(c);
+  var pid=btn.closest('.deliverable-row').dataset.pid;
+  var p=md.scheduledPosts.find(function(x){return x.id===pid;});
+  if(!p)return;
+  p.done=!p.done;
+  sv('clients',clients);
+  renderScheduledPosts();
+}
+function deleteScheduledPost(btn){
+  var c=getCurrentClient();if(!c)return;
+  var md=getClientMonthData(c);
+  var pid=btn.closest('.deliverable-row').dataset.pid;
+  md.scheduledPosts=md.scheduledPosts.filter(function(x){return x.id!==pid;});
+  sv('clients',clients);
+  renderScheduledPosts();
+}
+function openAddScheduled(){
+  openModal('Add Scheduled Post','Which piece is scheduled?','',false,function(name){
+    if(!name.trim())return;
+    var c=getCurrentClient();if(!c)return;
+    var md=getClientMonthData(c);
+    md.scheduledPosts.push({id:'sp'+Date.now(),name:name.trim(),done:false});
+    sv('clients',clients);
+    renderScheduledPosts();
+  });
+}
+
+// -- LOGINS -------------------------------------------------------------────────
+function renderClientLogins(){
+  var c=getCurrentClient();if(!c)return;
+  var el=document.getElementById('loginsList');
+  var emp=document.getElementById('loginsEmpty');
+  var logins=c.logins||[];
+  if(!logins.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  el.innerHTML=logins.map(function(l){
+    return '<div class="login-card" data-lid="'+l.id+'">'
+      +'<div class="login-platform">'+l.platform+'<button class="task-del" onclick="deleteLogin(this)" style="margin-left:auto;">&#215;</button></div>'
+      +'<div class="login-field"><input class="inp" style="margin:0;" value="'+escAttr(l.username)+'" placeholder="Username" onchange="updateLoginField(this,\'username\')"></div>'
+      +'<div class="login-field"><input class="inp" type="password" style="margin:0;" value="'+escAttr(l.password)+'" placeholder="Password" onchange="updateLoginField(this,\'password\')">'
+      +'<button class="reveal-btn" onclick="toggleReveal(this)">&#128065;</button></div>'
+      +'</div>';
+  }).join('');
+}
+function toggleReveal(btn){
+  var input=btn.previousElementSibling;
+  input.type=input.type==='password'?'text':'password';
+}
+function updateLoginField(input,field){
+  var c=getCurrentClient();if(!c)return;
+  var lid=input.closest('.login-card').dataset.lid;
+  var l=(c.logins||[]).find(function(x){return x.id===lid;});
+  if(!l)return;
+  l[field]=input.value;
+  sv('clients',clients);
+}
+function deleteLogin(btn){
+  var c=getCurrentClient();if(!c)return;
+  var lid=btn.closest('.login-card').dataset.lid;
+  c.logins=(c.logins||[]).filter(function(x){return x.id!==lid;});
+  sv('clients',clients);
+  renderClientLogins();
+}
+function openAddLogin(){
+  openModal('Add Login','Platform (e.g. TikTok, Instagram)','',false,function(name){
+    if(!name.trim())return;
+    var c=getCurrentClient();if(!c)return;
+    if(!c.logins)c.logins=[];
+    c.logins.push({id:'lg'+Date.now(),platform:name.trim(),username:'',password:''});
+    sv('clients',clients);
+    renderClientLogins();
+  });
+}
+
+// -- CONTENT LIBRARY --------------------------------------------------------────
+function renderContentLibraryBtn(){
+  var c=getCurrentClient();if(!c)return;
+  var wrap=document.getElementById('contentLibBtnWrap');
+  if(c.contentLibraryUrl){
+    wrap.innerHTML='<a class="content-lib-btn" href="'+escAttr(c.contentLibraryUrl)+'" target="_blank" rel="noopener">&#128193; Content Library</a>'
+      +'<button onclick="editContentLibrary()" style="background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;margin-top:6px;display:block;width:100%;text-align:center;">Edit link</button>';
+  } else {
+    wrap.innerHTML='<button class="content-lib-btn" onclick="editContentLibrary()">&#128193; Add Content Library Link</button>';
+  }
+}
+function editContentLibrary(){
+  openModal('Content Library Link','Paste Dropbox / Drive link...','',false,function(url){
+    var c=getCurrentClient();if(!c)return;
+    c.contentLibraryUrl=url.trim();
+    sv('clients',clients);
+    renderContentLibraryBtn();
+  });
+}
+
+// -- PAYMENT STAGES (linked to revenue) --------------------------------------────
+function renderClientPaymentStages(){
+  var c=getCurrentClient();if(!c)return;
+  var md=getClientMonthData(c);
+  var el=document.getElementById('clientPaymentStages');
+  var mk=monthKey();
+  var stageDefs=[{k:'deposit',l:'Deposit paid'},{k:'final',l:'Final payment received'}];
+  el.innerHTML=stageDefs.map(function(sd){
+    var done=!!md.stages[sd.k];
+    return '<div class="proj-stage '+(done?'done':'')+'" data-stage="'+sd.k+'" onclick="toggleClientStage(this)" style="margin-bottom:6px;">'
+      +'<div class="proj-stage-chk"></div><div class="proj-stage-label">'+sd.l+'</div>'
+      +'</div>';
+  }).join('');
+}
+function toggleClientStage(el){
+  var c=getCurrentClient();if(!c)return;
+  var md=getClientMonthData(c);
+  var stage=el.dataset.stage;
+  var wasOn=!!md.stages[stage];
+  md.stages[stage]=!wasOn;
+
+  var amount=(c.monthlyAmount||0);
+  var half=Math.round(amount/2);
+  var revKey='client_'+c.id+'_'+monthKey()+'_'+stage;
+
+  if(!wasOn){
+    var label=(stage==='deposit'?'Deposit -- ':'Final payment -- ')+c.name+' ('+monthLabel(monthKey())+')';
+    revLog.unshift({id:'r'+Date.now(),job:label,amount:half,date:todayKey(),clientRevKey:revKey});
+    sv('revLog',revLog);
+  } else {
+    revLog=revLog.filter(function(r){return r.clientRevKey!==revKey;});
+    sv('revLog',revLog);
+  }
+  sv('clients',clients);
+  renderClientPaymentStages();
+  renderRevenue();
+}
+
+// -- LINK TO PROJECT BOARD ----------------------------------------------------────
+function linkClientToNewProject(){
+  var c=getCurrentClient();if(!c)return;
+  var newProj={
+    id:'p'+Date.now(),
+    name:c.name+' -- '+monthLabel(monthKey()),
+    amount:c.monthlyAmount||0,
+    addons:0,
+    client:c.name,
+    startDate:c.startDate||'',
+    shootDate:c.shootDate||'',
+    dueDate:c.dueDate||'',
+    stages:{contract:false,deposit:false,delivered:false,final:false},
+    notes:'Linked retainer client. Manage deliverables in the Clients tab.'
+  };
+  projects.unshift(newProj);
+  c.projectId=newProj.id;
+  sv('projects',projects);
+  sv('clients',clients);
+  renderClientDetail();
+  renderProjects();
+}
+function unlinkClientProject(){
+  var c=getCurrentClient();if(!c)return;
+  c.projectId=null;
+  sv('clients',clients);
+  renderClientDetail();
+}
+
 function renderAll(){
   renderSection('morning');
   renderSection('evening');
@@ -2557,6 +3099,8 @@ function reloadFromStorage(){
   goals=ld('goals',DEF_GOALS);
   revLog=ld('revLog',[]);
   projects=ld('projects',[]);
+  clients=ld('clients',DEF_CLIENTS);
+  if(!clients||!clients.length){clients=DEF_CLIENTS.slice();sv('clients',clients);}
   bizSales=ld('bizSales',DEF_BIZ.sales);
   bizVisNon=ld('bizVisNon',DEF_BIZ.visNon);
   bizVis=ld('bizVis',DEF_BIZ.visibility);
@@ -2568,6 +3112,9 @@ function reloadFromStorage(){
   bizProduct=ld('bizProduct',DEF_BIZ.product);
   loadJournalForDay();
   renderAll();
+  if(document.getElementById('page-clients').classList.contains('active')){
+    renderClientList();
+  }
 }
 window.reloadFromStorage=reloadFromStorage;
 
