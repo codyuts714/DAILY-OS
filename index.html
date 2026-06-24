@@ -1603,6 +1603,7 @@ function renderTrendChart(hist){
     const entry=getJournalEntry(journals,k);
     titles.push(entry?entry.title:'');
   }
+  if(typeof Chart==='undefined')return;
   if(trendChart)trendChart.destroy();
   const canvas=document.getElementById('trendChart');
   if(!canvas)return;
@@ -1681,8 +1682,11 @@ function renderCompChart(hist){
     labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
     values.push(hist[k]||0);
   }
+  if(typeof Chart==='undefined')return;
   if(compChart)compChart.destroy();
-  const ctx=document.getElementById('completionChart').getContext('2d');
+  const compCanvas=document.getElementById('completionChart');
+  if(!compCanvas)return;
+  const ctx=compCanvas.getContext('2d');
   compChart=new Chart(ctx,{
     type:'bar',
     data:{labels,datasets:[{data:values,backgroundColor:values.map(v=>v===100?'#FFF3B0':v>50?'#FFF3B066':'#FFF3B022'),borderRadius:3}]},
@@ -1821,14 +1825,19 @@ function renderRevenue(){
     <div class="rev-stat"><div class="n">$${best?Math.round(best[1]).toLocaleString():'0'}</div><div class="l">Best day</div>${best?`<div class="sub">${fmtDate(best[0])}</div>`:''}</div>`;
   const byD={};filtered.forEach(r=>{byD[r.date]=(byD[r.date]||0)+r.amount;});
   const sorted=Object.entries(byD).sort((a,b)=>a[0].localeCompare(b[0]));
-  if(revChart)revChart.destroy();
-  const ctx=document.getElementById('revChart').getContext('2d');
-  revChart=new Chart(ctx,{type:'line',
-    data:{labels:sorted.map(([k])=>fmtDate(k)),datasets:[{data:sorted.map(([,v])=>Math.round(v)),borderColor:'#FFF3B0',backgroundColor:'rgba(255,243,176,0.07)',fill:true,tension:0.4,pointBackgroundColor:'#FFF3B0',pointRadius:3,borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'}},
-              y:{ticks:{color:'#444',font:{size:9},callback:v=>'$'+v},grid:{color:'#161616'},beginAtZero:true}}}
-  });
+  if(typeof Chart!=='undefined'){
+    if(revChart)revChart.destroy();
+    const revCanvas=document.getElementById('revChart');
+    if(revCanvas){
+      const ctx=revCanvas.getContext('2d');
+      revChart=new Chart(ctx,{type:'line',
+        data:{labels:sorted.map(([k])=>fmtDate(k)),datasets:[{data:sorted.map(([,v])=>Math.round(v)),borderColor:'#FFF3B0',backgroundColor:'rgba(255,243,176,0.07)',fill:true,tension:0.4,pointBackgroundColor:'#FFF3B0',pointRadius:3,borderWidth:2}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{x:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'}},
+                  y:{ticks:{color:'#444',font:{size:9},callback:v=>'$'+v},grid:{color:'#161616'},beginAtZero:true}}}
+      });
+    }
+  }
   document.getElementById('revLogList').innerHTML=revLog.slice(0,20).map(r=>`
     <div class="rev-row">
       <div><div class="rev-job">${r.job}</div><div class="rev-date-lbl">${fmtDate(r.date)}</div></div>
@@ -2679,13 +2688,17 @@ function renderAwaitingPayment(){
 
 // -- PAGE SWITCHING -------------------------------------------------------------
 function switchPage(page){
-  document.getElementById('page-dashboard').classList.toggle('active',page==='dashboard');
-  document.getElementById('page-clients').classList.toggle('active',page==='clients');
-  document.getElementById('tabDashboard').classList.toggle('active',page==='dashboard');
-  document.getElementById('tabClients').classList.toggle('active',page==='clients');
-  if(page==='clients'){
-    closeClientDetail();
-    renderClientList();
+  try{
+    document.getElementById('page-dashboard').classList.toggle('active',page==='dashboard');
+    document.getElementById('page-clients').classList.toggle('active',page==='clients');
+    document.getElementById('tabDashboard').classList.toggle('active',page==='dashboard');
+    document.getElementById('tabClients').classList.toggle('active',page==='clients');
+    if(page==='clients'){
+      closeClientDetail();
+      renderClientList();
+    }
+  }catch(e){
+    console.error('switchPage error:',e);
   }
 }
 
@@ -3067,20 +3080,23 @@ function unlinkClientProject(){
   renderClientDetail();
 }
 
+function safeCall(fn,name){
+  try{fn();}catch(e){console.error('Render error in '+name+':',e);}
+}
 function renderAll(){
-  renderSection('morning');
-  renderSection('evening');
-  renderScheduledFixed();
-  renderTodo();
-  renderAllBiz();
-  renderOverall();
-  renderGoals();
-  renderJournalHistory();
-  renderRevenue();
-  renderWeeklyGrid();
-  renderCalEvents();
-  renderProjects();
-  applyProjBoardCollapseState();
+  safeCall(function(){renderSection('morning');},'renderSection-morning');
+  safeCall(function(){renderSection('evening');},'renderSection-evening');
+  safeCall(renderScheduledFixed,'renderScheduledFixed');
+  safeCall(renderTodo,'renderTodo');
+  safeCall(renderAllBiz,'renderAllBiz');
+  safeCall(renderOverall,'renderOverall');
+  safeCall(renderGoals,'renderGoals');
+  safeCall(renderJournalHistory,'renderJournalHistory');
+  safeCall(renderRevenue,'renderRevenue');
+  safeCall(renderWeeklyGrid,'renderWeeklyGrid');
+  safeCall(renderCalEvents,'renderCalEvents');
+  safeCall(renderProjects,'renderProjects');
+  safeCall(applyProjBoardCollapseState,'applyProjBoardCollapseState');
 }
 
 function applyProjBoardCollapseState(){
@@ -3129,11 +3145,26 @@ function showSyncBadge(msg,color){
 }
 window.showSyncBadge=showSyncBadge;
 
-initDates();
-updateDayNav();
-loadJournalForDay();
-renderAll();
-checkMonthEnd();
+function safeInit(){
+  try{
+    initDates();
+    updateDayNav();
+    loadJournalForDay();
+    renderAll();
+    checkMonthEnd();
+  }catch(e){
+    console.error('Init error (will retry):',e);
+    setTimeout(safeInit,300);
+  }
+}
+function waitForChartThenInit(){
+  if(typeof Chart==='undefined'){
+    setTimeout(waitForChartThenInit,50);
+    return;
+  }
+  safeInit();
+}
+waitForChartThenInit();
 </script>
 </body>
 </html>
