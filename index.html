@@ -3074,7 +3074,7 @@ function reloadFromStorage(){
   bizContent=ld('bizContent',DEF_BIZ.content);
   bizProduct=ld('bizProduct',DEF_BIZ.product);
   clientsList=ld('clientsList',DEF_CLIENTS);
-  if(!clientsList||!clientsList.length){clientsList=DEF_CLIENTS.slice();}
+  if(!clientsList||!clientsList.length){clientsList=DEF_CLIENTS.slice();sv('clientsList',clientsList);}
   loadJournalForDay();
   renderAll();
   if(document.getElementById('page-clients').classList.contains('active')){
