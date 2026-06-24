@@ -89,7 +89,19 @@ window.sync_from_cloud = function() {
       if(change.type === 'added' || change.type === 'modified') {
         try {
           const d = change.doc;
-          localStorage.setItem(d.id, JSON.stringify(JSON.parse(d.data().value)));
+          const incoming = JSON.parse(d.data().value);
+          if(d.id === 'clientsList' && Array.isArray(incoming) && incoming.length === 0) {
+            const existing = localStorage.getItem('clientsList');
+            if(existing) {
+              try {
+                const existingParsed = JSON.parse(existing);
+                if(Array.isArray(existingParsed) && existingParsed.length > 0) {
+                  return;
+                }
+              } catch(e) {}
+            }
+          }
+          localStorage.setItem(d.id, JSON.stringify(incoming));
           changed = true;
         } catch(e) {}
       }
@@ -3074,7 +3086,11 @@ function reloadFromStorage(){
   bizContent=ld('bizContent',DEF_BIZ.content);
   bizProduct=ld('bizProduct',DEF_BIZ.product);
   clientsList=ld('clientsList',DEF_CLIENTS);
-  if(!clientsList||!clientsList.length){clientsList=DEF_CLIENTS.slice();sv('clientsList',clientsList);}
+  if(!clientsList||!clientsList.length){
+    clientsList=DEF_CLIENTS.slice();
+    localStorage.setItem('clientsList',JSON.stringify(clientsList));
+    if(window.sv_cloud)window.sv_cloud('clientsList',clientsList);
+  }
   loadJournalForDay();
   renderAll();
   if(document.getElementById('page-clients').classList.contains('active')){
