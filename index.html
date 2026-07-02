@@ -214,6 +214,11 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .choose-label{font-size:10px;color:var(--y);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:6px 0 4px;opacity:.7;}
 .choose-note{font-size:9px;color:var(--t3);margin-bottom:4px;}
 
+/* TODAY SEND BUTTON */
+.today-send{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 3px;flex-shrink:0;transition:color .15s;}
+.today-send:hover{color:var(--orange);}
+.today-send.sent{color:var(--orange);}
+
 /* TODO */
 .prog-track{flex:0 0 70px;height:5px;background:var(--bg4);border-radius:99px;overflow:hidden;}
 .prog-fill{height:100%;border-radius:99px;transition:width .4s ease;}
@@ -483,8 +488,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
-<!-- ROW 2: To-Do + Scheduled + Revenue -->
-<div class="grid-3">
+<!-- ROW 2: To-Do + Today List + Scheduled + Revenue -->
+<div class="grid-4">
   <!-- TO-DO -->
   <div class="card">
     <div class="card-hd">
@@ -499,6 +504,21 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div id="todoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing pending 🎉</div>
     <div id="todoArchive"></div>
     <div id="todoArchiveEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing completed yet.</div>
+  </div>
+
+  <!-- TODAY LIST -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Today List</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" style="color:var(--orange)" id="todayPct">0/0</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddToday()">+</button>
+      </div>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="todayBar" style="width:0%;background:var(--orange)"></div></div>
+    <div style="font-size:10px;color:var(--t3);margin-bottom:6px;">Plan the day — tap ☀ on a to-do to pull it in</div>
+    <div id="todayList"></div>
+    <div id="todayEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing planned yet. Pull from To-Do or add fresh.</div>
   </div>
 
   <!-- SCHEDULED + JOURNAL -->
@@ -539,6 +559,19 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       <button class="btn btn-y btn-sm" onclick="logRev()">Log</button>
     </div>
     <div id="revLogList" style="margin-top:7px;max-height:155px;overflow-y:auto;"></div>
+    <div style="margin-top:12px;border-top:1px solid var(--b2);padding-top:10px;">
+      <div class="card-hd" style="margin-bottom:6px;">
+        <div class="card-title" style="font-size:12px;"><span class="dot" style="background:var(--coral)"></span>Contractor Payments</div>
+        <span id="conOwedTotal" style="font-size:13px;font-weight:800;color:var(--coral);">Owed $0</span>
+      </div>
+      <div class="add-row" style="flex-wrap:wrap;gap:4px;">
+        <input class="inp" id="conName" placeholder="Who / for what" style="margin:0;min-width:80px;flex:2;">
+        <input class="inp" id="conAmt" type="number" placeholder="$" style="margin:0;width:60px;flex:1;">
+        <button class="btn btn-y btn-sm" onclick="logContractor()">Add</button>
+      </div>
+      <div id="conList" style="margin-top:7px;max-height:140px;overflow-y:auto;"></div>
+      <div id="conPaidTotal" style="font-size:10px;color:var(--t2);margin-top:5px;"></div>
+    </div>
   </div>
 </div>
 
@@ -651,8 +684,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
-<!-- BIZ ROW 3: Weekly Content + Weekly Product -->
-<div class="grid-2">
+<!-- BIZ ROW 3: Weekly Content + Weekly Product + Content Ideas -->
+<div class="grid-3">
   <!-- CONTENT -->
   <div class="card">
     <div class="card-hd">
@@ -679,6 +712,20 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div class="sec-track"><div class="sec-fill" id="productBar" style="width:0%;background:var(--orange)"></div></div>
     <div class="choose-label" style="color:var(--t2);">Resets weekly — tracked across the whole week, not daily</div>
     <div id="productList"></div>
+  </div>
+
+  <!-- CONTENT IDEAS -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--y)"></span>Content Ideas</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" style="color:var(--y)" id="ideaCount">0 fresh</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddIdea()">+</button>
+      </div>
+    </div>
+    <div class="choose-label" style="color:var(--t2);">Idea bank — check off when filmed / posted</div>
+    <div id="ideaList" style="max-height:260px;overflow-y:auto;"></div>
+    <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
   </div>
 </div>
 
@@ -1200,7 +1247,9 @@ function renderTodo(){
           +'<button class="chk chk-circle" onclick="todoChk(this)"></button>'
           +'<div class="task-info"><div class="task-name">'+t.name+'</div>';
         if(t.dur)row+='<div class="task-dur">&#128336; '+t.dur+'</div>';
-        row+='</div><button class="task-del" onclick="todoDel(this)">&#215;</button></div>';
+        var onToday=getTodayItems().some(function(x){return x.todoId===t.id;});
+        row+='</div><button class="today-send'+(onToday?' sent':'')+'" onclick="sendTodoToToday(this)" title="'+(onToday?'On today list':'Add to Today List')+'">&#9728;</button>'
+          +'<button class="task-del" onclick="todoDel(this)">&#215;</button></div>';
         return row;
       }).join('');
       makeListDraggable(el,function(newOrderIds){
@@ -1252,6 +1301,134 @@ function openAddTodo(){
     if(!n.trim())return;
     todos.unshift({id:'t'+Date.now(),name:n.trim(),dur:dur.trim()});
     sv('todos',todos);renderTodo();
+  });
+}
+
+// -- TODAY LIST ----------------------------------------------------------------
+let todayLists=ld('todayLists',{});
+function getTodayItems(){return todayLists[viewKey()]||[];}
+function setTodayItems(items){todayLists[viewKey()]=items;sv('todayLists',todayLists);}
+
+function renderToday(){
+  var el=document.getElementById('todayList');
+  var emp=document.getElementById('todayEmpty');
+  if(!el)return;
+  var items=getTodayItems();
+  var done=items.filter(function(x){return x.done;}).length;
+  var pctEl=document.getElementById('todayPct');
+  var barEl=document.getElementById('todayBar');
+  if(pctEl)pctEl.textContent=done+'/'+items.length;
+  if(barEl)barEl.style.width=(items.length?Math.round(done/items.length*100):0)+'%';
+  if(!items.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  el.innerHTML=items.map(function(t){
+    return '<div class="task-row" data-tid="'+t.id+'">'
+      +'<span class="drag-handle">&#8942;&#8942;</span>'
+      +'<button class="chk chk-circle '+(t.done?'done':'')+'" onclick="todayChk(this)"></button>'
+      +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+t.name+'</div>'
+      +(t.ts?'<div class="task-ts">&#10003; '+t.ts+'</div>':'')
+      +'</div><button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
+  }).join('');
+  makeListDraggable(el,function(newOrderIds){
+    setTodayItems(reorderListByIds(getTodayItems(),newOrderIds));
+  });
+}
+function todayChk(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  var items=getTodayItems();
+  var t=items.find(function(x){return x.id===id;});
+  if(!t)return;
+  t.done=!t.done;
+  if(t.done)t.ts=nowStr();else delete t.ts;
+  // sync linked to-do: checking completes it, unchecking reopens it
+  if(t.todoId){
+    var td=todos.find(function(x){return x.id===t.todoId;});
+    if(td){
+      if(t.done)td.completedAt=new Date().toISOString();
+      else delete td.completedAt;
+      sv('todos',todos);
+    }
+  }
+  setTodayItems(items);
+  renderToday();renderTodo();
+}
+function todayDel(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  setTodayItems(getTodayItems().filter(function(x){return x.id!==id;}));
+  renderToday();renderTodo();
+}
+function openAddToday(){
+  openModal('Add to Today List','Task name...','',false,function(n){
+    if(!n.trim())return;
+    var items=getTodayItems();
+    items.push({id:'ty'+Date.now(),name:n.trim(),done:false});
+    setTodayItems(items);
+    renderToday();
+  });
+}
+function sendTodoToToday(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  var t=todos.find(function(x){return x.id===id;});
+  if(!t)return;
+  var items=getTodayItems();
+  if(items.some(function(x){return x.todoId===id;}))return; // already on today
+  items.push({id:'ty'+Date.now(),name:t.name,todoId:id,done:false});
+  setTodayItems(items);
+  renderToday();renderTodo();
+}
+
+// -- CONTENT IDEAS ---------------------------------------------------------------
+let contentIdeas=ld('contentIdeas',[]);
+function renderIdeas(){
+  var el=document.getElementById('ideaList');
+  var emp=document.getElementById('ideaEmpty');
+  if(!el)return;
+  var fresh=contentIdeas.filter(function(i){return !i.usedAt;});
+  var used=contentIdeas.filter(function(i){return !!i.usedAt;});
+  var cnt=document.getElementById('ideaCount');
+  if(cnt)cnt.textContent=fresh.length+' fresh';
+  if(!contentIdeas.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  var rows=fresh.map(function(i){
+    return '<div class="task-row" data-tid="'+i.id+'">'
+      +'<span class="drag-handle">&#8942;&#8942;</span>'
+      +'<button class="chk chk-circle" onclick="ideaChk(this)"></button>'
+      +'<div class="task-info"><div class="task-name">'+i.name+'</div></div>'
+      +'<button class="task-del" onclick="ideaDel(this)">&#215;</button></div>';
+  }).join('');
+  rows+=used.slice().reverse().map(function(i){
+    return '<div class="task-row" data-tid="'+i.id+'" style="opacity:.55;">'
+      +'<button class="chk chk-circle done" onclick="ideaChk(this)" title="Mark fresh again"></button>'
+      +'<div class="task-info"><div class="task-name done">'+i.name+'</div>'
+      +'<div class="task-ts">Used '+fmtDate(i.usedAt)+'</div></div>'
+      +'<button class="task-del" onclick="ideaDel(this)">&#215;</button></div>';
+  }).join('');
+  el.innerHTML=rows;
+  makeListDraggable(el,function(newOrderIds){
+    contentIdeas=reorderListByIds(contentIdeas,newOrderIds);
+    sv('contentIdeas',contentIdeas);
+  });
+}
+function ideaChk(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  var i=contentIdeas.find(function(x){return x.id===id;});
+  if(!i)return;
+  if(i.usedAt)delete i.usedAt;else i.usedAt=todayKey();
+  sv('contentIdeas',contentIdeas);
+  renderIdeas();
+}
+function ideaDel(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  contentIdeas=contentIdeas.filter(function(x){return x.id!==id;});
+  sv('contentIdeas',contentIdeas);
+  renderIdeas();
+}
+function openAddIdea(){
+  openModal('Add Content Idea','Idea... (e.g. FPV flythrough of client office)','',false,function(n){
+    if(!n.trim())return;
+    contentIdeas.unshift({id:'ci'+Date.now(),name:n.trim()});
+    sv('contentIdeas',contentIdeas);
+    renderIdeas();
   });
 }
 
@@ -1311,6 +1488,8 @@ function renderBizSection(key,elId,dmKey){
 }
 function bizChk(btn){var row=btn.closest('.task-row');toggleBiz(row.dataset.key,row.dataset.tid);}
 function bizDel(btn){var row=btn.closest('.task-row');delBiz(row.dataset.key,row.dataset.tid);}
+function vnChk(btn){var row=btn.closest('.task-row');toggleBizRaw('vn',row.dataset.tid);}
+function vnDel(btn){var row=btn.closest('.task-row');delBizRaw('visNon','vn',row.dataset.tid);}
 
 function renderAllBiz(){
   const ds=getDS();
@@ -1652,6 +1831,52 @@ function logRev(){
   renderRevenue();
 }
 function delRev(id){revLog=revLog.filter(r=>r.id!==id);sv('revLog',revLog);renderRevenue();}
+
+// -- CONTRACTOR PAYMENTS --------------------------------------------------------
+let contractorPays=ld('contractorPays',[]);
+function logContractor(){
+  var name=document.getElementById('conName').value.trim();
+  var amt=parseFloat(document.getElementById('conAmt').value);
+  if(!name||isNaN(amt)||amt<=0)return;
+  contractorPays.unshift({id:'cp'+Date.now(),name:name,amount:amt,date:todayKey()});
+  sv('contractorPays',contractorPays);
+  document.getElementById('conName').value='';
+  document.getElementById('conAmt').value='';
+  renderContractors();
+}
+function togglePaid(id){
+  var c=contractorPays.find(function(x){return x.id===id;});
+  if(!c)return;
+  if(c.paidAt)delete c.paidAt;else c.paidAt=todayKey();
+  sv('contractorPays',contractorPays);
+  renderContractors();
+}
+function delContractor(id){
+  contractorPays=contractorPays.filter(function(x){return x.id!==id;});
+  sv('contractorPays',contractorPays);
+  renderContractors();
+}
+function renderContractors(){
+  var el=document.getElementById('conList');
+  if(!el)return;
+  var owed=contractorPays.filter(function(c){return !c.paidAt;}).reduce(function(s,c){return s+c.amount;},0);
+  var paid=contractorPays.filter(function(c){return !!c.paidAt;}).reduce(function(s,c){return s+c.amount;},0);
+  var owedEl=document.getElementById('conOwedTotal');
+  if(owedEl)owedEl.textContent='Owed $'+Math.round(owed).toLocaleString();
+  var paidEl=document.getElementById('conPaidTotal');
+  if(paidEl)paidEl.textContent=paid?('Paid out all time: $'+Math.round(paid).toLocaleString()):'';
+  el.innerHTML=contractorPays.map(function(c){
+    var isPaid=!!c.paidAt;
+    return '<div class="rev-row" style="'+(isPaid?'opacity:.55;':'')+'">'
+      +'<div><div class="rev-job" style="'+(isPaid?'text-decoration:line-through;':'')+'">'+c.name+'</div>'
+      +'<div class="rev-date-lbl">'+(isPaid?'Paid '+fmtDate(c.paidAt):'Added '+fmtDate(c.date))+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+      +'<span class="rev-amt" style="color:'+(isPaid?'var(--green)':'var(--coral)')+';">$'+Number(c.amount).toLocaleString()+'</span>'
+      +'<button onclick="togglePaid(\''+c.id+'\')" class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 7px;">'+(isPaid?'Undo':'Paid')+'</button>'
+      +'<button onclick="delContractor(\''+c.id+'\')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;">&#215;</button>'
+      +'</div></div>';
+  }).join('');
+}
 function setFilter(f,el){
   revFilter=f;document.querySelectorAll('.fpill').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderRevenue();
 }
@@ -2542,6 +2767,9 @@ function renderAll(){
   safeCall(function(){renderSection('evening');},'renderSection-evening');
   safeCall(renderScheduledFixed,'renderScheduledFixed');
   safeCall(renderTodo,'renderTodo');
+  safeCall(renderToday,'renderToday');
+  safeCall(renderContractors,'renderContractors');
+  safeCall(renderIdeas,'renderIdeas');
   safeCall(renderAllBiz,'renderAllBiz');
   safeCall(renderOverall,'renderOverall');
   safeCall(renderGoals,'renderGoals');
@@ -2566,6 +2794,9 @@ function reloadFromStorage(){
   evening=ld('evening',DEF_EVENING);
   weekly=ld('weekly',DEF_WEEKLY);
   todos=ld('todos',[]);
+  todayLists=ld('todayLists',{});
+  contractorPays=ld('contractorPays',[]);
+  contentIdeas=ld('contentIdeas',[]);
   goals=ld('goals',DEF_GOALS);
   revLog=ld('revLog',[]);
   projects=ld('projects',[]);
