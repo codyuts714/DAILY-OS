@@ -213,6 +213,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 /* BIZ CHOOSE ONE */
 .choose-label{font-size:10px;color:var(--y);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:6px 0 4px;opacity:.7;}
 .choose-note{font-size:9px;color:var(--t3);margin-bottom:4px;}
+.trend-rng{background:var(--bg3);border:1px solid var(--b2);color:var(--t2);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;}
+.trend-rng.active{background:var(--y2);border-color:var(--y3);color:var(--y);}
 
 /* TODAY SEND BUTTON */
 .today-send{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 3px;flex-shrink:0;transition:color .15s;}
@@ -447,7 +449,24 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       <div class="sec-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--y),#ffb300)"></div>
     </div>
     <div style="font-size:11px;color:var(--t2);margin-bottom:10px;" id="overallSub">0 of 0 complete</div>
-    <div class="stat-lbl" style="margin-bottom:4px;">Completion trend (14 days)</div>
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Personal <span id="personalPct" style="color:var(--green);font-weight:700;">0%</span></div>
+        <div class="sec-track"><div class="sec-fill" id="personalBar" style="width:0%;background:var(--green)"></div></div>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Business <span id="bizSplitPct" style="color:var(--y);font-weight:700;">0%</span></div>
+        <div class="sec-track"><div class="sec-fill" id="bizSplitBar" style="width:0%;background:var(--y)"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div class="stat-lbl" id="trendLbl">Completion trend (14 days)</div>
+      <div style="display:flex;gap:3px;">
+        <button class="trend-rng active" id="rng14d" onclick="setTrendRange('14d')">14D</button>
+        <button class="trend-rng" id="rngMonth" onclick="setTrendRange('month')">Month</button>
+        <button class="trend-rng" id="rngAll" onclick="setTrendRange('all')">All</button>
+      </div>
+    </div>
     <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
     <div style="display:flex;gap:8px;margin-top:8px;">
       <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
@@ -457,6 +476,10 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
         <div style="font-size:16px;font-weight:800;" id="lastWeekAvg">0%</div>
         <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Last week avg</div>
+      </div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
+        <div style="font-size:16px;font-weight:800;color:var(--green);" id="bestDayPct">0%</div>
+        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;" id="bestDayLbl">Best day</div>
       </div>
     </div>
   </div>
@@ -607,7 +630,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="salesBar" style="width:0%;background:var(--y)"></div></div>
-    <div class="choose-label">Choose one daily</div>
+    <div class="choose-label">Choose one &mdash; 3&times; a week</div>
+    <div class="choose-note" id="salesWeekNote">0 of 3 days done this week</div>
     <div id="salesList"></div>
   </div>
 
@@ -666,6 +690,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="adminBar" style="width:0%;background:var(--blue)"></div></div>
+    <div class="choose-label">Choose one daily</div>
     <div id="adminList"></div>
   </div>
 
@@ -679,8 +704,12 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="bottleBar" style="width:0%;background:var(--purple)"></div></div>
-    <div class="choose-label">Choose one daily</div>
+    <div class="choose-label">Choose one &mdash; 3&times; a week</div>
+    <div class="choose-note" id="bottleWeekNote">0 of 3 days done this week &middot; each check logs what you changed</div>
     <div id="bottleList"></div>
+    <div class="choose-label" style="color:var(--t2);margin-top:10px;">Change log</div>
+    <div id="sysLogList" style="max-height:140px;overflow-y:auto;"></div>
+    <div id="sysLogEmpty" style="font-size:10px;color:var(--t3);padding:3px 0;">No changes logged yet.</div>
   </div>
 </div>
 
@@ -960,8 +989,16 @@ const getDS=()=>{var day=ld('ds_'+viewKey(),{m:{},e:{},t:{},s:{},vn:{},v:{},c:{}
 const setDS=s=>{var day={m:s.m,e:s.e,t:s.t,s:s.s,vn:s.vn,v:s.v,c:s.c,mo:s.mo,a:s.a,bt:s.bt,co:s.co,pr:s.pr};sv('ds_'+viewKey(),day);var wk=ld('ws_'+weekKey(),{w:{},moves:{}});if(!wk.moves)wk.moves={};sv('ws_'+weekKey(),wk);}
 
 // -- CLOCK --------------------------------------------------------------------─
+let _clockDay=null;
 function updateClock(){
   document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
+  // midnight watch: if the date flips while the app is open, roll the Today List
+  var tk=todayKey();
+  if(_clockDay===null){_clockDay=tk;}
+  else if(_clockDay!==tk){
+    _clockDay=tk;
+    try{initDates();updateDayNav();rolloverTodayList();renderAll();}catch(e){console.error('Midnight refresh error:',e);}
+  }
 }
 setInterval(updateClock,1000);
 updateClock();
@@ -1028,6 +1065,25 @@ function calcPct(tasks,doneMap){
 function applyBar(barId,pctId,pct,color){
   document.getElementById(barId).style.width=pct+'%';
   if(pctId)document.getElementById(pctId).textContent=pct+'%';
+}
+
+// 7 date keys (Sun..Sat) of the week containing baseKey
+function weekDates(baseKey){
+  var p=baseKey.split('-').map(Number);
+  var d=new Date(p[0],p[1]-1,p[2]);
+  d.setDate(d.getDate()-d.getDay());
+  var out=[];
+  for(var i=0;i<7;i++){out.push(d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()));d.setDate(d.getDate()+1);}
+  return out;
+}
+// How many days this week had at least one item checked in a daily-state section
+function countBizDaysThisWeek(dmKey,list){
+  var n=0;
+  weekDates(viewKey()).forEach(function(k){
+    var ds=ld('ds_'+k,null);
+    if(ds&&ds[dmKey]&&list.some(function(t){return ds[dmKey][t.id];}))n++;
+  });
+  return n;
 }
 
 // -- PERSONAL SECTIONS --------------------------------------------------------─
@@ -1309,6 +1365,42 @@ let todayLists=ld('todayLists',{});
 function getTodayItems(){return todayLists[viewKey()]||[];}
 function setTodayItems(items){todayLists[viewKey()]=items;sv('todayLists',todayLists);}
 
+// Carry unfinished items from previous days into today (priority list).
+// Done items stay on their original day as the record. Idempotent + deduped.
+function rolloverTodayList(){
+  try{
+    var tk=todayKey();
+    var pastKeys=Object.keys(todayLists).filter(function(k){return k<tk;}).sort();
+    if(!pastKeys.length)return;
+    var today=todayLists[tk]||[];
+    var changed=false;
+    pastKeys.forEach(function(k){
+      var keep=[];
+      (todayLists[k]||[]).forEach(function(item){
+        if(item.done){keep.push(item);return;}
+        changed=true;
+        // if linked to-do was completed elsewhere, don't carry it
+        if(item.todoId){
+          var td=todos.find(function(x){return x.id===item.todoId;});
+          if(td&&td.completedAt)return;
+        }
+        // dedupe: already on today's list?
+        var dup=today.some(function(x){
+          return (item.todoId&&x.todoId===item.todoId)||x.name===item.name;
+        });
+        if(!dup){
+          today.push({id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,done:false,carriedFrom:item.carriedFrom||k});
+        }
+      });
+      if(keep.length)todayLists[k]=keep;else delete todayLists[k];
+    });
+    if(changed){
+      todayLists[tk]=today;
+      sv('todayLists',todayLists);
+    }
+  }catch(e){console.error('Rollover error:',e);}
+}
+
 function renderToday(){
   var el=document.getElementById('todayList');
   var emp=document.getElementById('todayEmpty');
@@ -1326,7 +1418,7 @@ function renderToday(){
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk chk-circle '+(t.done?'done':'')+'" onclick="todayChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+t.name+'</div>'
-      +(t.ts?'<div class="task-ts">&#10003; '+t.ts+'</div>':'')
+      +(t.ts?'<div class="task-ts">&#10003; '+t.ts+'</div>':(t.carriedFrom?'<div class="task-ts" style="color:var(--y);opacity:.75;">&#8617; carried from '+fmtDateShort(t.carriedFrom)+'</div>':''))
       +'</div><button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
   }).join('');
   makeListDraggable(el,function(newOrderIds){
@@ -1493,10 +1585,12 @@ function vnDel(btn){var row=btn.closest('.task-row');delBizRaw('visNon','vn',row
 
 function renderAllBiz(){
   const ds=getDS();
-  // Sales — choose one = 100% when any one is done
+  // Sales — choose one, 3× a week: bar fills as days-with-a-check accumulate
   renderBizSection('sales','salesList','s');
-  const salesAnyDone=bizSales.some(t=>ds.s[t.id]);
-  applyBar('salesBar','salesPct',salesAnyDone?100:0);
+  const salesDays=countBizDaysThisWeek('s',bizSales);
+  applyBar('salesBar','salesPct',Math.min(100,Math.round(salesDays/3*100)));
+  var swn=document.getElementById('salesWeekNote');
+  if(swn)swn.textContent=Math.min(salesDays,3)+' of 3 days done this week'+(salesDays>=3?' — done! ✓':'');
 
   // Visibility non-negotiable
   {var vnDm=ds.vn;var vnEl=document.getElementById('visNonList');vnEl.innerHTML=bizVisNon.map(function(t){
@@ -1525,8 +1619,16 @@ function renderAllBiz(){
   // Others
   renderBizSection('client','clientList','c');applyBar('clientBar','clientPct',calcPct(bizClient,ds.c));
   renderBizSection('money','moneyList','mo');applyBar('moneyBar','moneyPct',calcPct(bizMoney,ds.mo));
-  renderBizSection('admin','adminList','a');applyBar('adminBar','adminPct',calcPct(bizAdmin,ds.a));
-  renderBizSection('bottle','bottleList','bt');applyBar('bottleBar','bottlePct',calcPct(bizBottle,ds.bt));
+  // Admin — choose one daily
+  renderBizSection('admin','adminList','a');
+  applyBar('adminBar','adminPct',bizAdmin.some(t=>ds.a[t.id])?100:0);
+  // Bottlenecks — choose one, 3× a week, with change log
+  renderBizSection('bottle','bottleList','bt');
+  const bottleDays=countBizDaysThisWeek('bt',bizBottle);
+  applyBar('bottleBar','bottlePct',Math.min(100,Math.round(bottleDays/3*100)));
+  var bwn=document.getElementById('bottleWeekNote');
+  if(bwn)bwn.textContent=Math.min(bottleDays,3)+' of 3 days done this week'+(bottleDays>=3?' — done! ✓':' · each check logs what you changed');
+  renderSysLog();
   renderBizSection('content','contentList','co');
   const contentDm=getWeeklyBizDm('content');
   applyBar('contentBar','contentPct',calcPct(bizContent,contentDm));
@@ -1548,6 +1650,49 @@ function toggleBiz(key,id){
   dm[id]=!dm[id];
   if(dm[id])dm[id+'_ts']=nowStr();else delete dm[id+'_ts'];
   setDS(ds);renderAllBiz();renderOverall();
+  // Bottlenecks: capture a note about what got changed
+  if(key==='bottle'){
+    if(dm[id])openSysLogNote(id);
+    else removeSysLogNote(id);
+  }
+}
+
+// -- SYSTEMS CHANGE LOG ---------------------------------------------------------
+let sysLog=ld('sysLog',[]);
+function openSysLogNote(taskId){
+  var t=bizBottle.find(function(x){return x.id===taskId;});
+  var tname=t?t.name:'Systems work';
+  openModal('What did you change?','e.g. rebuilt the export preset, cleaned proposal template...','',false,function(n){
+    if(!n.trim())return;
+    sysLog.push({id:'sl'+Date.now(),date:viewKey(),taskId:taskId,task:tname,note:n.trim()});
+    sv('sysLog',sysLog);
+    renderSysLog();
+  });
+}
+function removeSysLogNote(taskId){
+  var k=viewKey();
+  var before=sysLog.length;
+  sysLog=sysLog.filter(function(e){return !(e.taskId===taskId&&e.date===k);});
+  if(sysLog.length!==before){sv('sysLog',sysLog);renderSysLog();}
+}
+function renderSysLog(){
+  var el=document.getElementById('sysLogList');
+  var emp=document.getElementById('sysLogEmpty');
+  if(!el)return;
+  if(!sysLog.length){el.innerHTML='';if(emp)emp.style.display='block';return;}
+  if(emp)emp.style.display='none';
+  el.innerHTML=sysLog.slice(-8).reverse().map(function(e){
+    return '<div style="padding:5px 0;border-bottom:1px solid var(--b);" data-slid="'+e.id+'">'
+      +'<div style="font-size:9px;color:var(--purple);font-weight:700;">'+fmtDateShort(e.date)+' &middot; '+e.task
+      +' <span style="color:var(--t3);cursor:pointer;float:right;" onclick="delSysLog(this)">&#215;</span></div>'
+      +'<div style="font-size:11px;color:var(--t);margin-top:2px;">'+e.note+'</div>'
+      +'</div>';
+  }).join('');
+}
+function delSysLog(span){
+  var id=span.closest('[data-slid]').dataset.slid;
+  sysLog=sysLog.filter(function(e){return e.id!==id;});
+  sv('sysLog',sysLog);renderSysLog();
 }
 function toggleBizRaw(dmKey,id){
   const ds=getDS();const dm=ds[dmKey];
@@ -1577,24 +1722,30 @@ function openAddBiz(key){
 function renderOverall(){
   const ds=getDS();
   const today=new Date().getDay();
-  let total=morning.length+evening.length;
-  let done=morning.filter(t=>ds.m[t.id]).length+evening.filter(t=>ds.e[t.id]).length;
+  // -- PERSONAL: morning + evening + today's scheduled --
+  let pTotal=morning.length+evening.length;
+  let pDone=morning.filter(t=>ds.m[t.id]).length+evening.filter(t=>ds.e[t.id]).length;
   const todayW=weekly.filter(w=>w.days.includes(today));
-  total+=todayW.length;done+=todayW.filter(w=>ds.w[w.id]).length;
-  // include biz — choose-one sections count as 1 task worth
-  // Sales: choose one = 1 task
-  done += bizSales.some(t=>ds.s[t.id]) ? 1 : 0; total += 1;
-  // Vis non-non: normal (daily)
-  total+=bizVisNon.length; done+=bizVisNon.filter(t=>ds.vn[t.id]).length;
+  pTotal+=todayW.length;pDone+=todayW.filter(w=>ds.w[w.id]).length;
+  // -- BUSINESS (daily portion) --
+  // Sales & Bottlenecks are 3×/week now — tracked on their own weekly bars, NOT in the daily total
+  let bTotal=0,bDone=0;
+  // Vis non-negotiable: daily
+  bTotal+=bizVisNon.length; bDone+=bizVisNon.filter(t=>ds.vn[t.id]).length;
   // Vis choose-one: 1 task
-  done += bizVis.some(t=>ds.v[t.id]) ? 1 : 0; total += 1;
-  // Client, Money, Admin: normal daily tasks
-  [{l:bizClient,dm:ds.c},{l:bizMoney,dm:ds.mo},{l:bizAdmin,dm:ds.a}]
-    .forEach(({l,dm})=>{total+=l.length;done+=l.filter(t=>dm[t.id]).length;});
-  // Bottlenecks/Systems: choose-one daily = 1 task
-  done += bizBottle.some(t=>ds.bt[t.id]) ? 1 : 0; total += 1;
-  // Content + Product: WEEKLY, not daily — excluded from daily overall total
+  bDone += bizVis.some(t=>ds.v[t.id]) ? 1 : 0; bTotal += 1;
+  // Client + Money: normal daily tasks
+  [{l:bizClient,dm:ds.c},{l:bizMoney,dm:ds.mo}]
+    .forEach(({l,dm})=>{bTotal+=l.length;bDone+=l.filter(t=>dm[t.id]).length;});
+  // Admin: choose-one daily = 1 task
+  bDone += bizAdmin.some(t=>ds.a[t.id]) ? 1 : 0; bTotal += 1;
+  // Content + Product: weekly — excluded from daily overall
+  const pPct=pTotal?Math.round(pDone/pTotal*100):0;
+  const bPct=bTotal?Math.round(bDone/bTotal*100):0;
+  const done=pDone+bDone, total=pTotal+bTotal;
   const pct=total?Math.round(done/total*100):0;
+  applyBar('personalBar','personalPct',pPct);
+  applyBar('bizSplitBar','bizSplitPct',bPct);
   document.getElementById('overallBar').style.width=pct+'%';
   document.getElementById('overallPct').textContent=pct+'%';
   document.getElementById('overallSub').textContent=`${done} of ${total} complete`;
@@ -1618,18 +1769,54 @@ function calcStreak(hist){
   return{current,best,total};
 }
 
+let trendRange='14d';
+function setTrendRange(r){
+  trendRange=r;
+  ['rng14d','rngMonth','rngAll'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(b)b.classList.remove('active');
+  });
+  var map={'14d':'rng14d','month':'rngMonth','all':'rngAll'};
+  var btn=document.getElementById(map[r]);
+  if(btn)btn.classList.add('active');
+  renderTrendChart(ld('hist',{}));
+}
+
+function trendDateKeys(hist){
+  // returns array of YYYY-MM-DD keys for the selected range, oldest first
+  var keys=[];
+  var d,end=new Date();
+  if(trendRange==='14d'){
+    d=new Date();d.setDate(d.getDate()-13);
+  }else if(trendRange==='month'){
+    d=new Date();d.setDate(1);
+  }else{ // all time: from earliest recorded day
+    var hk=Object.keys(hist).sort();
+    if(!hk.length){d=new Date();d.setDate(d.getDate()-13);}
+    else{var p=hk[0].split('-').map(Number);d=new Date(p[0],p[1]-1,p[2]);}
+  }
+  while(d<=end){
+    keys.push(d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()));
+    d.setDate(d.getDate()+1);
+  }
+  return keys;
+}
+
 function renderTrendChart(hist){
   const journals=ld('journals',{});
-  const labels=[],values=[],titles=[],dateKeys=[];
-  for(let i=13;i>=0;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const k=`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
-    labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+  const dateKeys=trendDateKeys(hist);
+  const long=dateKeys.length>45;
+  const labels=[],values=[],titles=[];
+  dateKeys.forEach(function(k){
+    var p=k.split('-').map(Number);
+    var d=new Date(p[0],p[1]-1,p[2]);
+    labels.push(d.toLocaleDateString('en-US',long?{month:'short',day:'numeric',year:'2-digit'}:{month:'short',day:'numeric'}));
     values.push(hist[k]||0);
-    dateKeys.push(k);
     const entry=getJournalEntry(journals,k);
     titles.push(entry?entry.title:'');
-  }
+  });
+  var lbl=document.getElementById('trendLbl');
+  if(lbl)lbl.textContent=trendRange==='14d'?'Completion trend (14 days)':trendRange==='month'?'Completion trend (this month)':'Completion trend (all time · '+dateKeys.length+' days)';
   if(typeof Chart==='undefined')return;
   if(trendChart)trendChart.destroy();
   const canvas=document.getElementById('trendChart');
@@ -1643,8 +1830,9 @@ function renderTrendChart(hist){
       backgroundColor:'rgba(255,243,176,0.08)',
       fill:true,tension:0.35,
       pointBackgroundColor:'#FFF3B0',
-      pointRadius:2,
-      borderWidth:2
+      pointRadius:long?0:2,
+      pointHitRadius:6,
+      borderWidth:long?1.5:2
     }]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{
       legend:{display:false},
@@ -1663,12 +1851,26 @@ function renderTrendChart(hist){
         }
       }
     },
-      scales:{x:{ticks:{color:'#444',font:{size:8},maxTicksLimit:5},grid:{display:false}},
+      scales:{x:{ticks:{color:'#444',font:{size:8},maxTicksLimit:long?6:5},grid:{display:false}},
               y:{ticks:{color:'#444',font:{size:8},stepSize:50},grid:{color:'#161616'},min:0,max:100}}}
   });
 
-  // Weekly averages
+  // Weekly averages + best day
   renderWeeklyAverages(hist);
+  renderBestDay(hist);
+}
+
+function renderBestDay(hist){
+  var pctEl=document.getElementById('bestDayPct');
+  var lblEl=document.getElementById('bestDayLbl');
+  if(!pctEl)return;
+  var best=-1,bestKey=null;
+  Object.keys(hist).forEach(function(k){
+    if(hist[k]>=best){best=hist[k];bestKey=k;} // >= keeps most recent on ties
+  });
+  if(bestKey===null){pctEl.textContent='—';if(lblEl)lblEl.textContent='Best day';return;}
+  pctEl.textContent=best+'%';
+  if(lblEl)lblEl.textContent='Best · '+fmtDateShort(bestKey);
 }
 
 function renderWeeklyAverages(hist){
@@ -2365,13 +2567,13 @@ function doExport() {
   var allTasks = [
     {list:morning, dm_key:'m', sec:'Morning'},
     {list:evening, dm_key:'e', sec:'Evening'},
-    {list:bizSales, dm_key:'s', sec:'Sales'},
+    {list:bizSales, dm_key:'s', sec:'Sales (3x/week)'},
     {list:bizVisNon, dm_key:'vn', sec:'Visibility (must-do)'},
     {list:bizVis, dm_key:'v', sec:'Visibility (choose one)'},
     {list:bizClient, dm_key:'c', sec:'Client Comms'},
     {list:bizMoney, dm_key:'mo', sec:'Money'},
-    {list:bizAdmin, dm_key:'a', sec:'Admin'},
-    {list:bizBottle, dm_key:'bt', sec:'Systems (choose one)'},
+    {list:bizAdmin, dm_key:'a', sec:'Admin (choose one)'},
+    {list:bizBottle, dm_key:'bt', sec:'Systems (3x/week)'},
   ];
   allTasks.forEach(function(g){
     g.list.forEach(function(t){
@@ -2809,7 +3011,9 @@ function reloadFromStorage(){
   bizBottle=ld('bizBottle',DEF_BIZ.bottle);
   bizContent=ld('bizContent',DEF_BIZ.content);
   bizProduct=ld('bizProduct',DEF_BIZ.product);
+  sysLog=ld('sysLog',[]);
   loadJournalForDay();
+  rolloverTodayList();
   renderAll();
 }
 window.reloadFromStorage=reloadFromStorage;
@@ -2830,6 +3034,7 @@ function safeInit(){
     initDates();
     updateDayNav();
     loadJournalForDay();
+    rolloverTodayList();
     renderAll();
     checkMonthEnd();
   }catch(e){
