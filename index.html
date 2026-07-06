@@ -40,8 +40,9 @@ onAuthStateChanged(auth, async (user) => {
     if(badge){ badge.textContent = '☁ ' + user.displayName.split(' ')[0]; badge.style.display='inline'; badge.style.color='var(--green)'; }
     const loginBtn = document.getElementById('loginBtn');
     if(loginBtn){ loginBtn.textContent = 'Sign out'; loginBtn.style.background='var(--bg4)'; loginBtn.style.color='var(--t2)'; }
-    // Start live sync listener
+    // Start live sync listener, then push anything saved before auth was ready
     window.sync_from_cloud();
+    window.flush_pending();
   } else {
     UID = null;
     if(_unsubscribe){ _unsubscribe(); _unsubscribe = null; }
@@ -70,14 +71,28 @@ window.googleSignIn = async function() {
 
 // -- CLOUD READ/WRITE ----------------------------------------------------------
 const _lastPushed = {};
+const _pendingWrites = {};   // writes attempted before auth was ready — flushed on sign-in
 window.sv_cloud = async function(key, value) {
-  if(!UID) return;
+  const payload = JSON.stringify(value);
+  if(!UID) { _pendingWrites[key] = value; return; }  // queue it, don't drop it
   try {
-    const payload = JSON.stringify(value);
     if(_lastPushed[key] === payload) return; // nothing changed — don't ping-pong
     _lastPushed[key] = payload;
-    await setDoc(doc(db, 'users', UID, 'data', key), { value: payload });
-  } catch(e) { console.warn('Firebase write failed:', e); }
+    await setDoc(doc(db, 'users', UID, 'data', key), { value: payload, ts: Date.now() });
+  } catch(e) {
+    console.warn('Firebase write failed, queued for retry:', e);
+    delete _lastPushed[key];
+    _pendingWrites[key] = value;
+    setTimeout(() => window.flush_pending(), 5000);
+  }
+};
+window.flush_pending = function() {
+  if(!UID) return;
+  Object.keys(_pendingWrites).forEach(k => {
+    const v = _pendingWrites[k];
+    delete _pendingWrites[k];
+    window.sv_cloud(k, v);
+  });
 };
 
 let _unsubscribe = null;
@@ -99,12 +114,22 @@ window.sync_from_cloud = function() {
         if(change.doc.metadata.hasPendingWrites) return;
         try {
           const d = change.doc;
-          const incoming = JSON.stringify(JSON.parse(d.data().value));
-          // Only apply + re-render if the value actually differs from local
-          if(localStorage.getItem(d.id) !== incoming) {
-            localStorage.setItem(d.id, incoming);
-            changed = true;
+          const data = d.data();
+          const incoming = JSON.stringify(JSON.parse(data.value));
+          const local = localStorage.getItem(d.id);
+          if(local === incoming) return; // identical — nothing to do
+          const incomingTs = data.ts || 0;
+          const localTs = parseInt(localStorage.getItem('_ts_' + d.id) || '0', 10);
+          if(local !== null && localTs > incomingTs) {
+            // LOCAL IS NEWER — never let stale cloud data clobber it.
+            // Push our version up instead (clear dedupe cache so it actually sends).
+            delete _lastPushed[d.id];
+            try { window.sv_cloud(d.id, JSON.parse(local)); } catch(e) {}
+            return;
           }
+          localStorage.setItem(d.id, incoming);
+          localStorage.setItem('_ts_' + d.id, String(incomingTs || Date.now()));
+          changed = true;
         } catch(e) {}
       }
     });
@@ -1018,6 +1043,7 @@ const sv=(k,v)=>{
   try{
     if(localStorage.getItem(k)===payload)return; // unchanged — no write, no cloud push
     localStorage.setItem(k,payload);
+    localStorage.setItem('_ts_'+k,String(Date.now())); // mark local freshness
   }catch(e){}
   if(window.sv_cloud)window.sv_cloud(k,v);
 };
