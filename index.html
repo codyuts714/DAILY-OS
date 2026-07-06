@@ -263,6 +263,10 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .sun-btn .sun-off{fill:none;stroke:var(--t3);opacity:.45;}
 .sun-btn .sun-on{fill:#FED000;stroke:#FED000;filter:drop-shadow(0 0 4px rgba(254,208,0,.55));}
 .sun-day{font-size:8px;color:var(--t3);}
+.mood-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.mood-chip{display:flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--b2);border-radius:20px;padding:3px 9px;font-size:13px;color:var(--t2);cursor:pointer;transition:all .12s;}
+.mood-chip span{font-size:9px;text-transform:uppercase;letter-spacing:.04em;}
+.mood-chip.active{background:rgba(255,120,170,.12);border-color:var(--pink);color:var(--pink);}
 
 /* TODAY SEND BUTTON */
 .today-send{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 3px;flex-shrink:0;transition:color .15s;}
@@ -611,6 +615,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div id="scheduledEmpty" style="font-size:11px;color:var(--t3);padding:4px 0;display:none;">Nothing recurring today</div>
     <div style="margin-top:11px;">
       <div class="card-title" style="margin-bottom:6px;"><span class="dot" style="background:var(--pink)"></span>Journal</div>
+      <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Mood of the day</div>
+      <div class="mood-row" id="moodRow"></div>
       <input class="inp" id="journalTitle" placeholder="Title this day (e.g. 'Slow start, strong finish')" style="margin-bottom:6px;">
       <textarea class="jta" id="journalInput" placeholder="How did today go? Wins, struggles, cycles..."></textarea>
       <div style="display:flex;gap:6px;margin-top:5px;align-items:center;">
@@ -2099,12 +2105,46 @@ function getJournalEntry(journals,k){
   if(typeof e==='string')return {title:'',text:e};
   return e;
 }
+// -- MOOD OF THE DAY -------------------------------------------------------------
+const MOODS=[
+  {k:'fired',e:'🔥',l:'Fired up'},
+  {k:'happy',e:'😊',l:'Happy'},
+  {k:'calm',e:'😌',l:'Calm'},
+  {k:'meh',e:'😐',l:'Meh'},
+  {k:'anxious',e:'😰',l:'Anxious'},
+  {k:'frustrated',e:'😤',l:'Frustrated'},
+  {k:'sad',e:'😔',l:'Sad'},
+  {k:'drained',e:'😮‍💨',l:'Drained'}
+];
+function moodByKey(k){for(var i=0;i<MOODS.length;i++)if(MOODS[i].k===k)return MOODS[i];return null;}
+function renderMoodRow(){
+  var el=document.getElementById('moodRow');
+  if(!el)return;
+  var journals=ld('journals',{});
+  var e=getJournalEntry(journals,viewKey());
+  var cur=e&&e.mood;
+  el.innerHTML=MOODS.map(function(m){
+    return '<button class="mood-chip'+(cur===m.k?' active':'')+'" onclick="setMood(\''+m.k+'\')">'+m.e+'<span>'+m.l+'</span></button>';
+  }).join('');
+}
+function setMood(k){
+  var journals=ld('journals',{});
+  var vk=viewKey();
+  var e=getJournalEntry(journals,vk)||{title:'',text:''};
+  e.mood=(e.mood===k)?null:k; // tap the active one again to clear
+  journals[vk]=e;
+  sv('journals',journals);
+  renderMoodRow();
+  renderJournalHistory();
+}
+
 function saveJournal(){
   const text=document.getElementById('journalInput').value.trim();
   const title=document.getElementById('journalTitle').value.trim();
   if(!text)return;
   const journals=ld('journals',{});
-  journals[viewKey()]={title:title,text:text};
+  const prevE=getJournalEntry(journals,viewKey());
+  journals[viewKey()]={title:title,text:text,mood:(prevE&&prevE.mood)||null};
   sv('journals',journals);
   const s=document.getElementById('journalSaved');s.style.display='inline';
   setTimeout(()=>s.style.display='none',2000);
@@ -2132,7 +2172,7 @@ function renderJournalHistory(){
     var preview=text.replace(/\n/g,' ').slice(0,100)+(text.length>100?'...':'');
     return '<div class="j-entry" id="je-'+k+'">'
       +'<div class="j-date" data-jk="'+k+'" onclick="toggleJEntry(this.dataset.jk)" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">'
-      +'<span>'+fmtDate(k)+(title?' — <span style="color:var(--t);font-weight:600;">'+title+'</span>':'')+' <span style="color:var(--t2);font-weight:400;">('+pct+'%)</span></span>'
+      +'<span>'+(entry.mood&&moodByKey(entry.mood)?moodByKey(entry.mood).e+' ':'')+fmtDate(k)+(title?' — <span style="color:var(--t);font-weight:600;">'+title+'</span>':'')+' <span style="color:var(--t2);font-weight:400;">('+pct+'%)</span></span>'
       +'<span id="je-arrow-'+k+'" style="color:var(--t3);font-size:11px;">▸</span>'
       +'</div>'
       +'<div id="je-preview-'+k+'" class="j-text" style="margin-top:3px;">'+preview+'</div>'
@@ -2169,7 +2209,8 @@ function saveJEntry(btn){
   var titleInput=document.querySelector('input[data-jk-title="'+k+'"]');
   if(!ta)return;
   var journals=ld('journals',{});
-  journals[k]={title:titleInput?titleInput.value.trim():'',text:ta.value};
+  var prevE=getJournalEntry(journals,k);
+  journals[k]={title:titleInput?titleInput.value.trim():'',text:ta.value,mood:(prevE&&prevE.mood)||null};
   sv('journals',journals);
   var saved=document.getElementById('je-saved-'+k);
   if(saved){saved.style.display='inline';setTimeout(function(){saved.style.display='none';},2000);}
@@ -2346,6 +2387,7 @@ function loadJournalForDay(){
   const entry=getJournalEntry(journals,viewKey());
   document.getElementById('journalInput').value=entry?entry.text:'';
   document.getElementById('journalTitle').value=entry?(entry.title||''):'';
+  renderMoodRow();
 }
 
 // -- WEEKLY GRID --------------------------------------------------------------─
@@ -2849,7 +2891,7 @@ function doExport() {
     var pct = hist[k] || 0;
     var entry = getJournalEntry(journals,k);
     lines.push('');
-    lines.push('[' + k + (entry.title?' -- '+entry.title:'') + ' -- ' + pct + '% completion day]');
+    lines.push('[' + k + (entry.title?' -- '+entry.title:'') + ' -- ' + pct + '% completion day' + (entry.mood&&moodByKey(entry.mood)?' -- mood: '+moodByKey(entry.mood).l:'') + ']');
     lines.push(entry.text);
     lines.push('---');
   });
