@@ -69,14 +69,21 @@ window.googleSignIn = async function() {
 };
 
 // -- CLOUD READ/WRITE ----------------------------------------------------------
+const _lastPushed = {};
 window.sv_cloud = async function(key, value) {
   if(!UID) return;
   try {
-    await setDoc(doc(db, 'users', UID, 'data', key), { value: JSON.stringify(value) });
+    const payload = JSON.stringify(value);
+    if(_lastPushed[key] === payload) return; // nothing changed — don't ping-pong
+    _lastPushed[key] = payload;
+    await setDoc(doc(db, 'users', UID, 'data', key), { value: payload });
   } catch(e) { console.warn('Firebase write failed:', e); }
 };
 
 let _unsubscribe = null;
+let _reloadTimes = [];
+let _reloadTimer = null;
+let _pausedUntil = 0;
 
 window.sync_from_cloud = function() {
   if(!UID) return;
@@ -84,17 +91,44 @@ window.sync_from_cloud = function() {
   if(_unsubscribe) { _unsubscribe(); _unsubscribe = null; }
   // Live listener — fires instantly whenever any data changes anywhere
   _unsubscribe = onSnapshot(collection(db, 'users', UID, 'data'), (snap) => {
+    if(Date.now() < _pausedUntil) return; // circuit breaker engaged
     let changed = false;
     snap.docChanges().forEach(change => {
       if(change.type === 'added' || change.type === 'modified') {
+        // Ignore echoes of our own local writes — they're already in localStorage
+        if(change.doc.metadata.hasPendingWrites) return;
         try {
           const d = change.doc;
-          localStorage.setItem(d.id, JSON.stringify(JSON.parse(d.data().value)));
-          changed = true;
+          const incoming = JSON.stringify(JSON.parse(d.data().value));
+          // Only apply + re-render if the value actually differs from local
+          if(localStorage.getItem(d.id) !== incoming) {
+            localStorage.setItem(d.id, incoming);
+            changed = true;
+          }
         } catch(e) {}
       }
     });
-    if(changed && window.reloadFromStorage) window.reloadFromStorage();
+    if(changed && window.reloadFromStorage) {
+      // Debounce: coalesce bursts of changes into one reload
+      if(_reloadTimer) clearTimeout(_reloadTimer);
+      _reloadTimer = setTimeout(() => {
+        _reloadTimer = null;
+        // Circuit breaker: if reloads keep firing, something (an old app version
+        // on another device/tab) is fighting us through the cloud. Pause sync.
+        const now = Date.now();
+        _reloadTimes = _reloadTimes.filter(t => now - t < 10000);
+        _reloadTimes.push(now);
+        if(_reloadTimes.length > 5) {
+          _pausedUntil = now + 60000;
+          _reloadTimes = [];
+          const badge = document.getElementById('syncBadge');
+          if(badge){ badge.textContent = '⚠ sync paused — close old app tabs'; badge.style.display='inline'; badge.style.color='var(--coral)'; }
+          console.warn('Sync loop detected — another device/tab may be running an old version. Sync paused for 60s.');
+          return;
+        }
+        window.reloadFromStorage();
+      }, 300);
+    }
     const badge = document.getElementById('syncBadge');
     if(badge){ badge.textContent = '☁ live'; badge.style.display='inline'; badge.style.color='var(--green)'; }
   }, (err) => { console.warn('Firestore listener error:', err); });
@@ -215,6 +249,20 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .choose-note{font-size:9px;color:var(--t3);margin-bottom:4px;}
 .trend-rng{background:var(--bg3);border:1px solid var(--b2);color:var(--t2);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;}
 .trend-rng.active{background:var(--y2);border-color:var(--y3);color:var(--y);}
+.smoke-row{padding:8px 0;}
+.smoke-row+.smoke-row{border-top:1px solid var(--b);}
+.smoke-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;flex-wrap:wrap;gap:4px;}
+.smoke-name{font-size:12px;font-weight:700;color:var(--t);}
+.smoke-stats{font-size:11px;color:var(--t2);}
+.smoke-stats b{color:#FED000;font-size:13px;}
+.sun-strip{display:flex;gap:2px;align-items:flex-end;overflow-x:auto;padding-bottom:2px;}
+.sun-cell{display:flex;flex-direction:column;align-items:center;gap:1px;flex:0 0 auto;}
+.sun-btn{background:none;border:none;padding:2px;cursor:pointer;line-height:0;border-radius:6px;}
+.sun-btn.today{outline:1px dashed var(--y3);outline-offset:1px;}
+.sun-btn svg{width:20px;height:20px;transition:all .15s;}
+.sun-btn .sun-off{fill:none;stroke:var(--t3);opacity:.45;}
+.sun-btn .sun-on{fill:#FED000;stroke:#FED000;filter:drop-shadow(0 0 4px rgba(254,208,0,.55));}
+.sun-day{font-size:8px;color:var(--t3);}
 
 /* TODAY SEND BUTTON */
 .today-send{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 3px;flex-shrink:0;transition:color .15s;}
@@ -435,6 +483,15 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   <div class="section-divider-line"></div>
   <div class="section-divider-label personal">🌅 Personal Life</div>
   <div class="section-divider-line"></div>
+</div>
+
+<!-- SMOKE-FREE STREAKS -->
+<div class="card" style="margin-bottom:14px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:#FED000"></span>Smoke-Free Streaks</div>
+    <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap today's sun when you make it through clean</div>
+  </div>
+  <div id="smokeRows"></div>
 </div>
 
 <!-- ROW 1: Overview + Morning + Evening -->
@@ -951,7 +1008,11 @@ const DEF_BIZ={
 // -- HELPERS ------------------------------------------------------------------─
 const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}};
 const sv=(k,v)=>{
-  try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
+  const payload=JSON.stringify(v);
+  try{
+    if(localStorage.getItem(k)===payload)return; // unchanged — no write, no cloud push
+    localStorage.setItem(k,payload);
+  }catch(e){}
   if(window.sv_cloud)window.sv_cloud(k,v);
 };
 const p2=n=>String(n).padStart(2,'0');
@@ -1360,6 +1421,110 @@ function openAddTodo(){
   });
 }
 
+// -- SMOKE-FREE STREAKS ----------------------------------------------------------
+let smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
+const SMOKE_KINDS=[{key:'weed',label:'No weed 🌿'},{key:'tobacco',label:'No tobacco 🚬'}];
+
+function sunSVG(on){
+  var cls=on?'sun-on':'sun-off';
+  var rays='';
+  for(var i=0;i<8;i++){
+    var a=i*Math.PI/4;
+    var x1=12+Math.cos(a)*7.5, y1=12+Math.sin(a)*7.5;
+    var x2=12+Math.cos(a)*10.5, y2=12+Math.sin(a)*10.5;
+    rays+='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke-width="1.6" stroke-linecap="round"/>';
+  }
+  return '<svg viewBox="0 0 24 24" class="'+cls+'"><circle cx="12" cy="12" r="4.5" stroke-width="1.6"/>'+rays+'</svg>';
+}
+
+function smokeStreak(map){
+  // current: consecutive checked days ending today (today still unchecked doesn't break it)
+  var current=0, d=new Date(), tk=todayKey();
+  for(var i=0;i<3650;i++){
+    var k=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+    if(map[k])current++;
+    else if(k!==tk)break;
+    d.setDate(d.getDate()-1);
+  }
+  // best: longest consecutive run anywhere in history
+  var best=0,temp=0,prev=null;
+  Object.keys(map).filter(function(k){return map[k];}).sort().forEach(function(k){
+    if(prev){
+      var pp=prev.split('-').map(Number), cp=k.split('-').map(Number);
+      var diff=Math.round((new Date(cp[0],cp[1]-1,cp[2])-new Date(pp[0],pp[1]-1,pp[2]))/86400000);
+      temp=(diff===1)?temp+1:1;
+    }else temp=1;
+    if(temp>best)best=temp;
+    prev=k;
+  });
+  if(current>best)best=current;
+  return {current:current,best:best};
+}
+
+function renderSmokeTracker(){
+  var el=document.getElementById('smokeRows');
+  if(!el)return;
+  var tk=todayKey();
+  el.innerHTML=SMOKE_KINDS.map(function(kind){
+    var map=smokeFree[kind.key]||{};
+    var st=smokeStreak(map);
+    // strip starts at your first check-in (Day 1) and grows forward to today
+    var checkedKeys=Object.keys(map).filter(function(k){return map[k];}).sort();
+    var startKey=checkedKeys.length?(checkedKeys[0]<tk?checkedKeys[0]:tk):tk;
+    var days=[];
+    var p=startKey.split('-').map(Number);
+    var d=new Date(p[0],p[1]-1,p[2]);
+    var guard=0;
+    while(guard++<3660){
+      var k=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+      days.push({k:k,n:d.getDate()});
+      if(k===tk)break;
+      d.setDate(d.getDate()+1);
+    }
+    var hidden=0;
+    if(days.length>14){hidden=days.length-14;days=days.slice(-14);}
+    var yd=new Date();yd.setDate(yd.getDate()-1);
+    var yk=yd.getFullYear()+'-'+p2(yd.getMonth()+1)+'-'+p2(yd.getDate());
+    var suns=days.map(function(dd){
+      var on=!!map[dd.k];
+      var isToday=dd.k===tk;
+      var isYesterday=dd.k===yk;
+      return '<div class="sun-cell">'
+        +((isToday||isYesterday)
+          ?'<button class="sun-btn'+(isToday?' today':'')+'" onclick="smokeChk(\''+kind.key+'\',\''+dd.k+'\')" title="'+(isToday?'Tap when you make it through today clean':'Forgot to check in yesterday? Tap to mark it')+'">'+sunSVG(on)+'</button>'
+          :'<span class="sun-btn" style="cursor:default;" title="'+fmtDateShort(dd.k)+'">'+sunSVG(on)+'</span>')
+        +'<span class="sun-day">'+(isToday?'today':dd.n)+'</span>'
+        +'</div>';
+    }).join('');
+    var startNote=checkedKeys.length
+      ?'<span style="font-size:9px;color:var(--t3);">Day 1: '+fmtDateShort(startKey)+(hidden?' · '+hidden+' earlier day'+(hidden===1?'':'s')+' hidden':'')+'</span>'
+      :'<span style="font-size:9px;color:var(--t3);">Day 1 starts now — tap the sun</span>';
+    return '<div class="smoke-row">'
+      +'<div class="smoke-hd">'
+      +'<span class="smoke-name">'+kind.label+' <span class="task-del" style="font-size:11px;opacity:.5;" onclick="smokeReset(\''+kind.key+'\')" title="Reset this tracker">&#8634;</span></span>'
+      +'<span class="smoke-stats"><b>'+st.current+'</b> day'+(st.current===1?'':'s')+' clean &nbsp;·&nbsp; best <b>'+st.best+'</b></span>'
+      +'</div>'
+      +'<div class="sun-strip">'+suns+'</div>'
+      +startNote
+      +'</div>';
+  }).join('');
+}
+
+function smokeChk(kind,dateKey){
+  if(!smokeFree[kind])smokeFree[kind]={};
+  if(smokeFree[kind][dateKey])delete smokeFree[kind][dateKey];
+  else smokeFree[kind][dateKey]=true;
+  sv('smokeFree',smokeFree);
+  renderSmokeTracker();
+}
+
+function smokeReset(kind){
+  if(!confirm('Reset this tracker? All its suns and streaks start over from scratch.'))return;
+  smokeFree[kind]={};
+  sv('smokeFree',smokeFree);
+  renderSmokeTracker();
+}
+
 // -- TODAY LIST ----------------------------------------------------------------
 let todayLists=ld('todayLists',{});
 function getTodayItems(){return todayLists[viewKey()]||[];}
@@ -1749,9 +1914,11 @@ function renderOverall(){
   document.getElementById('overallBar').style.width=pct+'%';
   document.getElementById('overallPct').textContent=pct+'%';
   document.getElementById('overallSub').textContent=`${done} of ${total} complete`;
-  const hist=ld('hist',{});if(viewingDay===0){hist[todayKey()]=pct;sv('hist',hist);}
+  const hist=ld('hist',{});
+  if(viewingDay===0&&hist[todayKey()]!==pct){hist[todayKey()]=pct;sv('hist',hist);}
   const streak=calcStreak(hist);
-  sv('streakData',streak);
+  const prevStreak=ld('streakData',null);
+  if(JSON.stringify(prevStreak)!==JSON.stringify(streak))sv('streakData',streak);
   document.getElementById('topStreak').textContent='🔥 '+streak.current+' day'+(streak.current===1?'':'s');
   renderTrendChart(hist);renderCompChart(hist);
 }
@@ -1834,7 +2001,7 @@ function renderTrendChart(hist){
       pointHitRadius:6,
       borderWidth:long?1.5:2
     }]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{
+    options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{
       legend:{display:false},
       tooltip:{
         callbacks:{
@@ -1919,7 +2086,7 @@ function renderCompChart(hist){
   compChart=new Chart(ctx,{
     type:'bar',
     data:{labels,datasets:[{data:values,backgroundColor:values.map(v=>v===100?'#FFF3B0':v>50?'#FFF3B066':'#FFF3B022'),borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#444',font:{size:9},maxTicksLimit:8},grid:{color:'#161616'}},
               y:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'},min:0,max:100}}}
   });
@@ -2107,7 +2274,7 @@ function renderRevenue(){
       const ctx=revCanvas.getContext('2d');
       revChart=new Chart(ctx,{type:'line',
         data:{labels:sorted.map(([k])=>fmtDate(k)),datasets:[{data:sorted.map(([,v])=>Math.round(v)),borderColor:'#FFF3B0',backgroundColor:'rgba(255,243,176,0.07)',fill:true,tension:0.4,pointBackgroundColor:'#FFF3B0',pointRadius:3,borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
           scales:{x:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'}},
                   y:{ticks:{color:'#444',font:{size:9},callback:v=>'$'+v},grid:{color:'#161616'},beginAtZero:true}}}
       });
@@ -2970,6 +3137,7 @@ function renderAll(){
   safeCall(renderScheduledFixed,'renderScheduledFixed');
   safeCall(renderTodo,'renderTodo');
   safeCall(renderToday,'renderToday');
+  safeCall(renderSmokeTracker,'renderSmokeTracker');
   safeCall(renderContractors,'renderContractors');
   safeCall(renderIdeas,'renderIdeas');
   safeCall(renderAllBiz,'renderAllBiz');
@@ -3012,6 +3180,7 @@ function reloadFromStorage(){
   bizContent=ld('bizContent',DEF_BIZ.content);
   bizProduct=ld('bizProduct',DEF_BIZ.product);
   sysLog=ld('sysLog',[]);
+  smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
   loadJournalForDay();
   rolloverTodayList();
   renderAll();
