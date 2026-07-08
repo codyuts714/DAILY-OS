@@ -95,6 +95,47 @@ window.flush_pending = function() {
   });
 };
 
+// Union-merge two todayLists objects. Keeps every item from both sides,
+// dedupes within each day by todoId (or name), and "done" always wins so a
+// checked-off item never comes back to life. Earliest carriedFrom is kept so
+// the age counter can't be reset by a sync.
+window.mergeTodayLists = function(a, b) {
+  const out = {};
+  const days = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+  days.forEach(day => {
+    const seen = {};   // dedupe key -> item
+    const order = [];
+    [(a || {})[day] || [], (b || {})[day] || []].forEach(list => {
+      list.forEach(item => {
+        if(!item || !item.name) return;
+        const key = item.todoId ? 't:' + item.todoId : 'n:' + item.name;
+        const prev = seen[key];
+        if(!prev) { seen[key] = Object.assign({}, item); order.push(key); return; }
+        // same logical item on both sides — combine
+        if(item.done && !prev.done) { prev.done = true; prev.ts = item.ts || prev.ts; }
+        if(item.carriedFrom && (!prev.carriedFrom || item.carriedFrom < prev.carriedFrom)) prev.carriedFrom = item.carriedFrom;
+        if(!prev.todoId && item.todoId) prev.todoId = item.todoId;
+      });
+    });
+    const items = order.map(k => seen[k]);
+    if(items.length) out[day] = items;
+  });
+  // If an item was already carried to a newer day on one device, drop the
+  // older incomplete copy so it doesn't show up twice after rollover.
+  const dayKeys = Object.keys(out).sort();
+  for(let i = 0; i < dayKeys.length; i++) {
+    for(let j = i + 1; j < dayKeys.length; j++) {
+      const newer = out[dayKeys[j]];
+      out[dayKeys[i]] = out[dayKeys[i]].filter(item => {
+        if(item.done) return true; // done items stay as the record
+        return !newer.some(x => (item.todoId && x.todoId === item.todoId) || x.name === item.name);
+      });
+    }
+    if(!out[dayKeys[i]].length) delete out[dayKeys[i]];
+  }
+  return out;
+};
+
 let _unsubscribe = null;
 let _reloadTimes = [];
 let _reloadTimer = null;
@@ -118,6 +159,25 @@ window.sync_from_cloud = function() {
           const incoming = JSON.stringify(JSON.parse(data.value));
           const local = localStorage.getItem(d.id);
           if(local === incoming) return; // identical — nothing to do
+          // TODAY LIST: never replace wholesale — merge. A stale device pushing its
+          // whole copy was wiping items other devices added. Union both versions.
+          if(d.id === 'todayLists' && local !== null) {
+            try {
+              const merged = window.mergeTodayLists(JSON.parse(local), JSON.parse(data.value));
+              const mergedStr = JSON.stringify(merged);
+              if(mergedStr !== local) {
+                localStorage.setItem(d.id, mergedStr);
+                localStorage.setItem('_ts_' + d.id, String(Date.now()));
+                changed = true;
+              }
+              if(mergedStr !== incoming) {
+                // our merge has items the cloud is missing — push it back up
+                delete _lastPushed[d.id];
+                window.sv_cloud(d.id, merged);
+              }
+            } catch(e) { console.warn('todayLists merge failed:', e); }
+            return;
+          }
           const incomingTs = data.ts || 0;
           const localTs = parseInt(localStorage.getItem('_ts_' + d.id) || '0', 10);
           if(local !== null && localTs > incomingTs) {
@@ -307,6 +367,12 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .s-dot{width:20px;height:20px;border-radius:3px;background:var(--bg4);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--t3);}
 .s-dot.full{background:var(--y);border-color:var(--y);color:#000;font-weight:700;}
 .s-dot.partial{background:var(--bg3);border-color:var(--b2);color:var(--t2);}
+
+/* OVERDUE TODAY ITEMS */
+.task-row.overdue{border-left:2px solid var(--coral);padding-left:6px;background:rgba(255,107,107,0.05);border-radius:4px;}
+.task-row.overdue .task-name{color:var(--coral);font-weight:700;}
+.due-fucker{color:var(--coral);font-weight:800;letter-spacing:.06em;text-transform:uppercase;animation:duePulse 1.3s ease-in-out infinite;}
+@keyframes duePulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
 /* CHART */
 .chart-wrap{position:relative;height:150px;}
@@ -1598,6 +1664,17 @@ function rolloverTodayList(){
   }catch(e){console.error('Rollover error:',e);}
 }
 
+// Days an item has been sitting on the list. carriedFrom = the day it was
+// originally added (set on first rollover). 0 = added today.
+function todayItemAge(t){
+  if(!t.carriedFrom)return 0;
+  var p=t.carriedFrom.split('-').map(Number);
+  var o=new Date(p[0],p[1]-1,p[2]);
+  var n=new Date();
+  var today=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  return Math.max(0,Math.round((today-o)/86400000));
+}
+
 function renderToday(){
   var el=document.getElementById('todayList');
   var emp=document.getElementById('todayEmpty');
@@ -1611,11 +1688,17 @@ function renderToday(){
   if(!items.length){el.innerHTML='';emp.style.display='block';return;}
   emp.style.display='none';
   el.innerHTML=items.map(function(t){
-    return '<div class="task-row" data-tid="'+t.id+'">'
+    var age=todayItemAge(t);
+    var overdue=!t.done&&age>=2; // on the list 3+ days
+    var sub='';
+    if(t.ts)sub='<div class="task-ts">&#10003; '+t.ts+'</div>';
+    else if(overdue)sub='<div class="task-ts due-fucker">&#9888; DUE TODAY FUCKER &middot; day '+(age+1)+'</div>';
+    else if(t.carriedFrom)sub='<div class="task-ts" style="color:var(--y);opacity:.75;">&#8617; carried from '+fmtDateShort(t.carriedFrom)+'</div>';
+    return '<div class="task-row'+(overdue?' overdue':'')+'" data-tid="'+t.id+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk chk-circle '+(t.done?'done':'')+'" onclick="todayChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+t.name+'</div>'
-      +(t.ts?'<div class="task-ts">&#10003; '+t.ts+'</div>':(t.carriedFrom?'<div class="task-ts" style="color:var(--y);opacity:.75;">&#8617; carried from '+fmtDateShort(t.carriedFrom)+'</div>':''))
+      +sub
       +'</div><button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
   }).join('');
   makeListDraggable(el,function(newOrderIds){
@@ -1948,6 +2031,10 @@ function renderOverall(){
   document.getElementById('overallSub').textContent=`${done} of ${total} complete`;
   const hist=ld('hist',{});
   if(viewingDay===0&&hist[todayKey()]!==pct){hist[todayKey()]=pct;sv('hist',hist);}
+  // Track biz vs life separately so the trend chart can show both lines
+  const histS=ld('histSplit',{});
+  const curS=histS[todayKey()];
+  if(viewingDay===0&&(!curS||curS.b!==bPct||curS.p!==pPct)){histS[todayKey()]={b:bPct,p:pPct};sv('histSplit',histS);}
   const streak=calcStreak(hist);
   const prevStreak=ld('streakData',null);
   if(JSON.stringify(prevStreak)!==JSON.stringify(streak))sv('streakData',streak);
@@ -2003,14 +2090,18 @@ function trendDateKeys(hist){
 
 function renderTrendChart(hist){
   const journals=ld('journals',{});
+  const histS=ld('histSplit',{});
   const dateKeys=trendDateKeys(hist);
   const long=dateKeys.length>45;
-  const labels=[],values=[],titles=[];
+  const labels=[],values=[],bizVals=[],lifeVals=[],titles=[];
   dateKeys.forEach(function(k){
     var p=k.split('-').map(Number);
     var d=new Date(p[0],p[1]-1,p[2]);
     labels.push(d.toLocaleDateString('en-US',long?{month:'short',day:'numeric',year:'2-digit'}:{month:'short',day:'numeric'}));
     values.push(hist[k]||0);
+    var s=histS[k];
+    bizVals.push(s?s.b:null);   // null = no split data recorded that day (line skips it)
+    lifeVals.push(s?s.p:null);
     const entry=getJournalEntry(journals,k);
     titles.push(entry?entry.title:'');
   });
@@ -2023,18 +2114,44 @@ function renderTrendChart(hist){
   const ctx=canvas.getContext('2d');
   trendChart=new Chart(ctx,{
     type:'line',
-    data:{labels,datasets:[{
-      data:values,
-      borderColor:'#FFF3B0',
-      backgroundColor:'rgba(255,243,176,0.08)',
-      fill:true,tension:0.35,
-      pointBackgroundColor:'#FFF3B0',
-      pointRadius:long?0:2,
-      pointHitRadius:6,
-      borderWidth:long?1.5:2
-    }]},
-    options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{
-      legend:{display:false},
+    data:{labels,datasets:[
+      {
+        label:'Business',
+        data:bizVals,
+        borderColor:'#FFF3B0',
+        backgroundColor:'rgba(255,243,176,0.06)',
+        fill:false,tension:0.35,spanGaps:true,
+        pointBackgroundColor:'#FFF3B0',
+        pointRadius:long?0:2,
+        pointHitRadius:6,
+        borderWidth:long?1.5:2
+      },
+      {
+        label:'Life',
+        data:lifeVals,
+        borderColor:'#00d68f',
+        backgroundColor:'rgba(0,214,143,0.06)',
+        fill:false,tension:0.35,spanGaps:true,
+        pointBackgroundColor:'#00d68f',
+        pointRadius:long?0:2,
+        pointHitRadius:6,
+        borderWidth:long?1.5:2
+      },
+      {
+        label:'Overall',
+        data:values,
+        borderColor:'#3a3a3a',
+        borderDash:[3,3],
+        fill:false,tension:0.35,
+        pointRadius:0,
+        pointHitRadius:0,
+        borderWidth:1
+      }
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+      legend:{display:true,position:'top',align:'end',labels:{color:'#666',boxWidth:8,boxHeight:8,font:{size:8},padding:6,filter:function(item){return item.text!=='Overall';}}},
       tooltip:{
         callbacks:{
           title:function(items){
@@ -2042,10 +2159,14 @@ function renderTrendChart(hist){
             return labels[idx];
           },
           label:function(item){
-            var idx=item.dataIndex;
-            var pct=values[idx];
+            var v=item.raw;
+            if(v===null||v===undefined)return null;
+            return item.dataset.label+': '+v+'%';
+          },
+          footer:function(items){
+            var idx=items[0].dataIndex;
             var t=titles[idx];
-            return t ? [pct+'% complete', '"'+t+'"'] : pct+'% complete';
+            return t?'"'+t+'"':'';
           }
         }
       }
