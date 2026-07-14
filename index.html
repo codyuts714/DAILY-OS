@@ -95,6 +95,39 @@ window.flush_pending = function() {
   });
 };
 
+// Identity key for a today-list item
+window._tlKey = function(item){ return item.todoId ? 't:' + item.todoId : 'n:' + item.name; };
+
+// GHOST KILLER: once an item is marked done on day D, any INCOMPLETE copy of the
+// same item whose lineage (carriedFrom, or its own day) started on-or-before D is
+// a stale-device ghost — kill it. A genuinely new task re-added later has a
+// lineage that starts AFTER the done record, so it survives.
+window.killTodayGhosts = function(lists) {
+  try {
+    var doneDay = {}; // key -> latest day it was completed
+    Object.keys(lists).forEach(function(day){
+      (lists[day] || []).forEach(function(item){
+        if(item && item.done){
+          var k = window._tlKey(item);
+          if(!doneDay[k] || day > doneDay[k]) doneDay[k] = day;
+        }
+      });
+    });
+    Object.keys(lists).forEach(function(day){
+      var filtered = (lists[day] || []).filter(function(item){
+        if(!item || !item.name) return false;
+        if(item.done) return true; // done items are the archive record — always keep
+        var dd = doneDay[window._tlKey(item)];
+        if(!dd) return true;
+        var origin = item.carriedFrom || day;
+        return origin > dd; // survive only if this lineage began AFTER completion
+      });
+      if(filtered.length) lists[day] = filtered; else delete lists[day];
+    });
+  } catch(e) { console.warn('killTodayGhosts failed:', e); }
+  return lists;
+};
+
 // Union-merge two todayLists objects. Keeps every item from both sides,
 // dedupes within each day by todoId (or name), and "done" always wins so a
 // checked-off item never comes back to life. Earliest carriedFrom is kept so
@@ -133,7 +166,9 @@ window.mergeTodayLists = function(a, b) {
     }
     if(!out[dayKeys[i]].length) delete out[dayKeys[i]];
   }
-  return out;
+  // Final pass: kill newer incomplete ghosts of items already completed on an
+  // earlier day (stale device rolled them over before it got the cloud update).
+  return window.killTodayGhosts(out);
 };
 
 let _unsubscribe = null;
@@ -1724,15 +1759,30 @@ function setTodayItems(items){todayLists[viewKey()]=items;sv('todayLists',todayL
 function rolloverTodayList(){
   try{
     var tk=todayKey();
+    // Purge stale-device ghosts BEFORE carrying anything, so a completed item
+    // is never re-carried onto today by a device with old data.
+    var beforeGhostKill=JSON.stringify(todayLists);
+    window.killTodayGhosts(todayLists);
+    var ghostsKilled=JSON.stringify(todayLists)!==beforeGhostKill;
+    // Build map of done items so the carry loop can double-check
+    var doneDay={};
+    Object.keys(todayLists).forEach(function(d){
+      (todayLists[d]||[]).forEach(function(it){
+        if(it&&it.done){var kk=window._tlKey(it);if(!doneDay[kk]||d>doneDay[kk])doneDay[kk]=d;}
+      });
+    });
     var pastKeys=Object.keys(todayLists).filter(function(k){return k<tk;}).sort();
-    if(!pastKeys.length)return;
+    if(!pastKeys.length){if(ghostsKilled)sv('todayLists',todayLists);return;}
     var today=todayLists[tk]||[];
-    var changed=false;
+    var changed=ghostsKilled;
     pastKeys.forEach(function(k){
       var keep=[];
       (todayLists[k]||[]).forEach(function(item){
         if(item.done){keep.push(item);return;}
         changed=true;
+        // if the same item was already completed on a later day, don't resurrect it
+        var dd=doneDay[window._tlKey(item)];
+        if(dd&&(item.carriedFrom||k)<=dd)return;
         // if linked to-do was completed elsewhere, don't carry it
         if(item.todoId){
           var td=todos.find(function(x){return x.id===item.todoId;});
