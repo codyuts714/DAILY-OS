@@ -148,6 +148,8 @@ window.mergeTodayLists = function(a, b) {
         if(item.done && !prev.done) { prev.done = true; prev.ts = item.ts || prev.ts; }
         if(item.carriedFrom && (!prev.carriedFrom || item.carriedFrom < prev.carriedFrom)) prev.carriedFrom = item.carriedFrom;
         if(!prev.todoId && item.todoId) prev.todoId = item.todoId;
+        // tag: client wins over internal/none so client emphasis never drops in a sync
+        if(item.tag === 'client' || (!prev.tag && item.tag)) prev.tag = item.tag;
       });
     });
     const items = order.map(k => seen[k]);
@@ -406,6 +408,12 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 /* OVERDUE TODAY ITEMS */
 .task-row.overdue{border-left:2px solid var(--coral);padding-left:6px;background:rgba(255,107,107,0.05);border-radius:4px;}
 .task-row.overdue .task-name{color:var(--coral);font-weight:700;}
+.tag-pill{font-size:8px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:9px;border:1px solid var(--b3);color:var(--t2);background:transparent;cursor:pointer;flex-shrink:0;margin-top:3px;text-transform:uppercase;transition:all .15s;font-family:inherit;}
+.tag-pill:hover{border-color:var(--t2);}
+.tag-pill.client{color:#0a0a0a;background:#FED000;border-color:#FED000;box-shadow:0 0 6px rgba(254,208,0,.35);}
+.task-row.client-row{border-left:2px solid #FED000;padding-left:6px;background:rgba(254,208,0,.04);border-radius:4px;}
+.task-row.client-row.overdue{border-left:2px solid var(--coral);}
+.client-count{font-size:9px;font-weight:800;color:#0a0a0a;background:#FED000;padding:2px 7px;border-radius:9px;letter-spacing:.05em;white-space:nowrap;}
 .due-fucker{color:var(--coral);font-weight:800;letter-spacing:.06em;text-transform:uppercase;animation:duePulse 1.3s ease-in-out infinite;}
 @keyframes duePulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
@@ -755,6 +763,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Today List</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="client-count" id="todayClientBadge" style="display:none;"></span>
         <span class="sec-pct" style="color:var(--orange)" id="todayPct">0/0</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddToday()">+</button>
       </div>
@@ -1793,7 +1802,7 @@ function rolloverTodayList(){
           return (item.todoId&&x.todoId===item.todoId)||x.name===item.name;
         });
         if(!dup){
-          today.push({id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,done:false,carriedFrom:item.carriedFrom||k});
+          today.push({id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,tag:item.tag,done:false,carriedFrom:item.carriedFrom||k});
         }
       });
       if(keep.length)todayLists[k]=keep;else delete todayLists[k];
@@ -1826,25 +1835,44 @@ function renderToday(){
   var barEl=document.getElementById('todayBar');
   if(pctEl)pctEl.textContent=done+'/'+items.length;
   if(barEl)barEl.style.width=(items.length?Math.round(done/items.length*100):0)+'%';
+  // client badge: open (not done) client-tagged items
+  var openClient=items.filter(function(x){return !x.done&&x.tag==='client';}).length;
+  var badge=document.getElementById('todayClientBadge');
+  if(badge){
+    if(openClient>0){badge.textContent=openClient+' CLIENT OPEN';badge.style.display='inline-block';}
+    else badge.style.display='none';
+  }
   if(!items.length){el.innerHTML='';emp.style.display='block';return;}
   emp.style.display='none';
   el.innerHTML=items.map(function(t){
     var age=todayItemAge(t);
     var overdue=!t.done&&age>=2; // on the list 3+ days
+    var isClient=t.tag==='client';
     var sub='';
     if(t.ts)sub='<div class="task-ts">&#10003; '+t.ts+'</div>';
     else if(overdue)sub='<div class="task-ts due-fucker">&#9888; DUE TODAY FUCKER &middot; day '+(age+1)+'</div>';
     else if(t.carriedFrom)sub='<div class="task-ts" style="color:var(--y);opacity:.75;">&#8617; carried from '+fmtDateShort(t.carriedFrom)+'</div>';
-    return '<div class="task-row'+(overdue?' overdue':'')+'" data-tid="'+t.id+'">'
+    return '<div class="task-row'+(overdue?' overdue':'')+(isClient?' client-row':'')+'" data-tid="'+t.id+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk chk-circle '+(t.done?'done':'')+'" onclick="todayChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+t.name+'</div>'
       +sub
-      +'</div><button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
+      +'</div>'
+      +'<button class="tag-pill'+(isClient?' client':'')+'" onclick="todayTag(this)" title="Toggle client / internal">'+(isClient?'CLIENT':'INT')+'</button>'
+      +'<button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
   }).join('');
   makeListDraggable(el,function(newOrderIds){
     setTodayItems(reorderListByIds(getTodayItems(),newOrderIds));
   });
+}
+function todayTag(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  var items=getTodayItems();
+  var t=items.find(function(x){return x.id===id;});
+  if(!t)return;
+  t.tag=(t.tag==='client')?'internal':'client';
+  setTodayItems(items);
+  renderToday();
 }
 function todayChk(btn){
   var id=btn.closest('.task-row').dataset.tid;
