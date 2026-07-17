@@ -473,11 +473,18 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .await-amt{color:var(--orange);font-weight:700;}
 
 /* SCROLLBAR */
-::-webkit-scrollbar{width:14px;}
+/* inner card lists — moderate so they don't eat card space */
+::-webkit-scrollbar{width:12px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:7px;border:3px solid var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:6px;border:2px solid var(--bg2);}
 ::-webkit-scrollbar-thumb:hover{background:#4a4a4a;}
-html{scrollbar-width:auto;scrollbar-color:var(--b2) var(--bg2);}
+/* MAIN PAGE scrollbar — extra wide + high-contrast thumb, easy to grab */
+html::-webkit-scrollbar{width:26px;}
+html::-webkit-scrollbar-track{background:var(--bg2);border-left:1px solid var(--b);}
+html::-webkit-scrollbar-thumb{background:#3d3d3d;border-radius:13px;border:5px solid var(--bg2);min-height:60px;}
+html::-webkit-scrollbar-thumb:hover{background:#555;}
+html::-webkit-scrollbar-thumb:active{background:var(--y3);}
+html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 /* -- WHY I DO THIS (mission banner) -- */
 .mission-banner{background:linear-gradient(135deg,var(--bg2),#141204);border:1px solid var(--y3);border-left:3px solid var(--y);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
 .mission-label{font-size:11px;font-weight:800;color:var(--y);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;padding-top:3px;}
@@ -731,15 +738,13 @@ html{scrollbar-width:auto;scrollbar-color:var(--b2) var(--bg2);}
 
   <!-- SIDE COLUMN: burst pacer, hours, laundry, schedule -->
   <div class="side-col">
-    <!-- 4-HOUR BURST PACER -->
+    <!-- DAILY BURSTS: three separate focused runs -->
     <div class="card">
       <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--y)"></span>⚡ 4-Hour Burst</div>
-        <button class="btn btn-y btn-sm" id="burstBtn" onclick="toggleBurst()">Start</button>
+        <div class="card-title"><span class="dot" style="background:var(--y)"></span>⚡ Daily Bursts</div>
       </div>
-      <div class="choose-label" style="color:var(--t2);">Morning &rarr; business dailies &rarr; evening. Set minutes on each box (tap the &ldquo;Xm&rdquo; chip) &mdash; when running, yellow marks where you should be by now.</div>
-      <div id="burstStats"></div>
-      <div id="burstNow"></div>
+      <div class="choose-label" style="color:var(--t2);">Three focused runs instead of one impossible block. Tap a target to change it, tap a box's &ldquo;Xm&rdquo; chip to set its minutes &mdash; when running, yellow marks where you should be by now.</div>
+      <div id="burstRows"></div>
     </div>
 
     <!-- HOURS BY BUCKET -->
@@ -794,7 +799,7 @@ html{scrollbar-width:auto;scrollbar-color:var(--b2) var(--bg2);}
   <div class="section-divider-line"></div>
 </div>
 
-<!-- ROW 2: Morning (do these in order) | Journal + history -->
+<!-- ROW 2: Morning | Evening (Wind-Down) — side by side, bookends of the day -->
 <div class="grid-2">
   <!-- MORNING -->
   <div class="card">
@@ -810,6 +815,22 @@ html{scrollbar-width:auto;scrollbar-color:var(--b2) var(--bg2);}
     <div id="morningList"></div>
   </div>
 
+  <!-- EVENING (WIND-DOWN) -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>&#127769; Evening &mdash; Wind-Down</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" style="color:var(--purple)" id="eveningPct">0%</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddTask('evening')">+</button>
+      </div>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="eveningBar" style="width:0%;background:var(--purple)"></div></div>
+    <div id="eveningList"></div>
+  </div>
+</div>
+
+<!-- ROW 2b: Journal | Smoke-Free -->
+<div class="grid-2">
   <!-- JOURNAL + HISTORY -->
   <div class="card">
     <div class="card-title" style="margin-bottom:6px;"><span class="dot" style="background:var(--pink)"></span>Journal</div>
@@ -829,6 +850,15 @@ html{scrollbar-width:auto;scrollbar-color:var(--b2) var(--bg2);}
       <div id="journalHistory" style="max-height:340px;overflow-y:auto;margin-top:6px;"></div>
       <div id="journalEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Write your first entry above.</div>
     </div>
+  </div>
+
+  <!-- SMOKE-FREE STREAKS -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:#FED000"></span>Smoke-Free Streaks</div>
+      <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap today's sun when you make it through clean</div>
+    </div>
+    <div id="smokeRows"></div>
   </div>
 </div>
 
@@ -1045,36 +1075,6 @@ html{scrollbar-width:auto;scrollbar-color:var(--b2) var(--bg2);}
     <div class="choose-label" style="color:var(--t2);">Tap the stage to advance a lead &middot; tap &#128075; every time you reach out</div>
     <div id="pipeList" style="max-height:300px;overflow-y:auto;"></div>
     <div id="pipeEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No leads yet. Two new clients don't find themselves.</div>
-  </div>
-</div>
-
-<!-- ═══ WIND-DOWN — end of day ═══ -->
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label personal">&#127769; Wind-Down</div>
-  <div class="section-divider-line"></div>
-</div>
-<div class="grid-2">
-  <!-- EVENING -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Evening</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--purple)" id="eveningPct">0%</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddTask('evening')">+</button>
-      </div>
-    </div>
-    <div class="sec-track"><div class="sec-fill" id="eveningBar" style="width:0%;background:var(--purple)"></div></div>
-    <div id="eveningList"></div>
-  </div>
-
-  <!-- SMOKE-FREE STREAKS -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:#FED000"></span>Smoke-Free Streaks</div>
-      <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap today's sun when you make it through clean</div>
-    </div>
-    <div id="smokeRows"></div>
   </div>
 </div>
 
@@ -1418,8 +1418,7 @@ function updateClock(){
   if(++_burstTick>=60){
     _burstTick=0;
     try{
-      var b=burstState();
-      if(b&&b.start&&viewingDay===0){
+      if(anyBurstActive()&&viewingDay===0){
         _pace=computePace();
         renderBurst();renderSection('morning');renderSection('evening');renderAllBiz();
       }
@@ -1578,13 +1577,29 @@ function savePlanToday(){
   renderPlan();
 }
 
-// -- 4-HOUR BURST PACER --------------------------------------------------------─
-// Every daily checkbox gets a minutes value (t.min, editable via the "Xm"
-// chip; falls back to parsing the dur string). Hitting Start walks the
-// sequence morning → biz dailies → evening against the clock: the box you
-// should be on right now highlights yellow; undone boxes you should already
-// be past get a faint yellow edge.
-const BURST_TARGET=240; // 4 hours
+// -- DAILY BURSTS ---------------------------------------------------------------
+// Three separate focused runs instead of one impossible 4h block covering all
+// 33 boxes: Morning (90m) · Business (150m default — tap target for 2–3h) ·
+// Evening (90m). Each burst walks its own boxes against its own clock: the box
+// you should be on highlights yellow; undone boxes you should be past get a
+// faint yellow edge. Targets are editable (tap the "Xm target" chip).
+const BURST_DEFS=[
+  {id:'m',label:'&#127749; Morning',def:90},
+  {id:'b',label:'&#128188; Business',def:150},
+  {id:'e',label:'&#127769; Evening',def:90}
+];
+function burstTargets(){var t=ld('burstTargets',{});return {m:t.m||90,b:t.b||150,e:t.e||90};}
+function editBurstTarget(which){
+  var t=burstTargets();
+  var v=prompt('Target minutes for this burst',t[which]);
+  if(v===null)return;
+  var n=parseFloat(v);
+  if(isNaN(n)||n<=0)return;
+  t[which]=Math.round(n);
+  sv('burstTargets',t);
+  _pace=computePace();
+  renderBurst();renderSection('morning');renderSection('evening');renderAllBiz();
+}
 function taskMin(t,fallback){
   if(typeof t.min==='number'&&t.min>0)return t.min;
   if(t.dur){
@@ -1598,22 +1613,27 @@ function groupMin(list,fallback){
   var mx=0;list.forEach(function(t){mx=Math.max(mx,taskMin(t,fallback));});
   return mx||fallback;
 }
-function buildBurstSeq(){
+function buildBurstSeq(which){
   var seq=[];
-  morning.forEach(function(t){seq.push({k:'m:'+t.id,label:t.name,min:taskMin(t,5)});});
-  bizVisNon.forEach(function(t){seq.push({k:'vn:'+t.id,label:t.name,min:taskMin(t,10)});});
-  seq.push({k:'v:*',label:'Visibility — choose one',min:groupMin(bizVis,15)});
-  bizClient.forEach(function(t){seq.push({k:'c:'+t.id,label:t.name,min:taskMin(t,10)});});
-  bizMoney.forEach(function(t){seq.push({k:'mo:'+t.id,label:t.name,min:taskMin(t,5)});});
-  seq.push({k:'a:*',label:'Admin — choose one',min:groupMin(bizAdmin,15)});
-  evening.forEach(function(t){seq.push({k:'e:'+t.id,label:t.name,min:taskMin(t,5)});});
+  if(which==='m'){
+    morning.forEach(function(t){seq.push({k:'m:'+t.id,label:t.name,min:taskMin(t,5)});});
+  }else if(which==='b'){
+    bizVisNon.forEach(function(t){seq.push({k:'vn:'+t.id,label:t.name,min:taskMin(t,10)});});
+    seq.push({k:'v:*',label:'Visibility — choose one',min:groupMin(bizVis,15)});
+    bizClient.forEach(function(t){seq.push({k:'c:'+t.id,label:t.name,min:taskMin(t,10)});});
+    bizMoney.forEach(function(t){seq.push({k:'mo:'+t.id,label:t.name,min:taskMin(t,5)});});
+    seq.push({k:'a:*',label:'Admin — choose one',min:groupMin(bizAdmin,15)});
+  }else if(which==='e'){
+    evening.forEach(function(t){seq.push({k:'e:'+t.id,label:t.name,min:taskMin(t,5)});});
+  }
   return seq;
 }
-function burstState(){return ld('burst_'+todayKey(),null);}
-function toggleBurst(){
-  var b=burstState();
-  if(b&&b.start)sv('burst_'+todayKey(),{ended:Date.now()});
-  else sv('burst_'+todayKey(),{start:Date.now()});
+function burstState(which){return ld('burst_'+which+'_'+todayKey(),null);}
+function anyBurstActive(){return BURST_DEFS.some(function(d){var b=burstState(d.id);return b&&b.start;});}
+function toggleBurst(which){
+  var b=burstState(which);
+  if(b&&b.start)sv('burst_'+which+'_'+todayKey(),{ended:Date.now()});
+  else sv('burst_'+which+'_'+todayKey(),{start:Date.now()});
   _pace=computePace();
   renderBurst();renderSection('morning');renderSection('evening');renderAllBiz();
 }
@@ -1633,20 +1653,28 @@ function burstDoneMap(){
 }
 let _pace=null;
 function computePace(){
-  var b=burstState();
-  var seq=buildBurstSeq();
-  var planned=seq.reduce(function(s,x){return s+x.min;},0);
-  if(!b||!b.start)return {active:false,seq:seq,planned:planned,map:{}};
-  var elapsed=(Date.now()-b.start)/60000;
   var isDone=burstDoneMap();
-  var map={},cum=0,nowLabel=null,behind=0;
-  seq.forEach(function(x){
-    var start=cum,end=cum+x.min;cum=end;
-    if(elapsed>=end){map[x.k]='past';if(!isDone(x.k))behind++;}
-    else if(elapsed>=start){map[x.k]='now';nowLabel=x.label;}
+  var targets=burstTargets();
+  var map={},bursts={};
+  BURST_DEFS.forEach(function(d){
+    var seq=buildBurstSeq(d.id);
+    var planned=seq.reduce(function(s,x){return s+x.min;},0);
+    var b=burstState(d.id);
+    var info={active:!!(b&&b.start),seq:seq,planned:planned,target:targets[d.id]};
+    if(info.active){
+      var elapsed=(Date.now()-b.start)/60000;
+      var cum=0,nowLabel=null,behind=0;
+      seq.forEach(function(x){
+        var start=cum,end=cum+x.min;cum=end;
+        if(elapsed>=end){map[x.k]='past';if(!isDone(x.k))behind++;}
+        else if(elapsed>=start){map[x.k]='now';nowLabel=x.label;}
+      });
+      if(elapsed>=cum)nowLabel='done — everything should be checked by now';
+      info.elapsed=Math.round(elapsed);info.nowLabel=nowLabel;info.behind=behind;
+    }
+    bursts[d.id]=info;
   });
-  if(elapsed>=cum)nowLabel='done — everything should be checked by now';
-  return {active:true,seq:seq,planned:planned,map:map,elapsed:Math.round(elapsed),nowLabel:nowLabel,behind:behind};
+  return {active:anyBurstActive(),map:map,bursts:bursts};
 }
 // class for a task row given its pace key — '' when burst idle or task done
 function paceCls(k,done){
@@ -1655,28 +1683,31 @@ function paceCls(k,done){
   return st==='now'?' pace-now':st==='past'?' pace-behind':'';
 }
 function renderBurst(){
-  var stats=document.getElementById('burstStats');
-  var nowEl=document.getElementById('burstNow');
-  var btn=document.getElementById('burstBtn');
-  if(!stats)return;
+  var el=document.getElementById('burstRows');
+  if(!el)return;
   _pace=computePace();
-  var boxes=_pace.seq.length;
-  var even=boxes?(BURST_TARGET/boxes):0;
-  var over=_pace.planned-BURST_TARGET;
-  var html='<div class="burst-stat"><span>Boxes in the run</span><b>'+boxes+'</b></div>'
-    +'<div class="burst-stat"><span>Even split of 4h</span><b>'+(even%1?even.toFixed(1):even)+' min each</b></div>'
-    +'<div class="burst-stat"><span>Planned (your minutes)</span><b style="color:'+(over>0?'var(--coral)':'var(--green)')+';">'+_pace.planned+' / '+BURST_TARGET+' min</b></div>';
-  if(over>0)html+='<div style="font-size:10px;color:var(--coral);padding-top:2px;">'+over+' min over the 4h budget — trim some chips</div>';
-  stats.innerHTML=html;
-  if(btn)btn.textContent=_pace.active?'End':'Start';
-  if(nowEl){
-    if(_pace.active){
-      nowEl.innerHTML='<div class="burst-now">&#9201; '+Math.floor(_pace.elapsed/60)+'h '+(_pace.elapsed%60)+'m in'
-        +(_pace.nowLabel?'<br>You should be at: <b>'+_pace.nowLabel+'</b>':'')
-        +(_pace.behind?'<br><span style="color:var(--coral);">'+_pace.behind+' box'+(_pace.behind===1?'':'es')+' behind pace</span>':'<br><span style="color:var(--green);">on pace &#10003;</span>')
+  el.innerHTML=BURST_DEFS.map(function(d,i){
+    var info=_pace.bursts[d.id];
+    var over=info.planned-info.target;
+    var hrs=(info.target/60);
+    var html='<div style="'+(i?'border-top:1px solid var(--b);margin-top:8px;padding-top:8px;':'margin-top:6px;')+'">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">'
+      +'<div style="font-size:12px;font-weight:600;">'+d.label+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+      +'<span onclick="editBurstTarget(\''+d.id+'\')" style="cursor:pointer;font-size:10px;color:var(--y);border:1px solid var(--y3);border-radius:10px;padding:1px 7px;white-space:nowrap;" title="Tap to change this burst\'s target">'+(hrs%1?hrs.toFixed(1):hrs)+'h target</span>'
+      +'<button class="btn '+(info.active?'btn-ghost':'btn-y')+' btn-sm" onclick="toggleBurst(\''+d.id+'\')">'+(info.active?'End':'Start')+'</button>'
+      +'</div></div>'
+      +'<div class="burst-stat"><span>'+info.seq.length+' boxes &middot; planned</span><b style="color:'+(over>0?'var(--coral)':'var(--green)')+';">'+info.planned+' / '+info.target+' min</b></div>';
+    if(over>0)html+='<div style="font-size:10px;color:var(--coral);">'+over+' min over &mdash; trim some chips or tap the target</div>';
+    if(info.active){
+      html+='<div class="burst-now">&#9201; '+Math.floor(info.elapsed/60)+'h '+(info.elapsed%60)+'m in'
+        +(info.nowLabel?'<br>You should be at: <b>'+info.nowLabel+'</b>':'')
+        +(info.behind?'<br><span style="color:var(--coral);">'+info.behind+' box'+(info.behind===1?'':'es')+' behind pace</span>':'<br><span style="color:var(--green);">on pace &#10003;</span>')
         +'</div>';
-    }else nowEl.innerHTML='';
-  }
+    }
+    html+='</div>';
+    return html;
+  }).join('');
 }
 // edit a task's minutes from its "Xm" chip
 function editMin(listKey,id){
@@ -2184,10 +2215,15 @@ window._tlItemTs = function(item){
 window.recordTlTombstone = function(item){
   try{
     var tomb=ld('tlTombstones',{});
-    tomb[window._tlKey(item)]=Date.now();
+    // store the delete DAY too — carried copies get fresh ids each rollover,
+    // so a raw timestamp compare can't tell a stale carry from a real re-add
+    tomb[window._tlKey(item)]={ts:Date.now(),day:todayKey()};
     // prune tombstones older than 14 days — by then every device has synced
     var cutoff=Date.now()-14*86400000;
-    Object.keys(tomb).forEach(function(k){if(tomb[k]<cutoff)delete tomb[k];});
+    Object.keys(tomb).forEach(function(k){
+      var r=tomb[k];var rts=(typeof r==='number')?r:(r&&r.ts)||0;
+      if(rts<cutoff)delete tomb[k];
+    });
     sv('tlTombstones',tomb);
   }catch(e){}
 };
@@ -2198,9 +2234,17 @@ window.applyTlTombstones = function(lists){
     Object.keys(lists).forEach(function(day){
       var f=(lists[day]||[]).filter(function(item){
         if(!item)return false;
-        var ts=tomb[window._tlKey(item)];
-        if(!ts)return true;
-        return window._tlItemTs(item)>ts; // created after the delete = real re-add
+        var rec=tomb[window._tlKey(item)];
+        if(!rec)return true;
+        var tts=(typeof rec==='number')?rec:(rec.ts||0);
+        var tday=(typeof rec==='object'&&rec.day)?rec.day:null;
+        if(item.carriedFrom){
+          // a CARRIED copy is never a fresh re-add — its rollover-fresh id
+          // can't vouch for it. It survives only if its lineage began AFTER
+          // the day it was deleted (a real re-add that later carried over).
+          return tday?item.carriedFrom>tday:false;
+        }
+        return window._tlItemTs(item)>tts; // created after the delete = real re-add
       });
       if(f.length)lists[day]=f;else delete lists[day];
     });
@@ -2229,8 +2273,12 @@ window.killTodayGhosts = function(lists) {
         if(item.done) return true; // done items are the archive record — always keep
         var dd = doneDay[window._tlKey(item)];
         if(!dd) return true;
-        var origin = item.carriedFrom || day;
-        return origin >= dd; // kill only STRICTLY older lineage — a same-day re-add is a real task, not a ghost
+        // a CARRIED copy whose lineage began on-or-before the done day is a
+        // stale-device rollover of the finished item — kill it. (This is how
+        // done items were coming back: an item added+finished the same day
+        // had carriedFrom === doneDay on the stale copy, and >= let it live.)
+        if(item.carriedFrom) return item.carriedFrom > dd;
+        return day >= dd; // a same-day (or later) fresh re-add is a real task, not a ghost
       });
       if(filtered.length) lists[day] = filtered; else delete lists[day];
     });
@@ -2322,11 +2370,15 @@ function rolloverTodayList(){
         try{
           if(!item||!item.name){return;}
           if(item.done){keep.push(item);return;}
-          // if the same item was already completed on a LATER day, don't
-          // resurrect it (strictly-earlier lineage only — a same-day re-add
-          // is a real task, not a ghost)
+          // if the same item was already completed, don't resurrect it.
+          // Carried copies whose lineage began on-or-before the done day are
+          // ghosts of the finished task; only a fresh re-add made on/after
+          // the done day is real.
           var dd=doneDay[tlKey(item)];
-          if(dd&&(item.carriedFrom||k)<dd){changed=true;return;}
+          if(dd){
+            var isGhost=item.carriedFrom?(item.carriedFrom<=dd):(k<dd);
+            if(isGhost){changed=true;return;}
+          }
           // if the linked to-do was completed elsewhere, the work IS done —
           // keep the item on its day as a DONE record instead of deleting it
           if(item.todoId){
