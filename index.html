@@ -221,6 +221,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 /* GRIDS */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+#morningList,#eveningList{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-items:start;}
+@media(max-width:700px){#morningList,#eveningList{grid-template-columns:1fr;}}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
 .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px;}
 @media(max-width:900px){
@@ -509,9 +511,9 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .goal-pill.done .g-txt{text-decoration:line-through;}
 .goal-pill.done .g-chk{background:var(--green);border-color:var(--green);}
 /* -- TODAY'S PLAN -- */
-.plan-card{background:var(--bg2);border:1px solid var(--b2);border-left:3px solid var(--blue);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.plan-card{background:linear-gradient(135deg,var(--bg2),#0d1220);border:1px solid rgba(96,165,250,.4);border-left:4px solid var(--blue);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:14px;box-shadow:0 0 16px rgba(96,165,250,.07);}
 @media(max-width:700px){.plan-card{grid-template-columns:1fr;}}
-.plan-hd{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.plan-hd{font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
 .plan-today-text{font-size:13px;color:var(--t);line-height:1.55;white-space:pre-wrap;}
 .plan-today-text.empty{color:var(--t3);font-style:italic;}
 .plan-ta{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:6px;color:var(--t);font-size:12px;padding:8px;min-height:56px;resize:vertical;font-family:inherit;}
@@ -727,8 +729,15 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div class="stat-lbl" style="margin-top:12px;margin-bottom:4px;">30-Day Completion</div>
     <div class="chart-wrap" style="height:110px;"><canvas id="completionChart"></canvas></div>
 
+
+  </div>
+
+  <!-- SIDE COLUMN: money, hours, schedule -->
+  <div class="side-col">
+    <!-- MONEY — revenue log + contractor payouts, right next to the graphs -->
+    <div class="card">
     <!-- REVENUE — directly under the progress graphs so the two can be compared -->
-    <div style="margin-top:14px;border-top:1px solid var(--b2);padding-top:10px;">
+    <div>
       <div class="card-hd">
         <div class="card-title"><span class="dot" style="background:var(--y)"></span>Revenue</div>
         <div class="filter-row" style="margin:0;">
@@ -761,17 +770,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
         <div id="conPaidTotal" style="font-size:10px;color:var(--t2);margin-top:5px;"></div>
       </div>
     </div>
-  </div>
-
-  <!-- SIDE COLUMN: burst pacer, hours, laundry, schedule -->
-  <div class="side-col">
-    <!-- DAILY BURSTS: three separate focused runs -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--y)"></span>⚡ Daily Bursts</div>
-      </div>
-      <div class="choose-label" style="color:var(--t2);">Three focused runs. Morning &amp; Evening are pure stopwatches &mdash; Start, do the list, Stop to clock your time and try to beat it. Business still walks box-by-box (tap a box's &ldquo;Xm&rdquo; chip). Tap any target to change it.</div>
-      <div id="burstRows"></div>
     </div>
 
     <!-- HOURS BY BUCKET -->
@@ -783,16 +781,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
       <div class="choose-label" style="color:var(--t2);">Tap +/&minus; in half-hour chunks &mdash; bars scale to an 8h day</div>
       <div id="hoursList"></div>
       <div id="hoursWeek" style="font-size:10px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);"></div>
-    </div>
-
-    <!-- LAUNDRY -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Laundry</div>
-        <span class="sec-pct" style="color:var(--teal)" id="laundryCount">0 of 3 loads</span>
-      </div>
-      <div class="choose-label" style="color:var(--t2);">3&times; a week &mdash; hit Wash and I'll ping you in 1.5h to move it to the dryer</div>
-      <div id="laundryList"></div>
     </div>
 
     <!-- SCHEDULED TODAY (Google Calendar placeholder) -->
@@ -819,20 +807,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   </div>
 </div>
 
-<!-- ═══ WEEKLY SCHEDULE ═══ -->
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label" style="color:var(--purple);border-color:var(--purple);background:rgba(168,85,247,.08);">&#128197; Weekly Schedule</div>
-  <div class="section-divider-line"></div>
-</div>
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>All Recurring Items</div>
-    <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()">+ Add Recurring</button>
-  </div>
-  <div class="weekly-grid" id="weeklyGrid"></div>
-</div>
-
 <!-- ═══ PERSONAL — work downward through the day ═══ -->
 <div class="section-divider">
   <div class="section-divider-line"></div>
@@ -852,6 +826,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="morningBar" style="width:0%;background:var(--orange)"></div></div>
+    <div id="burstStrip_m" style="margin:7px 0 2px;padding:7px 9px;background:var(--bg3);border:1px solid var(--b);border-radius:8px;"></div>
     <div class="choose-label" style="color:var(--t2);">Complete in order, top to bottom</div>
     <div id="morningList"></div>
   </div>
@@ -866,15 +841,34 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="eveningBar" style="width:0%;background:var(--purple)"></div></div>
+    <div id="burstStrip_e" style="margin:7px 0 2px;padding:7px 9px;background:var(--bg3);border:1px solid var(--b);border-radius:8px;"></div>
     <div id="eveningList"></div>
   </div>
 </div>
 
-<!-- ROW 2b: Journal (full width) -->
-<div class="grid-2" style="grid-template-columns:1fr;">
+<!-- ═══ WEEKLY SCHEDULE ═══ -->
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <div class="section-divider-label" style="color:var(--purple);border-color:var(--purple);background:rgba(168,85,247,.08);">&#128197; Weekly Schedule</div>
+  <div class="section-divider-line"></div>
+</div>
+<div class="card" style="margin-bottom:10px;zoom:.75;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>All Recurring Items</div>
+    <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()">+ Add Recurring</button>
+  </div>
+  <div class="weekly-grid" id="weeklyGrid"></div>
+</div>
+
+<!-- ROW 2b: Journal | Laundry -->
+<div class="grid-2">
   <!-- JOURNAL + HISTORY -->
   <div class="card">
     <div class="card-title" style="margin-bottom:6px;"><span class="dot" style="background:var(--pink)"></span>Journal</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;padding:8px 10px;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;">
+      <span style="font-size:11px;color:var(--t2);">Did I operate as my <b style="color:var(--y);">future self</b> today, or my old self?</span>
+      <div style="display:flex;gap:5px;" id="selfCheckBtns"></div>
+    </div>
     <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Mood of the day</div>
     <div class="mood-row" id="moodRow"></div>
     <input class="inp" id="journalTitle" placeholder="Title this day (e.g. 'Slow start, strong finish')" style="margin-bottom:6px;">
@@ -891,6 +885,16 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
       <div id="journalHistory" style="max-height:340px;overflow-y:auto;margin-top:6px;"></div>
       <div id="journalEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Write your first entry above.</div>
     </div>
+  </div>
+
+  <!-- LAUNDRY -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Laundry</div>
+      <span class="sec-pct" style="color:var(--teal)" id="laundryCount">0 of 3 loads</span>
+    </div>
+    <div class="choose-label" style="color:var(--t2);">3&times; a week &mdash; hit Wash and I'll ping you in 1.5h to move it to the dryer</div>
+    <div id="laundryList"></div>
   </div>
 </div>
 
@@ -934,6 +938,40 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   <div class="section-divider-line"></div>
   <div class="section-divider-label business">&#128188; Business</div>
   <div class="section-divider-line"></div>
+</div>
+
+<!-- BUSINESS BURST — start it right where the business boxes live -->
+<div class="card" style="margin-bottom:10px;padding:10px 14px;"><div id="burstStrip_b"></div></div>
+
+<!-- CLIENT TARGETS | PIPELINE — 2 wide at the top of business -->
+<div class="grid-2">
+  <!-- CLIENT TARGETS -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--y)"></span>Client Targets</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" style="color:var(--y)" id="targetCount">0 prospects</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddTargetType()">+ Type</button>
+      </div>
+    </div>
+    <div class="choose-label" style="color:var(--t2);">Types of clients you want (luxury hotels, injury lawyers...) &mdash; bank prospects, then &#8594; push to Pipeline when you reach out</div>
+    <div id="targetList"></div>
+    <div id="targetEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No client types yet. Who do you want to shoot for?</div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--coral)"></span>Pipeline</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" style="color:var(--coral)" id="pipeTouchCount">0 touches this wk</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddLead()">+</button>
+      </div>
+    </div>
+    <div class="choose-label" style="color:var(--t2);">Tap the stage to advance a lead &middot; tap &#128075; every time you reach out</div>
+    <div id="pipeList" style="max-height:300px;overflow-y:auto;"></div>
+    <div id="pipeEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No leads yet. Two new clients don't find themselves.</div>
+  </div>
 </div>
 
 <!-- BUSINESS GRID — 3 wide, smaller cards -->
@@ -1072,41 +1110,13 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
   </div>
 
-  <!-- Client Targets | Pipeline -->
-  <!-- CLIENT TARGETS -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--y)"></span>Client Targets</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--y)" id="targetCount">0 prospects</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddTargetType()">+ Type</button>
-      </div>
-    </div>
-    <div class="choose-label" style="color:var(--t2);">Types of clients you want (luxury hotels, injury lawyers...) &mdash; bank prospects, then &#8594; push to Pipeline when you reach out</div>
-    <div id="targetList"></div>
-    <div id="targetEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No client types yet. Who do you want to shoot for?</div>
-  </div>
-
-  <!-- PIPELINE -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--coral)"></span>Pipeline</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--coral)" id="pipeTouchCount">0 touches this wk</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddLead()">+</button>
-      </div>
-    </div>
-    <div class="choose-label" style="color:var(--t2);">Tap the stage to advance a lead &middot; tap &#128075; every time you reach out</div>
-    <div id="pipeList" style="max-height:300px;overflow-y:auto;"></div>
-    <div id="pipeEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No leads yet. Two new clients don't find themselves.</div>
-  </div>
 </div>
 
-<!-- SMOKE-FREE STREAKS — stays at the bottom -->
+<!-- DAYS WITHOUT — stays at the bottom -->
 <div class="card" style="margin-bottom:10px;">
   <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:#FED000"></span>Smoke-Free Streaks</div>
-    <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap today's sun when you make it through clean</div>
+    <div class="card-title"><span class="dot" style="background:#FED000"></span>Days Without</div>
+    <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap Clean each day you go without &mdash; cut it all down</div>
   </div>
   <div id="smokeRows"></div>
 </div>
@@ -1867,27 +1877,26 @@ function paceCls(k,done){
   return st==='now'?' pace-now':st==='past'?' pace-behind':'';
 }
 function renderBurst(){
-  var el=document.getElementById('burstRows');
-  if(!el)return;
+  // each burst renders into a strip INSIDE its own checklist card
   _pace=computePace();
-  el.innerHTML=BURST_DEFS.map(function(d,i){
+  BURST_DEFS.forEach(function(d){
+    var el=document.getElementById('burstStrip_'+d.id);
+    if(!el)return;
     var info=_pace.bursts[d.id];
     var st=burstTimeStats(d.id);
     var hrs=(info.target/60);
-    var html='<div style="'+(i?'border-top:1px solid var(--b);margin-top:8px;padding-top:8px;':'margin-top:6px;')+'">'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">'
-      +'<div style="font-size:12px;font-weight:600;">'+d.label+'</div>'
+    var html='<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;">'
+      +'<div style="font-size:11px;font-weight:700;color:var(--y);">&#9889; '+(d.id==='b'?'Business ':'')+'Burst</div>'
       +'<div style="display:flex;align-items:center;gap:6px;">'
       +'<span onclick="editBurstTarget(\''+d.id+'\')" style="cursor:pointer;font-size:10px;color:var(--y);border:1px solid var(--y3);border-radius:10px;padding:1px 7px;white-space:nowrap;" title="Tap to change this burst\'s target">'+(hrs%1?hrs.toFixed(1):hrs)+'h target</span>'
-      +'<button class="btn '+(info.active?'btn-ghost':'btn-y')+' btn-sm" onclick="toggleBurst(\''+d.id+'\')">'+(info.active?'&#9632; Stop':'Start')+'</button>'
+      +'<button class="btn '+(info.active?'btn-ghost':'btn-y')+'" style="padding:3px 12px;font-size:11px;" onclick="toggleBurst(\''+d.id+'\')">'+(info.active?'&#9632; Stop':'&#9654; Start')+'</button>'
       +'</div></div>';
     if(d.id==='b'){
       var over=info.planned-info.target;
-      html+='<div class="burst-stat"><span>'+info.seq.length+' boxes &middot; planned</span><b style="color:'+(over>0?'var(--coral)':'var(--green)')+';">'+info.planned+' / '+info.target+' min</b></div>';
-      if(over>0)html+='<div style="font-size:10px;color:var(--coral);">'+over+' min over &mdash; trim some chips or tap the target</div>';
+      html+='<div style="font-size:10px;color:var(--t2);margin-top:3px;">'+info.seq.length+' boxes &middot; planned <b style="color:'+(over>0?'var(--coral)':'var(--green)')+';">'+info.planned+'/'+info.target+'m</b>'+(over>0?' &middot; trim chips or tap target':'')+'</div>';
     }
     if(info.active){
-      html+='<div class="burst-now">&#9201; <b>'+Math.floor(info.elapsed/60)+'h '+(info.elapsed%60)+'m</b> in &middot; target '+fmtMin(info.target)
+      html+='<div style="font-size:11px;color:var(--t);margin-top:4px;">&#9201; <b>'+Math.floor(info.elapsed/60)+'h '+(info.elapsed%60)+'m</b> in &middot; target '+fmtMin(info.target)
         +(d.id==='b'&&info.nowLabel?'<br>You should be at: <b>'+info.nowLabel+'</b>':'')
         +(d.id==='b'?(info.behind?'<br><span style="color:var(--coral);">'+info.behind+' box'+(info.behind===1?'':'es')+' behind pace</span>':'<br><span style="color:var(--green);">on pace &#10003;</span>'):'')
         +'<br><span style="color:var(--t2);font-size:10px;">Hit Stop when the list is done &mdash; that clocks your time</span>'
@@ -1896,15 +1905,14 @@ function renderBurst(){
       var bits=[];
       if(st.today!==null){
         var beat=st.today<=info.target;
-        bits.push('Today: <b style="color:'+(beat?'var(--green)':'var(--coral)')+';">'+fmtMin(st.today)+'</b>'+(beat?' &#10003;':' over target'));
+        bits.push('Today: <b style="color:'+(beat?'var(--green)':'var(--coral)')+';">'+fmtMin(st.today)+'</b>'+(beat?' &#10003;':' over'));
       }
       if(st.best!==null)bits.push('Best: <b style="color:var(--y);">'+fmtMin(st.best)+'</b>');
       if(st.avg!==null)bits.push('7d avg: '+fmtMin(st.avg));
-      if(bits.length)html+='<div class="burst-stat" style="display:block;">'+bits.join(' &middot; ')+'</div>';
+      if(bits.length)html+='<div style="font-size:10px;color:var(--t2);margin-top:4px;">'+bits.join(' &middot; ')+'</div>';
     }
-    html+='</div>';
-    return html;
-  }).join('');
+    el.innerHTML=html;
+  });
 }
 // edit a task's minutes from its "Xm" chip
 function editMin(listKey,id){
@@ -2279,7 +2287,7 @@ function openAddTodo(){
 
 // -- SMOKE-FREE STREAKS ----------------------------------------------------------
 let smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
-const SMOKE_KINDS=[{key:'weed',label:'No weed 🌿'},{key:'tobacco',label:'No tobacco 🚬'}];
+const SMOKE_KINDS=[{key:'alcohol',label:'Alcohol &#127866;'},{key:'tobacco',label:'Tobacco &#128684;'},{key:'weed',label:'Weed &#127807;'}];
 
 function sunSVG(on){
   var cls=on?'sun-on':'sun-off';
@@ -2318,50 +2326,22 @@ function smokeStreak(map){
 }
 
 function renderSmokeTracker(){
+  // DAYS WITHOUT — one row per substance: big current streak, longest, and a
+  // one-tap "Clean today" check. Old weed/tobacco sun data carries over.
   var el=document.getElementById('smokeRows');
   if(!el)return;
   var tk=todayKey();
   el.innerHTML=SMOKE_KINDS.map(function(kind){
     var map=smokeFree[kind.key]||{};
     var st=smokeStreak(map);
-    // strip starts at your first check-in (Day 1) and grows forward to today
-    var checkedKeys=Object.keys(map).filter(function(k){return map[k];}).sort();
-    var startKey=checkedKeys.length?(checkedKeys[0]<tk?checkedKeys[0]:tk):tk;
-    var days=[];
-    var p=startKey.split('-').map(Number);
-    var d=new Date(p[0],p[1]-1,p[2]);
-    var guard=0;
-    while(guard++<3660){
-      var k=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
-      days.push({k:k,n:d.getDate()});
-      if(k===tk)break;
-      d.setDate(d.getDate()+1);
-    }
-    var hidden=0;
-    if(days.length>14){hidden=days.length-14;days=days.slice(-14);}
-    var yd=new Date();yd.setDate(yd.getDate()-1);
-    var yk=yd.getFullYear()+'-'+p2(yd.getMonth()+1)+'-'+p2(yd.getDate());
-    var suns=days.map(function(dd){
-      var on=!!map[dd.k];
-      var isToday=dd.k===tk;
-      var isYesterday=dd.k===yk;
-      return '<div class="sun-cell">'
-        +((isToday||isYesterday)
-          ?'<button class="sun-btn'+(isToday?' today':'')+'" onclick="smokeChk(\''+kind.key+'\',\''+dd.k+'\')" title="'+(isToday?'Tap when you make it through today clean':'Forgot to check in yesterday? Tap to mark it')+'">'+sunSVG(on)+'</button>'
-          :'<span class="sun-btn" style="cursor:default;" title="'+fmtDateShort(dd.k)+'">'+sunSVG(on)+'</span>')
-        +'<span class="sun-day">'+(isToday?'today':dd.n)+'</span>'
-        +'</div>';
-    }).join('');
-    var startNote=checkedKeys.length
-      ?'<span style="font-size:9px;color:var(--t3);">Day 1: '+fmtDateShort(startKey)+(hidden?' · '+hidden+' earlier day'+(hidden===1?'':'s')+' hidden':'')+'</span>'
-      :'<span style="font-size:9px;color:var(--t3);">Day 1 starts now — tap the sun</span>';
-    return '<div class="smoke-row">'
-      +'<div class="smoke-hd">'
-      +'<span class="smoke-name">'+kind.label+' <span class="task-del" style="font-size:11px;opacity:.5;" onclick="smokeReset(\''+kind.key+'\')" title="Reset this tracker">&#8634;</span></span>'
-      +'<span class="smoke-stats"><b>'+st.current+'</b> day'+(st.current===1?'':'s')+' clean &nbsp;·&nbsp; best <b>'+st.best+'</b></span>'
-      +'</div>'
-      +'<div class="sun-strip">'+suns+'</div>'
-      +startNote
+    var cleanToday=!!map[tk];
+    return '<div class="smoke-row" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:9px 0;">'
+      +'<span class="smoke-name" style="min-width:105px;font-weight:700;">'+kind.label+'</span>'
+      +'<span style="font-size:22px;font-weight:800;color:var(--y);line-height:1;">'+st.current
+      +' <span style="font-size:10px;color:var(--t2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">day'+(st.current===1?'':'s')+' without</span></span>'
+      +'<span style="font-size:11px;color:var(--t2);">Longest: <b style="color:var(--green);font-size:14px;">'+st.best+'</b></span>'
+      +'<button class="btn btn-sm '+(cleanToday?'btn-y':'btn-ghost')+'" style="margin-left:auto;" onclick="smokeChk(\''+kind.key+'\',\''+tk+'\')">'+(cleanToday?'&#10003; Clean today':'Clean today?')+'</button>'
+      +'<span class="task-del" style="font-size:11px;opacity:.5;cursor:pointer;" onclick="smokeReset(\''+kind.key+'\')" title="Reset this tracker">&#8634;</span>'
       +'</div>';
   }).join('');
 }
@@ -2372,6 +2352,25 @@ function smokeChk(kind,dateKey){
   else smokeFree[kind][dateKey]=true;
   sv('smokeFree',smokeFree);
   renderSmokeTracker();
+}
+
+// -- FUTURE SELF CHECK ---------------------------------------------------------
+let selfCheck=ld('selfCheck',{});
+const SELF_OPTS=[{v:'future',label:'Future self',c:'var(--green)'},{v:'old',label:'Old self',c:'var(--coral)'},{v:'mixed',label:'Mixed',c:'var(--y)'}];
+function renderSelfCheck(){
+  var el=document.getElementById('selfCheckBtns');
+  if(!el)return;
+  var cur=selfCheck[viewKey()]||'';
+  el.innerHTML=SELF_OPTS.map(function(o){
+    var on=cur===o.v;
+    return '<button onclick="setSelfCheck(\''+o.v+'\')" style="cursor:pointer;font-size:11px;font-weight:'+(on?'800':'600')+';padding:4px 12px;border-radius:99px;border:1px solid '+(on?o.c:'var(--b2)')+';background:'+(on?'rgba(255,255,255,.05)':'var(--bg3)')+';color:'+(on?o.c:'var(--t2)')+';">'+o.label+'</button>';
+  }).join('');
+}
+function setSelfCheck(v){
+  var k=viewKey();
+  if(selfCheck[k]===v)delete selfCheck[k]; else selfCheck[k]=v;
+  sv('selfCheck',selfCheck);
+  renderSelfCheck();
 }
 
 function smokeReset(kind){
@@ -3257,15 +3256,16 @@ function renderTrendChart(hist){
         borderWidth:long?1.5:2
       },
       {
-        label:'System Test Month',
+        label:'Start (test month)',
         data:testVals,
-        borderColor:'#a855f7',
-        backgroundColor:'rgba(168,85,247,0.06)',
+        borderColor:'rgba(168,85,247,0.5)',
+        backgroundColor:'rgba(168,85,247,0.04)',
         fill:false,tension:0.35,spanGaps:false,
-        pointBackgroundColor:'#a855f7',
-        pointRadius:long?0:2,
+        pointBackgroundColor:'rgba(168,85,247,0.5)',
+        pointRadius:long?0:1.5,
         pointHitRadius:6,
-        borderWidth:long?1.5:2
+        borderWidth:long?1:1.5,
+        order:10 // higher order = drawn first = sits behind the current lines
       }
     ]},
     options:{responsive:true,maintainAspectRatio:false,animation:false,
@@ -3282,6 +3282,12 @@ function renderTrendChart(hist){
             var v=item.raw;
             if(v===null||v===undefined)return null;
             return item.dataset.label+': '+v+'%';
+          },
+          afterBody:function(items){
+            var idx=items[0].dataIndex;
+            // overall day completion — only on split-era days (pre-split the purple line IS the overall)
+            if(bizVals[idx]===null||values[idx]===null||values[idx]===undefined)return null;
+            return 'Overall day: '+values[idx]+'%';
           },
           footer:function(items){
             var idx=items[0].dataIndex;
@@ -4663,6 +4669,7 @@ function renderAll(){
   safeCall(renderBurst,'renderBurst');
   safeCall(renderMission,'renderMission');
   safeCall(renderStop,'renderStop');
+  safeCall(renderSelfCheck,'renderSelfCheck');
   safeCall(renderPlan,'renderPlan');
   safeCall(function(){renderSection('morning');},'renderSection-morning');
   safeCall(function(){renderSection('evening');},'renderSection-evening');
@@ -4724,6 +4731,7 @@ function reloadFromStorage(){
   bizProduct=ld('bizProduct',DEF_BIZ.product);
   sysLog=ld('sysLog',[]);
   smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
+  selfCheck=ld('selfCheck',{});
   pipeline=ld('pipeline',[]);
   pipeTouches=ld('pipeTouches',{});
   hoursLog=ld('hoursLog',{});
