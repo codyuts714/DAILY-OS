@@ -688,25 +688,25 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
       <div class="card-title"><span class="dot" style="background:var(--y)"></span>Today Overall</div>
       <div class="big-stat" id="overallPct">0%</div>
     </div>
-    <div class="sec-track" style="margin-bottom:12px;">
-      <div class="sec-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--y),#ffb300)"></div>
-    </div>
-    <div style="font-size:11px;color:var(--t2);margin-bottom:10px;" id="overallSub">0 of 0 complete</div>
-    <div style="display:flex;gap:10px;margin-bottom:12px;">
-      <div style="flex:1;">
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Personal <span id="personalPct" style="color:var(--green);font-weight:700;">0%</span></div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+      <div style="flex:2;min-width:180px;">
+        <div class="sec-track"><div class="sec-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--y),#ffb300)"></div></div>
+      </div>
+      <span style="font-size:10px;color:var(--t2);white-space:nowrap;" id="overallSub">0 of 0 complete</span>
+      <div style="flex:1;min-width:120px;">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Personal <span id="personalPct" style="color:var(--green);font-weight:700;">0%</span></div>
         <div class="sec-track"><div class="sec-fill" id="personalBar" style="width:0%;background:var(--green)"></div></div>
       </div>
-      <div style="flex:1;">
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Business <span id="bizSplitPct" style="color:var(--y);font-weight:700;">0%</span></div>
+      <div style="flex:1;min-width:120px;">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Business <span id="bizSplitPct" style="color:var(--y);font-weight:700;">0%</span></div>
         <div class="sec-track"><div class="sec-fill" id="bizSplitBar" style="width:0%;background:var(--y)"></div></div>
       </div>
     </div>
     <div id="testChartBlock">
       <div class="stat-lbl" style="margin-bottom:4px;color:rgba(168,85,247,.9);">Start &mdash; test month</div>
-      <div class="chart-wrap" style="height:170px;"><canvas id="trendTestChart"></canvas></div>
+      <div class="chart-wrap" style="height:110px;"><canvas id="trendTestChart"></canvas></div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 3px;">
       <div class="stat-lbl" id="trendLbl">Completion trend (14 days)</div>
       <div style="display:flex;gap:3px;">
         <button class="trend-rng active" id="rng14d" onclick="setTrendRange('14d')">14D</button>
@@ -714,18 +714,18 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
         <button class="trend-rng" id="rngAll" onclick="setTrendRange('all')">All</button>
       </div>
     </div>
-    <div class="chart-wrap" style="height:170px;"><canvas id="trendChart"></canvas></div>
-    <div style="display:flex;gap:8px;margin-top:8px;">
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
-        <div style="font-size:16px;font-weight:800;color:var(--y);" id="thisWeekAvg">0%</div>
+    <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
+        <div style="font-size:14px;font-weight:800;color:var(--y);" id="thisWeekAvg">0%</div>
         <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">This week avg</div>
       </div>
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
-        <div style="font-size:16px;font-weight:800;" id="lastWeekAvg">0%</div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
+        <div style="font-size:14px;font-weight:800;" id="lastWeekAvg">0%</div>
         <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Last week avg</div>
       </div>
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
-        <div style="font-size:16px;font-weight:800;color:var(--green);" id="bestDayPct">0%</div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
+        <div style="font-size:14px;font-weight:800;color:var(--green);" id="bestDayPct">0%</div>
         <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;" id="bestDayLbl">Best day</div>
       </div>
     </div>
