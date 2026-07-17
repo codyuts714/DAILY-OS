@@ -120,7 +120,7 @@ window.killTodayGhosts = function(lists) {
         var dd = doneDay[window._tlKey(item)];
         if(!dd) return true;
         var origin = item.carriedFrom || day;
-        return origin > dd; // survive only if this lineage began AFTER completion
+        return origin >= dd; // kill only STRICTLY older lineage — a same-day re-add is a real task, not a ghost
       });
       if(filtered.length) lists[day] = filtered; else delete lists[day];
     });
@@ -1260,6 +1260,76 @@ const viewKey=()=>{const d=new Date();d.setDate(d.getDate()+viewingDay);return d
 // week number, which made the flip drift into Saturday evening.)
 const weekKey=()=>{var d=new Date();if(d.getDay()===0&&d.getHours()<23)d.setDate(d.getDate()-1);d=new Date(d.getFullYear(),d.getMonth(),d.getDate());var jan1=new Date(d.getFullYear(),0,1);var wk=Math.ceil((Math.round((d-jan1)/86400000)+jan1.getDay()+1)/7);return d.getFullYear()+'-W'+(''+wk).padStart(2,'0');}
 const getDS=()=>{var day=ld('ds_'+viewKey(),{m:{},e:{},t:{},s:{},vn:{},v:{},c:{},mo:{},a:{},bt:{},co:{},pr:{}});var wk=ld('ws_'+weekKey(),{w:{},moves:{}});if(!wk.moves)wk.moves={};day.w=wk.w;day.moves=wk.moves;return day;}
+
+// week key for an arbitrary past date (whole-day granularity: Sundays count
+// toward the ending week, matching the Sunday-11pm flip for all but one hour)
+function weekKeyFor(k){
+  var p=k.split('-').map(Number);
+  var d=new Date(p[0],p[1]-1,p[2]);
+  if(d.getDay()===0)d.setDate(d.getDate()-1);
+  d=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  var jan1=new Date(d.getFullYear(),0,1);
+  var wk=Math.ceil((Math.round((d-jan1)/86400000)+jan1.getDay()+1)/7);
+  return d.getFullYear()+'-W'+(''+wk).padStart(2,'0');
+}
+
+// SOURCE OF TRUTH for the graph: compute a day's completion % directly from
+// the tracker data (ds_YYYY-MM-DD + that week's recurring checks). Same math
+// as the Today Overall bar, but works for ANY date — so the trend chart pulls
+// live percentages instead of frozen snapshots. Journal saves have zero
+// effect on these numbers; the journal only supplies the day's title.
+function computeDayPct(k){
+  var p=k.split('-').map(Number);
+  var dow=new Date(p[0],p[1]-1,p[2]).getDay();
+  var ds=ld('ds_'+k,{m:{},e:{},t:{},s:{},vn:{},v:{},c:{},mo:{},a:{},bt:{},co:{},pr:{}});
+  var wkState=ld('ws_'+(k===todayKey()?weekKey():weekKeyFor(k)),{w:{}});
+  var w=wkState.w||{};
+  // -- PERSONAL: morning + evening + that day's scheduled --
+  var pTotal=morning.length+evening.length;
+  var pDone=morning.filter(function(t){return ds.m[t.id];}).length+evening.filter(function(t){return ds.e[t.id];}).length;
+  var dayW=weekly.filter(function(x){return x.days.includes(dow);});
+  pTotal+=dayW.length;pDone+=dayW.filter(function(x){return w[x.id];}).length;
+  // -- BUSINESS (daily portion; Sales/Bottlenecks are 3x/week, Content/Product weekly — excluded) --
+  var bTotal=0,bDone=0;
+  bTotal+=bizVisNon.length;bDone+=bizVisNon.filter(function(t){return ds.vn[t.id];}).length;
+  bDone+=bizVis.some(function(t){return ds.v[t.id];})?1:0;bTotal+=1;
+  [{l:bizClient,dm:ds.c},{l:bizMoney,dm:ds.mo}].forEach(function(g){bTotal+=g.l.length;bDone+=g.l.filter(function(t){return g.dm[t.id];}).length;});
+  bDone+=bizAdmin.some(function(t){return ds.a[t.id];})?1:0;bTotal+=1;
+  var pPct=pTotal?Math.round(pDone/pTotal*100):0;
+  var bPct=bTotal?Math.round(bDone/bTotal*100):0;
+  var done=pDone+bDone,total=pTotal+bTotal;
+  var pct=total?Math.round(done/total*100):0;
+  return {pct:pct,pPct:pPct,bPct:bPct,done:done,total:total,hasData:localStorage.getItem('ds_'+k)!==null};
+}
+
+// Live values for one day: tracker-computed when tracker data exists for that
+// day (or it's today); old hist/histSplit snapshots only as a fallback for
+// days with no tracker data at all.
+function liveDayVals(k,hist,histS){
+  if(k===todayKey()||localStorage.getItem('ds_'+k)!==null){
+    var c=computeDayPct(k);
+    return {v:c.pct,b:c.bPct,p:c.pPct};
+  }
+  var s=histS&&histS[k];
+  return {v:(hist&&hist[k])||0,b:s?s.b:null,p:s?s.p:null};
+}
+
+// Full history map built live from tracker data (hist snapshots fill gaps).
+// Used by the trend chart, 30-day chart, streaks, averages, best day + export.
+function buildLiveHist(){
+  var hist=ld('hist',{});
+  var out={};
+  Object.keys(hist).forEach(function(k){out[k]=hist[k];});
+  for(var i=0;i<localStorage.length;i++){
+    var key=localStorage.key(i);
+    if(key&&key.slice(0,3)==='ds_'&&/^\d{4}-\d{2}-\d{2}$/.test(key.slice(3))){
+      var k2=key.slice(3);
+      out[k2]=computeDayPct(k2).pct;
+    }
+  }
+  out[todayKey()]=computeDayPct(todayKey()).pct;
+  return out;
+}
 const setDS=s=>{var day={m:s.m,e:s.e,t:s.t,s:s.s,vn:s.vn,v:s.v,c:s.c,mo:s.mo,a:s.a,bt:s.bt,co:s.co,pr:s.pr};sv('ds_'+viewKey(),day);var wk=ld('ws_'+weekKey(),{w:{},moves:{}});if(!wk.moves)wk.moves={};sv('ws_'+weekKey(),wk);}
 
 // -- CLOCK --------------------------------------------------------------------─
@@ -1631,14 +1701,35 @@ function todoChk(btn){
   var t=todos.find(function(x){return x.id===id;});
   if(!t)return;
   t.completedAt=new Date().toISOString();
-  sv('todos',todos);renderTodo();
+  sv('todos',todos);
+  syncTodayCopies(id,true);
+  renderTodo();renderToday();
 }
 function todoUnchk(btn){
   var id=btn.closest('.task-row').dataset.tid;
   var t=todos.find(function(x){return x.id===id;});
   if(!t)return;
   delete t.completedAt;
-  sv('todos',todos);renderTodo();
+  sv('todos',todos);
+  syncTodayCopies(id,false);
+  renderTodo();renderToday();
+}
+// keep Today List copies in lockstep with their linked to-do, so rollover
+// never encounters a "to-do done but today copy unchecked" mismatch
+function syncTodayCopies(todoId,done){
+  try{
+    var changed=false;
+    Object.keys(todayLists).forEach(function(day){
+      (todayLists[day]||[]).forEach(function(item){
+        if(item&&item.todoId===todoId&&!!item.done!==done){
+          item.done=done;
+          if(done){if(!item.ts)item.ts=nowStr();}else delete item.ts;
+          changed=true;
+        }
+      });
+    });
+    if(changed)sv('todayLists',todayLists);
+  }catch(e){console.warn('syncTodayCopies failed:',e);}
 }
 function todoDel(btn){
   var id=btn.closest('.task-row').dataset.tid;
@@ -1765,6 +1856,9 @@ function setTodayItems(items){todayLists[viewKey()]=items;sv('todayLists',todayL
 
 // Carry unfinished items from previous days into today (priority list).
 // Done items stay on their original day as the record. Idempotent + deduped.
+// HARDENED: per-item error isolation (one bad record can't abort the whole
+// carry), and NOTHING is ever silently deleted — an item either carries to
+// today or stays on its day as a done record.
 function rolloverTodayList(){
   try{
     var tk=todayKey();
@@ -1784,25 +1878,40 @@ function rolloverTodayList(){
     if(!pastKeys.length){if(ghostsKilled)sv('todayLists',todayLists);return;}
     var today=todayLists[tk]||[];
     var changed=ghostsKilled;
+    var todosArr=Array.isArray(todos)?todos:[];
     pastKeys.forEach(function(k){
       var keep=[];
       (todayLists[k]||[]).forEach(function(item){
-        if(item.done){keep.push(item);return;}
-        changed=true;
-        // if the same item was already completed on a later day, don't resurrect it
-        var dd=doneDay[window._tlKey(item)];
-        if(dd&&(item.carriedFrom||k)<=dd)return;
-        // if linked to-do was completed elsewhere, don't carry it
-        if(item.todoId){
-          var td=todos.find(function(x){return x.id===item.todoId;});
-          if(td&&td.completedAt)return;
-        }
-        // dedupe: already on today's list?
-        var dup=today.some(function(x){
-          return (item.todoId&&x.todoId===item.todoId)||x.name===item.name;
-        });
-        if(!dup){
-          today.push({id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,tag:item.tag,done:false,carriedFrom:item.carriedFrom||k});
+        try{
+          if(!item||!item.name){return;}
+          if(item.done){keep.push(item);return;}
+          // if the same item was already completed on a LATER day, don't
+          // resurrect it (strictly-earlier lineage only — a same-day re-add
+          // is a real task, not a ghost)
+          var dd=doneDay[window._tlKey(item)];
+          if(dd&&(item.carriedFrom||k)<dd){changed=true;return;}
+          // if the linked to-do was completed elsewhere, the work IS done —
+          // keep the item on its day as a DONE record instead of deleting it
+          if(item.todoId){
+            var td=todosArr.find(function(x){return x&&x.id===item.todoId;});
+            if(td&&td.completedAt){
+              item.done=true;
+              if(!item.ts)item.ts='via to-do';
+              keep.push(item);changed=true;return;
+            }
+          }
+          changed=true;
+          // dedupe: already on today's list?
+          var dup=today.some(function(x){
+            return x&&((item.todoId&&x.todoId===item.todoId)||x.name===item.name);
+          });
+          if(!dup){
+            today.push({id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,tag:item.tag,done:false,carriedFrom:item.carriedFrom||k});
+          }
+        }catch(itemErr){
+          // never let one bad record kill the whole carry — keep it in place
+          console.error('Rollover item error (kept in place):',itemErr,item);
+          keep.push(item);
         }
       });
       if(keep.length)todayLists[k]=keep;else delete todayLists[k];
@@ -1829,6 +1938,10 @@ function renderToday(){
   var el=document.getElementById('todayList');
   var emp=document.getElementById('todayEmpty');
   if(!el)return;
+  // self-heal: if anything incomplete is still sitting on a past day (a
+  // skipped/failed rollover, or synced-in data), carry it now. Idempotent —
+  // writes only when something actually moves.
+  if(viewingDay===0)rolloverTodayList();
   var items=getTodayItems();
   var done=items.filter(function(x){return x.done;}).length;
   var pctEl=document.getElementById('todayPct');
@@ -2312,47 +2425,32 @@ function openAddBiz(key){
 }
 
 // -- OVERALL ------------------------------------------------------------------─
+// The bars AND the graph now share one source of truth: computeDayPct, which
+// reads straight from the trackers. hist/histSplit are kept only as snapshot
+// backups (export compatibility + fallback for pre-tracker days) — the graph
+// never depends on when a journal was saved.
 function renderOverall(){
-  const ds=getDS();
-  const today=new Date().getDay();
-  // -- PERSONAL: morning + evening + today's scheduled --
-  let pTotal=morning.length+evening.length;
-  let pDone=morning.filter(t=>ds.m[t.id]).length+evening.filter(t=>ds.e[t.id]).length;
-  const todayW=weekly.filter(w=>w.days.includes(today));
-  pTotal+=todayW.length;pDone+=todayW.filter(w=>ds.w[w.id]).length;
-  // -- BUSINESS (daily portion) --
-  // Sales & Bottlenecks are 3×/week now — tracked on their own weekly bars, NOT in the daily total
-  let bTotal=0,bDone=0;
-  // Vis non-negotiable: daily
-  bTotal+=bizVisNon.length; bDone+=bizVisNon.filter(t=>ds.vn[t.id]).length;
-  // Vis choose-one: 1 task
-  bDone += bizVis.some(t=>ds.v[t.id]) ? 1 : 0; bTotal += 1;
-  // Client + Money: normal daily tasks
-  [{l:bizClient,dm:ds.c},{l:bizMoney,dm:ds.mo}]
-    .forEach(({l,dm})=>{bTotal+=l.length;bDone+=l.filter(t=>dm[t.id]).length;});
-  // Admin: choose-one daily = 1 task
-  bDone += bizAdmin.some(t=>ds.a[t.id]) ? 1 : 0; bTotal += 1;
-  // Content + Product: weekly — excluded from daily overall
-  const pPct=pTotal?Math.round(pDone/pTotal*100):0;
-  const bPct=bTotal?Math.round(bDone/bTotal*100):0;
-  const done=pDone+bDone, total=pTotal+bTotal;
-  const pct=total?Math.round(done/total*100):0;
+  const vk=viewKey();
+  const c=computeDayPct(vk);
+  const pPct=c.pPct,bPct=c.bPct,pct=c.pct,done=c.done,total=c.total;
   applyBar('personalBar','personalPct',pPct);
   applyBar('bizSplitBar','bizSplitPct',bPct);
   document.getElementById('overallBar').style.width=pct+'%';
   document.getElementById('overallPct').textContent=pct+'%';
   document.getElementById('overallSub').textContent=`${done} of ${total} complete`;
+  // keep snapshots in sync for whatever day is being viewed/edited — so
+  // retro edits to past days update their saved percent too
   const hist=ld('hist',{});
-  if(viewingDay===0&&hist[todayKey()]!==pct){hist[todayKey()]=pct;sv('hist',hist);}
-  // Track biz vs life separately so the trend chart can show both lines
+  if(hist[vk]!==pct){hist[vk]=pct;sv('hist',hist);}
   const histS=ld('histSplit',{});
-  const curS=histS[todayKey()];
-  if(viewingDay===0&&(!curS||curS.b!==bPct||curS.p!==pPct)){histS[todayKey()]={b:bPct,p:pPct};sv('histSplit',histS);}
-  const streak=calcStreak(hist);
+  const curS=histS[vk];
+  if(!curS||curS.b!==bPct||curS.p!==pPct){histS[vk]={b:bPct,p:pPct};sv('histSplit',histS);}
+  const live=buildLiveHist();
+  const streak=calcStreak(live);
   const prevStreak=ld('streakData',null);
   if(JSON.stringify(prevStreak)!==JSON.stringify(streak))sv('streakData',streak);
   document.getElementById('topStreak').textContent='🔥 '+streak.current+' day'+(streak.current===1?'':'s');
-  renderTrendChart(hist);renderCompChart(hist);
+  renderTrendChart(live);renderCompChart(live);
 }
 
 function calcStreak(hist){
@@ -2378,7 +2476,7 @@ function setTrendRange(r){
   var map={'14d':'rng14d','month':'rngMonth','all':'rngAll'};
   var btn=document.getElementById(map[r]);
   if(btn)btn.classList.add('active');
-  renderTrendChart(ld('hist',{}));
+  renderTrendChart(buildLiveHist());
 }
 
 function trendDateKeys(hist){
@@ -2407,14 +2505,17 @@ function renderTrendChart(hist){
   const dateKeys=trendDateKeys(hist);
   const long=dateKeys.length>45;
   const labels=[],values=[],bizVals=[],lifeVals=[],titles=[];
+  const rawHist=ld('hist',{}); // snapshot fallback only, for days with no tracker data
   dateKeys.forEach(function(k){
     var p=k.split('-').map(Number);
     var d=new Date(p[0],p[1]-1,p[2]);
     labels.push(d.toLocaleDateString('en-US',long?{month:'short',day:'numeric',year:'2-digit'}:{month:'short',day:'numeric'}));
-    values.push(hist[k]||0);
-    var s=histS[k];
-    bizVals.push(s?s.b:null);   // null = no split data recorded that day (line skips it)
-    lifeVals.push(s?s.p:null);
+    // live from trackers — NOT from when a journal happened to be saved
+    var lv=liveDayVals(k,rawHist,histS);
+    values.push(lv.v);
+    bizVals.push(lv.b);   // null = no data that day (line skips it)
+    lifeVals.push(lv.p);
+    // journal contributes ONLY the day's title for the tooltip
     const entry=getJournalEntry(journals,k);
     titles.push(entry?entry.title:'');
   });
@@ -2609,7 +2710,7 @@ function saveJournal(){
   const s=document.getElementById('journalSaved');s.style.display='inline';
   setTimeout(()=>s.style.display='none',2000);
   renderJournalHistory();
-  renderTrendChart(ld('hist',{}));
+  renderTrendChart(buildLiveHist());
 }
 function loadTodayJournal(){
   const journals=ld('journals',{});const e=getJournalEntry(journals,todayKey());
@@ -2628,7 +2729,8 @@ function renderJournalHistory(){
     var entry=getJournalEntry(journals,k);
     var text=entry.text;
     var title=entry.title||'';
-    var pct=hist[k]||0;
+    // live tracker percent for that day — not the value from when the journal was saved
+    var pct=liveDayVals(k,hist,null).v;
     var preview=text.replace(/\n/g,' ').slice(0,100)+(text.length>100?'...':'');
     return '<div class="j-entry" id="je-'+k+'">'
       +'<div class="j-date" data-jk="'+k+'" onclick="toggleJEntry(this.dataset.jk)" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">'
@@ -2687,7 +2789,7 @@ function saveJEntry(btn){
     if(mainInput)mainInput.value=ta.value;
     if(mainTitle&&titleInput)mainTitle.value=titleInput.value;
   }
-  renderTrendChart(ld('hist',{}));
+  renderTrendChart(buildLiveHist());
 }
 
 // -- REVENUE ------------------------------------------------------------------─
@@ -3235,10 +3337,10 @@ function dateInRange(dateStr, start, end) {
 function doExport() {
   var range = getDateRange();
   var start = range.start; var end = range.end;
-  var hist = ld('hist', {});
+  var hist = buildLiveHist(); // daily % computed live from tracker data
   var journals = ld('journals', {});
   var revLogData = ld('revLog', []);
-  var streakData = ld('streakData', {current:0, best:0, total:0});
+  var streakData = calcStreak(hist);
   var nl = '\n';
 
   var daysInRange = Object.keys(hist).filter(function(k){return dateInRange(k,start,end);}).sort();
