@@ -9,6 +9,7 @@
 <title>YOUR LIFE - YOUR TIMELINE</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>window.Chart||document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
 <script type="module">
 // -- FIREBASE + GOOGLE AUTH ----------------------------------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -683,7 +684,9 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 <!-- ═══ ROW 1: COMMAND CENTER — all tracking in one place + side column ═══ -->
 <div class="grid-main">
 
-  <!-- TRACKING HQ: progress graphs → 30-day → revenue, stacked to compare -->
+  <!-- LEFT COLUMN: graphs, then hours + today's schedule underneath -->
+  <div class="side-col">
+  <!-- TRACKING HQ -->
   <div class="card">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--y)"></span>Today Overall</div>
@@ -729,7 +732,41 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 
   </div>
 
-  <!-- SIDE COLUMN: money, hours, schedule -->
+    <!-- HOURS BY BUCKET -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Hours by Bucket</div>
+        <span class="sec-pct" style="color:var(--blue)" id="hoursToday">0h today</span>
+      </div>
+      <div class="choose-label" style="color:var(--t2);">Tap +/&minus; in half-hour chunks &mdash; bars scale to an 8h day</div>
+      <div id="hoursList"></div>
+      <div id="hoursWeek" style="font-size:10px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);"></div>
+    </div>
+
+    <!-- SCHEDULED TODAY (Google Calendar placeholder) -->
+    <div class="card" id="calCard">
+      <div class="card-hd">
+        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Scheduled Today</div>
+        <button class="btn btn-ghost btn-sm" onclick="openAddCalEvent()">+ Add</button>
+      </div>
+      <div id="calEvents"></div>
+      <div id="calNote" style="font-size:11px;color:var(--t3);padding:4px 0;">
+        Add events manually below &mdash; <span style="color:var(--blue);cursor:pointer;" onclick="showCalInfo()">connect Google Calendar &#8599;</span>
+      </div>
+    </div>
+
+    <!-- RECURRING TODAY -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Recurring Today</div>
+        <span class="sec-pct" style="color:var(--purple)" id="recurTodayPct"></span>
+      </div>
+      <div id="scheduledListTop"></div>
+      <div id="scheduledEmptyTop" style="font-size:11px;color:var(--t3);padding:4px 0;">Nothing recurring today.</div>
+    </div>
+  </div>
+
+  <!-- SIDE COLUMN: money -->
   <div class="side-col">
     <!-- MONEY — revenue log + contractor payouts, right next to the graphs -->
     <div class="card">
@@ -769,38 +806,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     </div>
     </div>
 
-    <!-- HOURS BY BUCKET -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Hours by Bucket</div>
-        <span class="sec-pct" style="color:var(--blue)" id="hoursToday">0h today</span>
-      </div>
-      <div class="choose-label" style="color:var(--t2);">Tap +/&minus; in half-hour chunks &mdash; bars scale to an 8h day</div>
-      <div id="hoursList"></div>
-      <div id="hoursWeek" style="font-size:10px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);"></div>
-    </div>
 
-    <!-- SCHEDULED TODAY (Google Calendar placeholder) -->
-    <div class="card" id="calCard">
-      <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Scheduled Today</div>
-        <button class="btn btn-ghost btn-sm" onclick="openAddCalEvent()">+ Add</button>
-      </div>
-      <div id="calEvents"></div>
-      <div id="calNote" style="font-size:11px;color:var(--t3);padding:4px 0;">
-        Add events manually below &mdash; <span style="color:var(--blue);cursor:pointer;" onclick="showCalInfo()">connect Google Calendar &#8599;</span>
-      </div>
-    </div>
-
-    <!-- RECURRING TODAY -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Recurring Today</div>
-        <span class="sec-pct" style="color:var(--purple)" id="recurTodayPct"></span>
-      </div>
-      <div id="scheduledListTop"></div>
-      <div id="scheduledEmptyTop" style="font-size:11px;color:var(--t3);padding:4px 0;">Nothing recurring today.</div>
-    </div>
   </div>
 </div>
 
@@ -1451,6 +1457,20 @@ const setDS=s=>{var day={m:s.m,e:s.e,t:s.t,s:s.s,vn:s.vn,v:s.v,c:s.c,mo:s.mo,a:s
 
 // -- CLOCK --------------------------------------------------------------------─
 let _clockDay=null;
+// -- CHART LIBRARY WATCHDOG ----------------------------------------------------
+// If the Chart.js CDN is slow/blocked at first paint, every graph silently
+// skips rendering. Poll until the library lands, then redraw everything once.
+(function(){
+  if(typeof Chart!=='undefined')return;
+  var tries=0;
+  var t=setInterval(function(){
+    tries++;
+    if(typeof Chart!=='undefined'){
+      clearInterval(t);
+      try{renderAll();}catch(e){}
+    }else if(tries>40)clearInterval(t); // give up after ~20s
+  },500);
+})();
 let _clockWeek=null;
 let _laundryTick=0;
 let _burstTick=0;
@@ -3143,6 +3163,7 @@ function renderOverall(){
   const prevStreak=ld('streakData',null);
   if(JSON.stringify(prevStreak)!==JSON.stringify(streak))sv('streakData',streak);
   document.getElementById('topStreak').textContent='🔥 '+streak.current+' day'+(streak.current===1?'':'s');
+  renderTrendChart(live); // draws the graph + weekly averages + best day
 }
 
 function calcStreak(hist){
