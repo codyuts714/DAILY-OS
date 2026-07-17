@@ -223,7 +223,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
 #morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-items:start;}
-@media(max-width:700px){#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList{grid-template-columns:1fr;}}
+#hoursList{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;align-items:start;}
+@media(max-width:700px){#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList,#hoursList{grid-template-columns:1fr;}}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
 .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px;}
 @media(max-width:900px){
@@ -681,13 +682,8 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 </div>
 <div class="viewing-past" id="viewingPast">📅 Viewing past day — read only</div>
 
-<!-- ═══ ROW 1: COMMAND CENTER — all tracking in one place + side column ═══ -->
-<div class="grid-main">
-
-  <!-- LEFT COLUMN: graphs, then hours + today's schedule underneath -->
-  <div class="side-col">
-  <!-- TRACKING HQ -->
-  <div class="card">
+<!-- ═══ ROW 1: TRACKING HQ — full width so the graphs breathe ═══ -->
+<div class="card" style="margin-bottom:10px;">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--y)"></span>Today Overall</div>
       <div class="big-stat" id="overallPct">0%</div>
@@ -706,7 +702,11 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
         <div class="sec-track"><div class="sec-fill" id="bizSplitBar" style="width:0%;background:var(--y)"></div></div>
       </div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <div id="testChartBlock">
+      <div class="stat-lbl" style="margin-bottom:4px;color:rgba(168,85,247,.9);">Start &mdash; test month</div>
+      <div class="chart-wrap" style="height:170px;"><canvas id="trendTestChart"></canvas></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;">
       <div class="stat-lbl" id="trendLbl">Completion trend (14 days)</div>
       <div style="display:flex;gap:3px;">
         <button class="trend-rng active" id="rng14d" onclick="setTrendRange('14d')">14D</button>
@@ -714,7 +714,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
         <button class="trend-rng" id="rngAll" onclick="setTrendRange('all')">All</button>
       </div>
     </div>
-    <div class="chart-wrap" style="height:230px;"><canvas id="trendChart"></canvas></div>
+    <div class="chart-wrap" style="height:170px;"><canvas id="trendChart"></canvas></div>
     <div style="display:flex;gap:8px;margin-top:8px;">
       <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
         <div style="font-size:16px;font-weight:800;color:var(--y);" id="thisWeekAvg">0%</div>
@@ -729,20 +729,13 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
         <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;" id="bestDayLbl">Best day</div>
       </div>
     </div>
+</div>
 
-  </div>
+<!-- ═══ ROW 2: Money (wide) | Scheduled + Recurring ═══ -->
+<div class="grid-main">
 
-    <!-- HOURS BY BUCKET -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Hours by Bucket</div>
-        <span class="sec-pct" style="color:var(--blue)" id="hoursToday">0h today</span>
-      </div>
-      <div class="choose-label" style="color:var(--t2);">Tap +/&minus; in half-hour chunks &mdash; bars scale to an 8h day</div>
-      <div id="hoursList"></div>
-      <div id="hoursWeek" style="font-size:10px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);"></div>
-    </div>
-
+  <!-- SIDE: today's schedule -->
+  <div class="side-col" style="order:2;">
     <!-- SCHEDULED TODAY (Google Calendar placeholder) -->
     <div class="card" id="calCard">
       <div class="card-hd">
@@ -766,8 +759,8 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     </div>
   </div>
 
-  <!-- SIDE COLUMN: money -->
-  <div class="side-col">
+  <!-- MONEY COLUMN (wide — revenue graph gets room) -->
+  <div class="side-col" style="order:1;">
     <!-- MONEY — revenue log + contractor payouts, right next to the graphs -->
     <div class="card">
     <!-- REVENUE — directly under the progress graphs so the two can be compared -->
@@ -955,6 +948,17 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div id="todayEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing planned yet. Pull from To-Do or add fresh.</div>
   </div>
 </div>
+
+<!-- HOURS BY BUCKET — wide + short, lives with the work queue -->
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Hours by Bucket</div>
+      <span class="sec-pct" style="color:var(--blue)" id="hoursToday">0h today</span>
+    </div>
+    <div class="choose-label" style="color:var(--t2);">Tap +/&minus; in half-hour chunks &mdash; bars scale to an 8h day</div>
+    <div id="hoursList"></div>
+    <div id="hoursWeek" style="font-size:10px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);"></div>
+  </div>
 
 
 <!-- CLIENT TARGETS | PIPELINE — 2 wide at the top of business -->
@@ -1368,7 +1372,7 @@ let stopHits=ld('stopHits',{}); // dayKey -> {lineText:true} — tap a line when
 let revLog=ld('revLog',[]);
 let projects=ld('projects',[]);
 let revFilter='week';
-let revChart=null,compChart=null,trendChart=null;
+let revChart=null,compChart=null,trendChart=null,trendTestChart=null;
 
 // biz lists
 let bizSales=ld('bizSales',DEF_BIZ.sales);
@@ -3335,18 +3339,6 @@ function renderTrendChart(hist){
         pointRadius:long?0:2,
         pointHitRadius:6,
         borderWidth:long?1.5:2
-      },
-      {
-        label:'Start (test month)',
-        data:testVals,
-        borderColor:'rgba(168,85,247,0.5)',
-        backgroundColor:'rgba(168,85,247,0.04)',
-        fill:false,tension:0.35,spanGaps:false,
-        pointBackgroundColor:'rgba(168,85,247,0.5)',
-        pointRadius:long?0:1.5,
-        pointHitRadius:6,
-        borderWidth:long?1:1.5,
-        order:10 // higher order = drawn first = sits behind the current lines
       }
     ]},
     options:{responsive:true,maintainAspectRatio:false,animation:false,
@@ -3381,6 +3373,43 @@ function renderTrendChart(hist){
       scales:{x:{ticks:{color:'#444',font:{size:8},maxTicksLimit:long?6:5},grid:{display:false}},
               y:{ticks:{color:'#444',font:{size:8},stepSize:50},grid:{color:'#161616'},min:0,max:100}}}
   });
+
+  // ── purple START chart, stacked above — the whole test-month era ──
+  var tb=document.getElementById('testChartBlock');
+  var tc=document.getElementById('trendTestChart');
+  if(tb&&tc){
+    var eraKeys=Object.keys(hist).sort().filter(function(k){return splitStart?k<splitStart:true;});
+    if(!eraKeys.length){tb.style.display='none';}
+    else{
+      tb.style.display='block';
+      var eLabels=[],eVals=[];
+      eraKeys.forEach(function(k){
+        var p2a=k.split('-').map(Number);
+        eLabels.push(new Date(p2a[0],p2a[1]-1,p2a[2]).toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+        eVals.push(hist[k]||0);
+      });
+      if(trendTestChart)trendTestChart.destroy();
+      trendTestChart=new Chart(tc.getContext('2d'),{
+        type:'line',
+        data:{labels:eLabels,datasets:[{
+          label:'Start (test month)',
+          data:eVals,
+          borderColor:'rgba(168,85,247,0.85)',
+          backgroundColor:'rgba(168,85,247,0.07)',
+          fill:true,tension:0.35,
+          pointBackgroundColor:'rgba(168,85,247,0.85)',
+          pointRadius:eraKeys.length>45?0:2,pointHitRadius:6,
+          borderWidth:eraKeys.length>45?1.5:2
+        }]},
+        options:{responsive:true,maintainAspectRatio:false,animation:false,
+          interaction:{mode:'index',intersect:false},
+          plugins:{legend:{display:false},
+            tooltip:{callbacks:{label:function(it){return it.raw+'%';}}}},
+          scales:{x:{ticks:{color:'#444',font:{size:8},maxTicksLimit:6},grid:{display:false}},
+                  y:{ticks:{color:'#444',font:{size:8},stepSize:50},grid:{color:'#161616'},min:0,max:100}}}
+      });
+    }
+  }
 
   // Weekly averages + best day
   renderWeeklyAverages(hist);
