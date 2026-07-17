@@ -222,8 +222,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 /* GRIDS */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
-#morningList,#eveningList{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-items:start;}
-@media(max-width:700px){#morningList,#eveningList{grid-template-columns:1fr;}}
+#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-items:start;}
+@media(max-width:700px){#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList{grid-template-columns:1fr;}}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
 .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px;}
 @media(max-width:900px){
@@ -901,7 +901,27 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   </div>
 </div>
 
-<!-- ROW 3: To-Do | Today List -->
+<!-- PERSONAL TO-DO — life stuff, separate from the business queue -->
+<div class="card" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Personal To-Do</div>
+    <button class="btn btn-ghost btn-sm" onclick="openAddPersonalTodo()">+</button>
+  </div>
+  <div id="pTodoList"></div>
+  <div id="pTodoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing here. Life admin goes in this one.</div>
+</div>
+
+<!-- ═══ BUSINESS — visibility first, then work down ═══ -->
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <div class="section-divider-label business">&#128188; Business</div>
+  <div class="section-divider-line"></div>
+</div>
+
+<!-- BUSINESS BURST — start it right where the business boxes live -->
+<div class="card" style="margin-bottom:10px;padding:10px 14px;"><div id="burstStrip_b"></div></div>
+
+<!-- BIZ: To-Do | Today List — the work queue lives with the work -->
 <div class="grid-2">
   <!-- TO-DO -->
   <div class="card">
@@ -936,15 +956,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   </div>
 </div>
 
-<!-- ═══ BUSINESS — visibility first, then work down ═══ -->
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label business">&#128188; Business</div>
-  <div class="section-divider-line"></div>
-</div>
-
-<!-- BUSINESS BURST — start it right where the business boxes live -->
-<div class="card" style="margin-bottom:10px;padding:10px 14px;"><div id="burstStrip_b"></div></div>
 
 <!-- CLIENT TARGETS | PIPELINE — 2 wide at the top of business -->
 <div class="grid-2">
@@ -1114,6 +1125,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   </div>
 
 </div>
+
 
 <!-- DAYS WITHOUT — stays at the bottom -->
 <div class="card" style="margin-bottom:10px;">
@@ -2369,6 +2381,58 @@ function smokeChk(kind,dateKey){
   else smokeFree[kind][dateKey]=true;
   sv('smokeFree',smokeFree);
   renderSmokeTracker();
+}
+
+// -- PERSONAL TO-DO --------------------------------------------------------------
+// Life-admin list, separate from the business To-Do queue.
+let personalTodos=ld('personalTodos',[]);
+function renderPersonalTodo(){
+  var el=document.getElementById('pTodoList');
+  var emp=document.getElementById('pTodoEmpty');
+  if(!el)return;
+  var items=personalTodos.slice().sort(function(a,b){return (a.done?1:0)-(b.done?1:0);});
+  el.innerHTML=items.map(function(t){
+    return '<div class="task-row" style="'+(t.done?'opacity:.45;':'')+'">'
+      +'<button class="chk '+(t.done?'done':'')+'" onclick="togglePersonalTodo(\''+t.id+'\')"></button>'
+      +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+escHtml(t.text)+'</div>'
+      +(t.done&&t.ts?'<div class="task-ts">&#10003; '+t.ts+'</div>':'')
+      +'</div>'
+      +'<button class="task-del" onclick="delPersonalTodo(\''+t.id+'\')">&#215;</button>'
+      +'</div>';
+  }).join('');
+  if(emp)emp.style.display=personalTodos.length?'none':'block';
+}
+function togglePersonalTodo(id){
+  var t=personalTodos.find(function(x){return x.id===id;});
+  if(!t)return;
+  t.done=!t.done;
+  if(t.done)t.ts=nowStr(); else delete t.ts;
+  sv('personalTodos',personalTodos);
+  renderPersonalTodo();
+}
+function delPersonalTodo(id){
+  personalTodos=personalTodos.filter(function(x){return x.id!==id;});
+  sv('personalTodos',personalTodos);
+  renderPersonalTodo();
+}
+function openAddPersonalTodo(){
+  document.getElementById('modalTitle').textContent='Add Personal To-Do';
+  document.getElementById('mIn1').placeholder='e.g. Renew registration, call mom...';
+  document.getElementById('mIn1').value='';
+  document.getElementById('mIn2').style.display='none';
+  document.getElementById('mDayRow').style.display='none';
+  document.getElementById('mGoalArea').style.display='none';
+  document.getElementById('modalConfirm').textContent='Add';
+  mCb=()=>{
+    const v=document.getElementById('mIn1').value.trim();
+    if(!v)return true;
+    personalTodos.push({id:'pt'+Date.now(),text:v,done:false});
+    sv('personalTodos',personalTodos);
+    renderPersonalTodo();
+    document.getElementById('mIn1').value='';
+    return true;
+  };
+  document.getElementById('modalOv').classList.add('open');
 }
 
 // -- FUTURE SELF CHECK ---------------------------------------------------------
@@ -4688,6 +4752,7 @@ function renderAll(){
   safeCall(renderMission,'renderMission');
   safeCall(renderStop,'renderStop');
   safeCall(renderSelfCheck,'renderSelfCheck');
+  safeCall(renderPersonalTodo,'renderPersonalTodo');
   safeCall(renderPlan,'renderPlan');
   safeCall(function(){renderSection('morning');},'renderSection-morning');
   safeCall(function(){renderSection('evening');},'renderSection-evening');
@@ -4750,6 +4815,7 @@ function reloadFromStorage(){
   sysLog=ld('sysLog',[]);
   smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
   selfCheck=ld('selfCheck',{});
+  personalTodos=ld('personalTodos',[]);
   pipeline=ld('pipeline',[]);
   pipeTouches=ld('pipeTouches',{});
   hoursLog=ld('hoursLog',{});
