@@ -711,7 +711,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
         <button class="trend-rng" id="rngAll" onclick="setTrendRange('all')">All</button>
       </div>
     </div>
-    <div class="chart-wrap" style="height:160px;"><canvas id="trendChart"></canvas></div>
+    <div class="chart-wrap" style="height:230px;"><canvas id="trendChart"></canvas></div>
     <div style="display:flex;gap:8px;margin-top:8px;">
       <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:7px 9px;text-align:center;">
         <div style="font-size:16px;font-weight:800;color:var(--y);" id="thisWeekAvg">0%</div>
@@ -726,9 +726,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
         <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;" id="bestDayLbl">Best day</div>
       </div>
     </div>
-    <div class="stat-lbl" style="margin-top:12px;margin-bottom:4px;">30-Day Completion</div>
-    <div class="chart-wrap" style="height:110px;"><canvas id="completionChart"></canvas></div>
-
 
   </div>
 
@@ -3146,7 +3143,6 @@ function renderOverall(){
   const prevStreak=ld('streakData',null);
   if(JSON.stringify(prevStreak)!==JSON.stringify(streak))sv('streakData',streak);
   document.getElementById('topStreak').textContent='🔥 '+streak.current+' day'+(streak.current===1?'':'s');
-  renderTrendChart(live);renderCompChart(live);
 }
 
 function calcStreak(hist){
@@ -3383,6 +3379,7 @@ const MOODS=[
   {k:'fired',e:'🔥',l:'Fired up'},
   {k:'happy',e:'😊',l:'Happy'},
   {k:'calm',e:'😌',l:'Calm'},
+  {k:'optimistic',e:'🌤️',l:'Optimistic'},
   {k:'meh',e:'😐',l:'Meh'},
   {k:'anxious',e:'😰',l:'Anxious'},
   {k:'frustrated',e:'😤',l:'Frustrated'},
