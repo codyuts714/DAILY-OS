@@ -222,10 +222,9 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 /* GRIDS */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
-#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList{column-count:2;column-gap:12px;}
-#hoursList{column-count:2;column-gap:18px;}
-#morningList>*,#eveningList>*,#todoList>*,#todoArchive>*,#todayList>*,#pTodoList>*,#hoursList>*{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;}
-@media(max-width:700px){#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList,#hoursList{column-count:1;}}
+#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-items:start;}
+#hoursList{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;align-items:start;}
+@media(max-width:700px){#morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList,#hoursList{grid-template-columns:1fr;}}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
 .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px;}
 @media(max-width:900px){
@@ -498,24 +497,14 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 /* KNOCK IT OFF — stop list */
 .stop-banner{background:linear-gradient(135deg,var(--bg2),#170a0a);border:1px solid rgba(255,107,107,.35);border-left:3px solid var(--coral);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
 .stop-label{font-size:11px;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;padding-top:3px;}
-.stop-items{column-count:2;column-gap:14px;}
-@media(max-width:700px){.stop-items{column-count:1;}}
-.stop-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,107,107,.12);break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;}
-.stop-line{font-size:12px;color:var(--t);line-height:1.4;flex:1;min-width:0;}
+.stop-items{display:flex;flex-wrap:wrap;gap:6px;}
+.stop-line{font-size:12px;color:var(--t);background:var(--bg3);border:1px solid rgba(255,107,107,.25);border-radius:8px;padding:5px 11px;line-height:1.4;}
 .stop-line b{color:var(--coral);font-weight:800;}
-.stop-yn{font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);cursor:pointer;transition:all .15s;white-space:nowrap;}
-.stop-yn.yes-on{background:rgba(255,107,107,.18);border-color:var(--coral);color:var(--coral);}
-.stop-yn.no-on{background:rgba(255,243,176,.16);border-color:var(--y);color:var(--y);}
+.stop-line{cursor:pointer;user-select:none;transition:background .15s,border-color .15s;}
+.stop-line:hover{border-color:var(--y3);}
+.stop-line.hit{background:rgba(255,243,176,.14);border-color:var(--y);color:var(--y);}
+.stop-line.hit b{color:var(--y);}
 .stop-rule{font-size:11px;color:var(--coral);font-style:italic;margin-top:8px;padding-top:7px;border-top:1px dashed rgba(255,107,107,.3);line-height:1.4;}
-/* TODAY LIST TIMERS */
-.timer-btn{font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);cursor:pointer;transition:all .15s;white-space:nowrap;}
-.timer-btn.running{background:rgba(255,243,176,.16);border-color:var(--y);color:var(--y);animation:laundryPulse 2s infinite;}
-.task-time{font-size:10px;color:var(--t2);white-space:nowrap;}
-.task-time.running{color:var(--y);font-weight:700;}
-/* TIMED CHECKS — late/early stamps */
-.task-late{color:var(--coral);font-weight:700;}
-.task-early{color:var(--green);font-weight:700;}
-.time-chip{display:inline-block;font-size:9px;font-weight:800;color:var(--y);border:1px solid var(--y3);border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:1px;}
 /* -- CHECKABLE GOALS (taller) -- */
 .goal-pill{font-size:15px;font-weight:800;color:var(--y);background:var(--bg3);border:1px solid var(--y3);border-radius:99px;padding:9px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .15s;user-select:none;}
 .goal-pill:hover{border-color:var(--y);background:rgba(255,243,176,.08);}
@@ -644,6 +633,22 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   <div class="goals-label">🎯 Goals</div>
   <div class="goals-items" id="goalsItems"></div>
   <button class="goals-edit-btn" onclick="openGoalModal()">✎ Edit</button>
+</div>
+
+<!-- KNOCK IT OFF — the stop list -->
+<div class="stop-banner">
+  <div class="stop-label">🛑 Knock It Off<br><span id="stopCount" style="font-size:12px;color:var(--y);letter-spacing:0;"></span></div>
+  <div style="flex:1;min-width:0;">
+    <div class="stop-items" id="stopItems"></div>
+    <div class="stop-rule" id="stopRuleLine"></div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px;">
+      <span style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Held today</span>
+      <span id="stopPct" style="font-size:15px;font-weight:800;color:var(--y);"></span>
+      <span id="stopAvg" style="font-size:10px;color:var(--t2);"></span>
+    </div>
+    <div style="height:64px;margin-top:4px;"><canvas id="stopChart"></canvas></div>
+  </div>
+  <button class="goals-edit-btn" onclick="openStopModal()">✎ Edit</button>
 </div>
 
 <!-- TODAY'S PLAN — written the night before -->
@@ -882,48 +887,11 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   <div class="card">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Laundry</div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <span class="sec-pct" style="color:var(--teal)" id="laundryCount">0 of 3 loads</span>
-        <button class="btn btn-ghost btn-sm" onclick="laundryAddLoad()" title="Doing an extra load this week">+ Load</button>
-      </div>
+      <span class="sec-pct" style="color:var(--teal)" id="laundryCount">0 of 3 loads</span>
     </div>
     <div class="choose-label" style="color:var(--t2);">3&times; a week &mdash; hit Wash and I'll ping you in 1.5h to move it to the dryer</div>
     <div id="laundryList"></div>
-
-    <!-- GROCERY RESTOCK -->
-    <div style="display:flex;align-items:center;gap:8px;margin:12px 0 6px;">
-      <div style="flex:1;height:1px;background:var(--b2);"></div>
-      <div class="choose-label" style="margin:0;color:var(--t2);">&#128722; Grocery Restock</div>
-      <div style="flex:1;height:1px;background:var(--b2);"></div>
-    </div>
-    <div style="font-size:10px;color:var(--t3);margin-bottom:6px;">Ran out of something? Drop it here so it's waiting for you on grocery day.</div>
-    <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <input class="inp" id="groceryInput" placeholder="e.g. paper towels, eggs..." style="margin:0;flex:1;" onkeydown="if(event.key==='Enter')addGrocery()">
-      <button class="btn btn-y btn-sm" onclick="addGrocery()">Add</button>
-    </div>
-    <div id="groceryList"></div>
-    <div id="groceryEmpty" style="font-size:11px;color:var(--t3);padding:4px 0;">Nothing needed &#127881;</div>
-    <div style="margin-top:4px;">
-      <button class="btn btn-ghost btn-sm" id="groceryClearBtn" onclick="clearGotGrocery()" style="display:none;">Clear picked up</button>
-    </div>
   </div>
-</div>
-
-<!-- KNOCK IT OFF — did you or didn't you, per line per day -->
-<div class="stop-banner">
-  <div class="stop-label">🛑 Knock It Off<br><span id="stopCount" style="font-size:12px;color:var(--y);letter-spacing:0;"></span></div>
-  <div style="flex:1;min-width:0;">
-    <div style="font-size:10px;color:var(--t3);margin-bottom:6px;">Did you or didn't you? Answer each one honestly for the day you're viewing.</div>
-    <div class="stop-items" id="stopItems"></div>
-    <div class="stop-rule" id="stopRuleLine"></div>
-    <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px;">
-      <span style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Held today</span>
-      <span id="stopPct" style="font-size:15px;font-weight:800;color:var(--y);"></span>
-      <span id="stopAvg" style="font-size:10px;color:var(--t2);"></span>
-    </div>
-    <div style="height:64px;margin-top:4px;"><canvas id="stopChart"></canvas></div>
-  </div>
-  <button class="goals-edit-btn" onclick="openStopModal()">✎ Edit</button>
 </div>
 
 <!-- PERSONAL TO-DO — life stuff, separate from the business queue -->
@@ -942,6 +910,9 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   <div class="section-divider-label business">&#128188; Business</div>
   <div class="section-divider-line"></div>
 </div>
+
+<!-- BUSINESS BURST — start it right where the business boxes live -->
+<div class="card" style="margin-bottom:10px;padding:10px 14px;"><div id="burstStrip_b"></div></div>
 
 <!-- BIZ: To-Do | Today List — the work queue lives with the work -->
 <div class="grid-2">
@@ -1020,9 +991,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div id="pipeEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No leads yet. Two new clients don't find themselves.</div>
   </div>
 </div>
-
-<!-- BUSINESS BURST — sits under Client Targets / Pipeline -->
-<div class="card" style="margin-bottom:10px;padding:10px 14px;"><div id="burstStrip_b"></div></div>
 
 <!-- BUSINESS GRID — 3 wide, smaller cards -->
 <div class="grid-3">
@@ -1269,7 +1237,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 <script>
 // -- DEFAULTS ----------------------------------------------------------------─
 const DEF_MORNING=[
-  {id:'m0',name:'Wake up',dur:'6:00am'},
   {id:'m1',name:'Drink water',dur:'5 min'},
   {id:'m2',name:'Vitamins',dur:'5 min'},
   {id:'m3',name:'Make bed',dur:'5 min'},
@@ -1284,7 +1251,7 @@ const DEF_EVENING=[
   {id:'e3',name:'Journal entry',dur:'10–15 min'},
   {id:'e4',name:'Whiten teeth',dur:'10–15 min'},
   {id:'e5',name:'Hard shutdown start',dur:'9:30pm'},
-  {id:'e6',name:'Hard shutdown',dur:'9:30pm'},
+  {id:'e6',name:'Hard shutdown',dur:'10:00pm'},
   {id:'e7',name:'In bed',dur:'10:30–11pm'},
   {id:'e8',name:'No dopamine spirals',dur:'ongoing'},
 ];
@@ -1527,8 +1494,6 @@ function updateClock(){
   document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
   // dryer reminder watch — cheap check every ~30s (persisted, survives reloads)
   if(++_laundryTick>=30){_laundryTick=0;try{checkLaundryReminders();}catch(e){}}
-  // today-list task timers — cheap text-only update every second while running
-  try{tickTodayTimers();}catch(e){}
   // burst pacer — re-highlight the lists once a minute while a burst runs
   if(++_burstTick>=60){
     _burstTick=0;
@@ -1650,38 +1615,22 @@ function renderMissionEdit(){
 function delMission(i){mission.splice(i,1);sv('mission',mission);renderMissionEdit();renderMission();}
 
 // -- KNOCK IT OFF (STOP LIST) --------------------------------------------------─
-// Did you or didn't you — each line gets a Yes / No answer per day so he
-// actually thinks about whether he did the thing. No = held the line (good).
-// Legacy data: old taps stored `true` (= held) — migrated to 'n' at load.
-function migrateStopHits(){
-  var changed=false;
-  Object.keys(stopHits).forEach(function(k){
-    Object.keys(stopHits[k]).forEach(function(line){
-      if(stopHits[k][line]===true){stopHits[k][line]='n';changed=true;}
-    });
-  });
-  if(changed)sv('stopHits',stopHits);
-}
+// The don't-do list, right under Goals. Leading "Stop" gets bolded red.
 function renderStop(){
   var el=document.getElementById('stopItems');
   if(!el)return;
   var hits=stopHits[viewKey()]||{};
-  var heldCount=0;
+  var hitCount=0;
   el.innerHTML=stopList.length
     ?stopList.map(function(s,i){
-        var ans=hits[s]; // 'y' = did it, 'n' = didn't (held)
-        if(ans==='n')heldCount++;
+        var hit=!!hits[s];
+        if(hit)hitCount++;
         var h=escHtml(s).replace(/^Stop\b/,'<b>Stop</b>');
-        return '<div class="stop-row">'
-          +'<span class="stop-line">'+h+'</span>'
-          +'<button class="stop-yn'+(ans==='y'?' yes-on':'')+'" onclick="answerStop('+i+',\'y\')" title="Yeah... I did it">Yes</button>'
-          +'<button class="stop-yn'+(ans==='n'?' no-on':'')+'" onclick="answerStop('+i+',\'n\')" title="Held the line">No</button>'
-          +'</div>';
+        return '<span class="stop-line'+(hit?' hit':'')+'" onclick="toggleStopHit('+i+')" title="Tap when you held the line on this today">'+h+'</span>';
       }).join('')
     :'<span style="font-size:11px;color:var(--t3)">Nothing to knock off? Doubt it.</span>';
-  var answered=stopList.filter(function(s){return hits[s];}).length;
   var cnt=document.getElementById('stopCount');
-  if(cnt)cnt.textContent=stopList.length?(heldCount+'/'+stopList.length+' held · '+answered+' answered'):'';
+  if(cnt)cnt.textContent=stopList.length?(hitCount+'/'+stopList.length):'';
   var r=document.getElementById('stopRuleLine');
   if(r){
     r.innerHTML=stopRule?('&#9888; Rule to remember: '+escHtml(stopRule)):'';
@@ -1690,9 +1639,9 @@ function renderStop(){
     r.title='Tap to edit the rule';
     r.onclick=editStopRule;
   }
-  // numbers + line graph — daily % of lines held (answered No), last 14 days
+  // numbers + line graph — daily % of lines held, last 14 days
   var pctEl=document.getElementById('stopPct');
-  var todayPct=stopList.length?Math.round(heldCount/stopList.length*100):0;
+  var todayPct=stopList.length?Math.round(hitCount/stopList.length*100):0;
   if(pctEl)pctEl.textContent=todayPct+'%';
   renderStopChart();
 }
@@ -1706,7 +1655,7 @@ function renderStopChart(){
     var dt=new Date();dt.setDate(dt.getDate()-d);
     var k=dt.getFullYear()+'-'+p2(dt.getMonth()+1)+'-'+p2(dt.getDate());
     var dh=stopHits[k]||{};
-    var c=stopList.filter(function(s){return dh[s]==='n'||dh[s]===true;}).length;
+    var c=stopList.filter(function(s){return dh[s];}).length;
     var pct=stopList.length?Math.round(c/stopList.length*100):0;
     labels.push((dt.getMonth()+1)+'/'+dt.getDate());
     vals.push(pct);
@@ -1737,13 +1686,13 @@ function renderStopChart(){
     }
   });
 }
-function answerStop(i,ans){
+function toggleStopHit(i){
   var s=stopList[i];
   if(s===undefined)return;
   var k=viewKey();
   if(!stopHits[k])stopHits[k]={};
-  if(stopHits[k][s]===ans)delete stopHits[k][s]; // tap the same answer again to clear it
-  else stopHits[k][s]=ans;
+  if(stopHits[k][s])delete stopHits[k][s];
+  else stopHits[k][s]=true;
   if(!Object.keys(stopHits[k]).length)delete stopHits[k];
   sv('stopHits',stopHits);
   renderStop();
@@ -2165,23 +2114,11 @@ function renderSection(sec){
   container.innerHTML=tasks.map(function(t){
     var done=!!dm[t.id];
     var ts=dm[t.id+'_ts']||'';
-    var target=parseClock(t.dur);
     var row='<div class="task-row'+paceCls(pk+t.id,done)+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk '+(done?'done':'')+'" onclick="togglePersonal(this)"></button>'
-      +'<div class="task-info"><div class="task-name '+(done?'done':'')+'">'+t.name
-      +(target!==null?'<span class="time-chip">'+t.dur+'</span>':'')
-      +'</div>';
-    if(ts){
-      var lateBit='';
-      var late=dm[t.id+'_late'];
-      if(typeof late==='number'){
-        if(late>0)lateBit=' &middot; <span class="task-late">'+late+' min late</span>';
-        else if(late<0)lateBit=' &middot; <span class="task-early">'+(-late)+' min early</span>';
-        else lateBit=' &middot; <span class="task-early">on time</span>';
-      }
-      row+='<div class="task-ts">&#10003; '+ts+lateBit+'</div>';
-    }
+      +'<div class="task-info"><div class="task-name '+(done?'done':'')+'">'+t.name+'</div>';
+    if(ts)row+='<div class="task-ts">&#10003; '+ts+'</div>';
     row+='</div>'
       +'<button class="task-del" onclick="delPersonal(this)">&#215;</button>'
       +'</div>';
@@ -2198,52 +2135,13 @@ function renderSection(sec){
   return {done:tasks.filter(function(t){return dm[t.id];}).length,total:tasks.length,pct:pct};
 }
 
-// -- TIMED CHECKS ------------------------------------------------------------------
-// A morning/evening task whose dur is a clock time ("9:30pm", "6am") becomes a
-// timed check: marking it stamps the actual time AND how many minutes late (or
-// early) you were vs the target. Hard shutdown = 9:30pm, Wake up = 6:00am.
-function parseClock(str){
-  if(!str)return null;
-  var m=String(str).trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
-  if(!m)return null;
-  var h=parseInt(m[1],10),min=m[2]?parseInt(m[2],10):0;
-  if(h<1||h>12||min>59)return null;
-  var ap=m[3].toLowerCase();
-  if(ap==='pm'&&h!==12)h+=12;
-  if(ap==='am'&&h===12)h=0;
-  return h*60+min; // minutes since midnight
-}
-function ensureTimedTasks(){
-  var changed=false;
-  // Hard shutdown → 9:30pm (leave "Hard shutdown start" alone if it exists)
-  evening.forEach(function(t){
-    if(/hard\s*shut\s*down/i.test(t.name)&&!/start/i.test(t.name)&&t.dur!=='9:30pm'){t.dur='9:30pm';changed=true;}
-  });
-  if(changed)sv('evening',evening);
-  // Wake up → 6:00am; add the task if the morning list doesn't have one
-  var mChanged=false;
-  var wake=morning.find(function(t){return /wake/i.test(t.name);});
-  if(wake){if(parseClock(wake.dur)===null){wake.dur='6:00am';mChanged=true;}}
-  else{morning.unshift({id:'m'+Date.now(),name:'Wake up',dur:'6:00am'});mChanged=true;}
-  if(mChanged)sv('morning',morning);
-}
 function togglePersonal(btn){
   var row=btn.closest('.task-row');
   var sec=row.dataset.sec; var id=row.dataset.tid;
   var ds=getDS();
   var dm=sec==='morning'?ds.m:ds.e;
   dm[id]=!dm[id];
-  if(dm[id]){
-    dm[id+'_ts']=nowStr();
-    // timed check: stamp minutes late vs the task's target time
-    var tasks=sec==='morning'?morning:evening;
-    var t=tasks.find(function(x){return x.id===id;});
-    var target=t?parseClock(t.dur):null;
-    if(target!==null){
-      var n=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));
-      dm[id+'_late']=(n.getHours()*60+n.getMinutes())-target;
-    }
-  }else{delete dm[id+'_ts'];delete dm[id+'_late'];}
+  if(dm[id])dm[id+'_ts']=nowStr(); else delete dm[id+'_ts'];
   setDS(ds);renderAll();
 }
 function delPersonal(btn){
@@ -2689,9 +2587,6 @@ window.mergeTodayLists = function(a, b) {
         if(!prev.todoId && item.todoId) prev.todoId = item.todoId;
         // tag: client wins over internal/none so client emphasis never drops in a sync
         if(item.tag === 'client' || (!prev.tag && item.tag)) prev.tag = item.tag;
-        // timers: keep the larger banked time; keep the earliest running start
-        if(item.spentMs && (!prev.spentMs || item.spentMs > prev.spentMs)) prev.spentMs = item.spentMs;
-        if(item.startAt && (!prev.startAt || item.startAt < prev.startAt)) prev.startAt = item.startAt;
       });
     });
     const items = order.map(k => seen[k]);
@@ -2779,11 +2674,7 @@ function rolloverTodayList(){
             return x&&((item.todoId&&x.todoId===item.todoId)||x.name===item.name);
           });
           if(!dup){
-            // bank any timer still running from yesterday, carry the total forward
-            var carriedMs=(item.spentMs||0)+(item.startAt?Date.now()-item.startAt:0);
-            var carried={id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,tag:item.tag,done:false,carriedFrom:item.carriedFrom||k};
-            if(carriedMs)carried.spentMs=carriedMs;
-            today.push(carried);
+            today.push({id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,tag:item.tag,done:false,carriedFrom:item.carriedFrom||k});
           }
         }catch(itemErr){
           // never let one bad record kill the whole carry — keep it in place
@@ -2841,23 +2732,15 @@ function renderToday(){
     var overdue=!t.done&&age>=2; // on the list 3+ days
     var isClient=t.tag==='client';
     var sub='';
-    if(t.ts)sub='<div class="task-ts">&#10003; '+t.ts+(todayItemMs(t)?' &middot; took '+fmtDurMs(todayItemMs(t)):'')+'</div>';
+    if(t.ts)sub='<div class="task-ts">&#10003; '+t.ts+'</div>';
     else if(overdue)sub='<div class="task-ts due-fucker">&#9888; DUE TODAY FUCKER &middot; day '+(age+1)+'</div>';
     else if(t.carriedFrom)sub='<div class="task-ts" style="color:var(--y);opacity:.75;">&#8617; carried from '+fmtDateShort(t.carriedFrom)+'</div>';
-    var running=!!t.startAt;
-    var ms=todayItemMs(t);
-    var timerBits='';
-    if(!t.done){
-      timerBits='<span class="task-time'+(running?' running':'')+'" data-timer="'+t.id+'">'+(ms?fmtDurMs(ms):'')+'</span>'
-        +'<button class="timer-btn'+(running?' running':'')+'" onclick="todayTimer(this)">'+(running?'&#9632; Stop':'&#9654; Start')+'</button>';
-    }
     return '<div class="task-row'+(overdue?' overdue':'')+(isClient?' client-row':'')+'"'+(t.done?' style="opacity:.5;"':'')+' data-tid="'+t.id+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk chk-circle '+(t.done?'done':'')+'" onclick="todayChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+t.name+'</div>'
       +sub
       +'</div>'
-      +timerBits
       +'<button class="tag-pill'+(isClient?' client':'')+'" onclick="todayTag(this)" title="Toggle client / internal">'+(isClient?'CLIENT':'INT')+'</button>'
       +'<button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
   }).join('');
@@ -2880,11 +2763,7 @@ function todayChk(btn){
   var t=items.find(function(x){return x.id===id;});
   if(!t)return;
   t.done=!t.done;
-  if(t.done){
-    t.ts=nowStr();
-    // completing the task stops a running timer and banks the time
-    if(t.startAt){t.spentMs=(t.spentMs||0)+(Date.now()-t.startAt);delete t.startAt;}
-  }else delete t.ts;
+  if(t.done)t.ts=nowStr();else delete t.ts;
   // sync linked to-do: checking completes it, unchecking reopens it
   if(t.todoId){
     var td=todos.find(function(x){return x.id===t.todoId;});
@@ -2896,38 +2775,6 @@ function todayChk(btn){
   }
   setTodayItems(items);
   renderToday();renderTodo();
-}
-
-// -- TODAY LIST TIMERS -----------------------------------------------------------
-// Start/Stop per task to clock how long things actually take. spentMs = banked
-// time, startAt = running. The checkbox also stops the clock on completion.
-function todayItemMs(t){return (t.spentMs||0)+(t.startAt?Date.now()-t.startAt:0);}
-function fmtDurMs(ms){
-  var s=Math.round(ms/1000);
-  if(s<60)return s+'s';
-  var m=Math.floor(s/60);
-  if(m<60)return m+'m';
-  return Math.floor(m/60)+'h '+(m%60)+'m';
-}
-function todayTimer(btn){
-  var id=btn.closest('.task-row').dataset.tid;
-  var items=getTodayItems();
-  var t=items.find(function(x){return x.id===id;});
-  if(!t||t.done)return;
-  if(t.startAt){t.spentMs=(t.spentMs||0)+(Date.now()-t.startAt);delete t.startAt;}
-  else t.startAt=Date.now();
-  setTodayItems(items);
-  renderToday();
-}
-// live tick — update just the elapsed text every second while anything runs
-function tickTodayTimers(){
-  var spans=document.querySelectorAll('#todayList .task-time.running');
-  if(!spans.length)return;
-  var items=getTodayItems();
-  spans.forEach(function(sp){
-    var t=items.find(function(x){return x.id===sp.dataset.timer;});
-    if(t)sp.textContent=fmtDurMs(todayItemMs(t));
-  });
 }
 function todayDel(btn){
   var id=btn.closest('.task-row').dataset.tid;
@@ -3866,30 +3713,17 @@ function renderLaundry(){
   var w=getLaundryWeek();
   var doneLoads=w.loads.filter(function(l){return l.washAt&&l.dryAt;}).length;
   var cnt=document.getElementById('laundryCount');
-  if(cnt)cnt.textContent=doneLoads+' of '+w.loads.length+' loads';
+  if(cnt)cnt.textContent=doneLoads+' of 3 loads';
   el.innerHTML=w.loads.map(function(l,idx){
     var washDone=!!l.washAt;
     var dryDone=!!l.dryAt;
     var dryPending=washDone&&!dryDone&&(Date.now()-l.washAt>=LAUNDRY_REMIND_MS);
-    var extra=idx>=3; // loads beyond the weekly 3 can be removed
     return '<div class="laundry-row">'
-      +'<span class="laundry-lbl">Load '+(idx+1)+(extra?' <span style="font-size:9px;color:var(--t3);">extra</span>':'')+(washDone&&!dryDone?' &middot; <span style="color:var(--y);">in the wash</span>':'')+'</span>'
+      +'<span class="laundry-lbl">Load '+(idx+1)+(washDone&&!dryDone?' &middot; <span style="color:var(--y);">in the wash</span>':'')+'</span>'
       +'<button class="laundry-chk'+(washDone?' done':'')+'" onclick="laundryWash('+idx+')">'+(washDone?'&#10003; ':'')+'Wash</button>'
       +'<button class="laundry-chk'+(dryDone?' done':(dryPending?' pending':''))+'" onclick="laundryDry('+idx+')">'+(dryDone?'&#10003; ':'')+'Dry</button>'
-      +(extra?'<button class="task-del" onclick="laundryDelLoad('+idx+')" title="Remove extra load">&#215;</button>':'')
       +'</div>';
   }).join('');
-}
-function laundryAddLoad(){
-  var w=getLaundryWeek();
-  w.loads.push({id:'l'+Date.now()});
-  svLaundryWeek(w);renderLaundry();
-}
-function laundryDelLoad(idx){
-  if(idx<3)return; // the weekly 3 are permanent
-  var w=getLaundryWeek();
-  w.loads.splice(idx,1);
-  svLaundryWeek(w);renderLaundry();
 }
 function laundryWash(idx){
   var w=getLaundryWeek();
@@ -3939,53 +3773,6 @@ function showLaundryToast(msg){
 function dismissLaundryToast(){
   var t=document.getElementById('laundryToast');
   if(t)t.classList.remove('show');
-}
-
-// -- GROCERY RESTOCK -------------------------------------------------------------
-// Ran out of something? Add it here. Check it off at the store, then
-// "Clear picked up" wipes the checked ones. Syncs via sv() like everything else.
-function renderGrocery(){
-  var el=document.getElementById('groceryList');
-  if(!el)return;
-  var items=ld('grocery',[]);
-  var emp=document.getElementById('groceryEmpty');
-  var clr=document.getElementById('groceryClearBtn');
-  if(emp)emp.style.display=items.length?'none':'block';
-  if(clr)clr.style.display=items.some(function(g){return g.got;})?'inline-block':'none';
-  var sorted=items.slice().sort(function(a,b){return (a.got?1:0)-(b.got?1:0);});
-  el.innerHTML=sorted.map(function(g){
-    return '<div class="laundry-row"'+(g.got?' style="opacity:.45;"':'')+'>'
-      +'<button class="chk'+(g.got?' done':'')+'" onclick="toggleGrocery(\''+g.id+'\')"></button>'
-      +'<span class="laundry-lbl"'+(g.got?' style="text-decoration:line-through;"':'')+'>'+g.name+'</span>'
-      +'<button class="task-del" onclick="delGrocery(\''+g.id+'\')">&#215;</button>'
-      +'</div>';
-  }).join('');
-}
-function addGrocery(){
-  var inp=document.getElementById('groceryInput');
-  if(!inp)return;
-  var v=inp.value.trim();
-  if(!v)return;
-  var items=ld('grocery',[]);
-  items.push({id:'g'+Date.now(),name:v,got:false});
-  sv('grocery',items);
-  inp.value='';inp.focus();
-  renderGrocery();
-}
-function toggleGrocery(id){
-  var items=ld('grocery',[]);
-  var g=items.find(function(x){return x.id===id;});
-  if(!g)return;
-  g.got=!g.got;
-  sv('grocery',items);renderGrocery();
-}
-function delGrocery(id){
-  var items=ld('grocery',[]).filter(function(x){return x.id!==id;});
-  sv('grocery',items);renderGrocery();
-}
-function clearGotGrocery(){
-  var items=ld('grocery',[]).filter(function(x){return !x.got;});
-  sv('grocery',items);renderGrocery();
 }
 
 // -- JOURNAL HISTORY TOGGLE --------------------------------------------------------
@@ -5017,7 +4804,6 @@ function renderAll(){
   safeCall(renderHours,'renderHours');
   safeCall(renderTargets,'renderTargets');
   safeCall(renderLaundry,'renderLaundry');
-  safeCall(renderGrocery,'renderGrocery');
   safeCall(renderCorrelation,'renderCorrelation');
 }
 
@@ -5063,8 +4849,6 @@ function reloadFromStorage(){
   pipeTouches=ld('pipeTouches',{});
   hoursLog=ld('hoursLog',{});
   clientTargets=ld('clientTargets',[]);
-  try{ensureTimedTasks();}catch(e){}
-  try{migrateStopHits();}catch(e){}
   loadJournalForDay();
   rolloverTodayList();
   renderAll();
@@ -5086,8 +4870,6 @@ function safeInit(){
   try{
     initDates();
     updateDayNav();
-    ensureTimedTasks();
-    migrateStopHits();
     loadJournalForDay();
     rolloverTodayList();
     renderAll();
