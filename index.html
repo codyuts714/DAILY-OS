@@ -95,84 +95,6 @@ window.flush_pending = function() {
   });
 };
 
-// Identity key for a today-list item
-window._tlKey = function(item){ return item.todoId ? 't:' + item.todoId : 'n:' + item.name; };
-
-// GHOST KILLER: once an item is marked done on day D, any INCOMPLETE copy of the
-// same item whose lineage (carriedFrom, or its own day) started on-or-before D is
-// a stale-device ghost — kill it. A genuinely new task re-added later has a
-// lineage that starts AFTER the done record, so it survives.
-window.killTodayGhosts = function(lists) {
-  try {
-    var doneDay = {}; // key -> latest day it was completed
-    Object.keys(lists).forEach(function(day){
-      (lists[day] || []).forEach(function(item){
-        if(item && item.done){
-          var k = window._tlKey(item);
-          if(!doneDay[k] || day > doneDay[k]) doneDay[k] = day;
-        }
-      });
-    });
-    Object.keys(lists).forEach(function(day){
-      var filtered = (lists[day] || []).filter(function(item){
-        if(!item || !item.name) return false;
-        if(item.done) return true; // done items are the archive record — always keep
-        var dd = doneDay[window._tlKey(item)];
-        if(!dd) return true;
-        var origin = item.carriedFrom || day;
-        return origin >= dd; // kill only STRICTLY older lineage — a same-day re-add is a real task, not a ghost
-      });
-      if(filtered.length) lists[day] = filtered; else delete lists[day];
-    });
-  } catch(e) { console.warn('killTodayGhosts failed:', e); }
-  return lists;
-};
-
-// Union-merge two todayLists objects. Keeps every item from both sides,
-// dedupes within each day by todoId (or name), and "done" always wins so a
-// checked-off item never comes back to life. Earliest carriedFrom is kept so
-// the age counter can't be reset by a sync.
-window.mergeTodayLists = function(a, b) {
-  const out = {};
-  const days = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
-  days.forEach(day => {
-    const seen = {};   // dedupe key -> item
-    const order = [];
-    [(a || {})[day] || [], (b || {})[day] || []].forEach(list => {
-      list.forEach(item => {
-        if(!item || !item.name) return;
-        const key = item.todoId ? 't:' + item.todoId : 'n:' + item.name;
-        const prev = seen[key];
-        if(!prev) { seen[key] = Object.assign({}, item); order.push(key); return; }
-        // same logical item on both sides — combine
-        if(item.done && !prev.done) { prev.done = true; prev.ts = item.ts || prev.ts; }
-        if(item.carriedFrom && (!prev.carriedFrom || item.carriedFrom < prev.carriedFrom)) prev.carriedFrom = item.carriedFrom;
-        if(!prev.todoId && item.todoId) prev.todoId = item.todoId;
-        // tag: client wins over internal/none so client emphasis never drops in a sync
-        if(item.tag === 'client' || (!prev.tag && item.tag)) prev.tag = item.tag;
-      });
-    });
-    const items = order.map(k => seen[k]);
-    if(items.length) out[day] = items;
-  });
-  // If an item was already carried to a newer day on one device, drop the
-  // older incomplete copy so it doesn't show up twice after rollover.
-  const dayKeys = Object.keys(out).sort();
-  for(let i = 0; i < dayKeys.length; i++) {
-    for(let j = i + 1; j < dayKeys.length; j++) {
-      const newer = out[dayKeys[j]];
-      out[dayKeys[i]] = out[dayKeys[i]].filter(item => {
-        if(item.done) return true; // done items stay as the record
-        return !newer.some(x => (item.todoId && x.todoId === item.todoId) || x.name === item.name);
-      });
-    }
-    if(!out[dayKeys[i]].length) delete out[dayKeys[i]];
-  }
-  // Final pass: kill newer incomplete ghosts of items already completed on an
-  // earlier day (stale device rolled them over before it got the cloud update).
-  return window.killTodayGhosts(out);
-};
-
 let _unsubscribe = null;
 let _reloadTimes = [];
 let _reloadTimer = null;
@@ -282,7 +204,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .topbar-streak{font-size:13px;font-weight:700;color:var(--y);background:var(--y2);border:1px solid var(--y3);padding:4px 12px;border-radius:99px;}
 
 /* GOALS */
-.goals-banner{background:var(--bg2);border:1px solid var(--b2);border-left:3px solid var(--y);border-radius:var(--r);padding:8px 14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.goals-banner{background:var(--bg2);border:1px solid var(--b2);border-left:3px solid var(--y);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;min-height:58px;}
 .goals-label{font-size:10px;font-weight:700;color:var(--y);text-transform:uppercase;letter-spacing:.1em;flex-shrink:0;margin-top:3px;}
 .goals-items{display:flex;flex-wrap:wrap;gap:5px;flex:1;}
 .goal-pill{font-size:12px;color:var(--t2);background:var(--bg3);border:1px solid var(--b2);border-radius:99px;padding:2px 10px;}
@@ -551,8 +473,37 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .await-amt{color:var(--orange);font-weight:700;}
 
 /* SCROLLBAR */
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+::-webkit-scrollbar{width:14px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:7px;border:3px solid var(--bg2);}
+::-webkit-scrollbar-thumb:hover{background:#4a4a4a;}
+html{scrollbar-width:auto;scrollbar-color:var(--b2) var(--bg2);}
+/* -- WHY I DO THIS (mission banner) -- */
+.mission-banner{background:linear-gradient(135deg,var(--bg2),#141204);border:1px solid var(--y3);border-left:3px solid var(--y);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+.mission-label{font-size:11px;font-weight:800;color:var(--y);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;padding-top:3px;}
+.mission-items{display:flex;flex-wrap:wrap;gap:8px;flex:1;}
+.mission-line{font-size:13px;color:var(--t);font-style:italic;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;padding:6px 12px;line-height:1.4;}
+/* -- CHECKABLE GOALS (taller) -- */
+.goal-pill{font-size:13px;color:var(--t2);background:var(--bg3);border:1px solid var(--b2);border-radius:99px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .15s;user-select:none;}
+.goal-pill:hover{border-color:var(--y3);}
+.goal-pill .g-chk{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--b2);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#000;flex-shrink:0;}
+.goal-pill.done{color:var(--t3);}
+.goal-pill.done .g-txt{text-decoration:line-through;}
+.goal-pill.done .g-chk{background:var(--green);border-color:var(--green);}
+/* -- TODAY'S PLAN -- */
+.plan-card{background:var(--bg2);border:1px solid var(--b2);border-left:3px solid var(--blue);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:700px){.plan-card{grid-template-columns:1fr;}}
+.plan-hd{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.plan-today-text{font-size:13px;color:var(--t);line-height:1.55;white-space:pre-wrap;}
+.plan-today-text.empty{color:var(--t3);font-style:italic;}
+.plan-ta{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:6px;color:var(--t);font-size:12px;padding:8px;min-height:56px;resize:vertical;font-family:inherit;}
+/* -- 4H BURST PACING -- */
+.task-row.pace-now{background:rgba(255,243,176,.10);border-left:3px solid var(--y);border-radius:6px;}
+.task-row.pace-behind{border-left:3px solid rgba(255,243,176,.35);border-radius:6px;}
+.min-chip{font-size:9px;font-weight:700;color:var(--t3);background:var(--bg3);border:1px solid var(--b);border-radius:99px;padding:2px 7px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.min-chip:hover{color:var(--y);border-color:var(--y3);}
+.burst-stat{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);padding:2px 0;}
+.burst-now{background:rgba(255,243,176,.08);border:1px solid var(--y3);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--y);margin-top:7px;line-height:1.4;}
 /* CAL EVENTS */
 .cal-event{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--b);}
 .cal-event:last-child{border-bottom:none;}
@@ -648,11 +599,40 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
+<!-- WHY I DO THIS -->
+<div class="mission-banner">
+  <div class="mission-label">☀ Why I Do This</div>
+  <div class="mission-items" id="missionItems"></div>
+  <button class="goals-edit-btn" onclick="openMissionModal()">✎ Edit</button>
+</div>
+
 <!-- GOALS -->
 <div class="goals-banner">
   <div class="goals-label">🎯 Goals</div>
   <div class="goals-items" id="goalsItems"></div>
   <button class="goals-edit-btn" onclick="openGoalModal()">✎ Edit</button>
+</div>
+
+<!-- TODAY'S PLAN — written the night before -->
+<div class="plan-card">
+  <div>
+    <div class="plan-hd" style="color:var(--blue);">☀ Today's Plan
+      <button class="btn btn-ghost btn-sm" id="planEditBtn" onclick="editPlanToday()">✎</button>
+    </div>
+    <div class="plan-today-text" id="planTodayText"></div>
+    <div id="planTodayEditWrap" style="display:none;">
+      <textarea class="plan-ta" id="planTodayTa"></textarea>
+      <button class="btn btn-y btn-sm" style="margin-top:5px;" onclick="savePlanToday()">Save</button>
+    </div>
+  </div>
+  <div>
+    <div class="plan-hd" style="color:var(--purple);">🌙 Plan Tomorrow <span style="font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0;">write it tonight — it shows up top tomorrow</span></div>
+    <textarea class="plan-ta" id="planTomorrowTa" placeholder="Tomorrow you're editing the Cindy reel, shooting at 2pm, invoicing..."></textarea>
+    <div style="display:flex;gap:6px;margin-top:5px;align-items:center;">
+      <button class="btn btn-y btn-sm" onclick="savePlanTomorrow()">Save</button>
+      <span id="planSaved" style="font-size:11px;color:var(--green);display:none;">✓ Saved for tomorrow</span>
+    </div>
+  </div>
 </div>
 
 <!-- DAY SCROLLER -->
@@ -749,8 +729,19 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
     </div>
   </div>
 
-  <!-- SIDE COLUMN: hours, laundry, schedule -->
+  <!-- SIDE COLUMN: burst pacer, hours, laundry, schedule -->
   <div class="side-col">
+    <!-- 4-HOUR BURST PACER -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><span class="dot" style="background:var(--y)"></span>⚡ 4-Hour Burst</div>
+        <button class="btn btn-y btn-sm" id="burstBtn" onclick="toggleBurst()">Start</button>
+      </div>
+      <div class="choose-label" style="color:var(--t2);">Morning &rarr; business dailies &rarr; evening. Set minutes on each box (tap the &ldquo;Xm&rdquo; chip) &mdash; when running, yellow marks where you should be by now.</div>
+      <div id="burstStats"></div>
+      <div id="burstNow"></div>
+    </div>
+
     <!-- HOURS BY BUCKET -->
     <div class="card">
       <div class="card-hd">
@@ -1057,6 +1048,36 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
 </div>
 
+<!-- ═══ WIND-DOWN — end of day ═══ -->
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <div class="section-divider-label personal">&#127769; Wind-Down</div>
+  <div class="section-divider-line"></div>
+</div>
+<div class="grid-2">
+  <!-- EVENING -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Evening</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" style="color:var(--purple)" id="eveningPct">0%</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddTask('evening')">+</button>
+      </div>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="eveningBar" style="width:0%;background:var(--purple)"></div></div>
+    <div id="eveningList"></div>
+  </div>
+
+  <!-- SMOKE-FREE STREAKS -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:#FED000"></span>Smoke-Free Streaks</div>
+      <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap today's sun when you make it through clean</div>
+    </div>
+    <div id="smokeRows"></div>
+  </div>
+</div>
+
 <!-- ═══ WEEKLY SCHEDULE ═══ -->
 <div class="section-divider">
   <div class="section-divider-line"></div>
@@ -1097,36 +1118,6 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
   </div>
   <div id="awaitingPaymentLog"></div>
   <div id="awaitingEmpty" style="font-size:12px;color:var(--t3);padding:6px 0;display:none;">Nothing pending &mdash; all caught up.</div>
-</div>
-
-<!-- ═══ WIND-DOWN — end of day ═══ -->
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label personal">&#127769; Wind-Down</div>
-  <div class="section-divider-line"></div>
-</div>
-<div class="grid-2">
-  <!-- EVENING -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Evening</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--purple)" id="eveningPct">0%</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddTask('evening')">+</button>
-      </div>
-    </div>
-    <div class="sec-track"><div class="sec-fill" id="eveningBar" style="width:0%;background:var(--purple)"></div></div>
-    <div id="eveningList"></div>
-  </div>
-
-  <!-- SMOKE-FREE STREAKS -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:#FED000"></span>Smoke-Free Streaks</div>
-      <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap today's sun when you make it through clean</div>
-    </div>
-    <div id="smokeRows"></div>
-  </div>
 </div>
 
 <!-- LAUNDRY TOAST -->
@@ -1307,6 +1298,11 @@ let evening=ld('evening',DEF_EVENING);
 let weekly=ld('weekly',DEF_WEEKLY);
 let todos=ld('todos',[]);
 let goals=ld('goals',DEF_GOALS);
+goals=normalizeGoals(goals);
+// "Why I Do This" — seeded once from the old goal texts (they read like
+// statements of purpose, not finishable goals)
+let mission=ld('mission',null);
+if(mission===null){mission=goals.map(function(g){return g.text;});sv('mission',mission);}
 let revLog=ld('revLog',[]);
 let projects=ld('projects',[]);
 let revFilter='week';
@@ -1413,10 +1409,22 @@ const setDS=s=>{var day={m:s.m,e:s.e,t:s.t,s:s.s,vn:s.vn,v:s.v,c:s.c,mo:s.mo,a:s
 let _clockDay=null;
 let _clockWeek=null;
 let _laundryTick=0;
+let _burstTick=0;
 function updateClock(){
   document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
   // dryer reminder watch — cheap check every ~30s (persisted, survives reloads)
   if(++_laundryTick>=30){_laundryTick=0;try{checkLaundryReminders();}catch(e){}}
+  // burst pacer — re-highlight the lists once a minute while a burst runs
+  if(++_burstTick>=60){
+    _burstTick=0;
+    try{
+      var b=burstState();
+      if(b&&b.start&&viewingDay===0){
+        _pace=computePace();
+        renderBurst();renderSection('morning');renderSection('evening');renderAllBiz();
+      }
+    }catch(e){}
+  }
   // midnight watch: if the date flips while the app is open, roll the Today List
   var tk=todayKey();
   if(_clockDay===null){_clockDay=tk;}
@@ -1441,11 +1449,27 @@ function initDates(){
   document.getElementById('revDate').value=todayKey();
 }
 
-// -- GOALS --------------------------------------------------------------------─
+// -- GOALS (checkable) ---------------------------------------------------------─
+// goals migrated from plain strings to {id,text,done} so they can be checked off
+function normalizeGoals(arr){
+  return (Array.isArray(arr)?arr:[]).map(function(g,i){
+    if(typeof g==='string')return {id:'g'+Date.now()+i,text:g,done:false};
+    return {id:g.id||('g'+Date.now()+i),text:g.text||'',done:!!g.done};
+  }).filter(function(g){return g.text;});
+}
 function renderGoals(){
   document.getElementById('goalsItems').innerHTML=goals.length
-    ?goals.map(g=>`<span class="goal-pill">${g}</span>`).join('')
-    :'<span style="font-size:11px;color:var(--t3)">No goals set yet</span>';
+    ?goals.map(function(g,i){
+      return '<span class="goal-pill'+(g.done?' done':'')+'" onclick="toggleGoal('+i+')">'
+        +'<span class="g-chk">'+(g.done?'&#10003;':'')+'</span>'
+        +'<span class="g-txt">'+g.text+'</span></span>';
+    }).join('')
+    :'<span style="font-size:11px;color:var(--t3)">No goals set yet — add real, finishable goals and check them off</span>';
+}
+function toggleGoal(i){
+  if(!goals[i])return;
+  goals[i].done=!goals[i].done;
+  sv('goals',goals);renderGoals();
 }
 function openGoalModal(){
   document.getElementById('modalTitle').textContent='Edit Goals';
@@ -1459,7 +1483,7 @@ function openGoalModal(){
   mCb=()=>{
     const v=document.getElementById('mIn1').value.trim();
     if(!v)return true;
-    goals.push(v);sv('goals',goals);renderGoalEdit();renderGoals();
+    goals.push({id:'g'+Date.now(),text:v,done:false});sv('goals',goals);renderGoalEdit();renderGoals();
     document.getElementById('mIn1').value='';
     return true;
   };
@@ -1468,11 +1492,211 @@ function openGoalModal(){
 function renderGoalEdit(){
   document.getElementById('goalEditList').innerHTML=goals.map((g,i)=>`
     <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--b);">
-      <span style="flex:1;font-size:12px;">${g}</span>
+      <span style="flex:1;font-size:12px;${g.done?'text-decoration:line-through;color:var(--t3);':''}">${g.text}</span>
       <button onclick="delGoal(${i})" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;">×</button>
     </div>`).join('');
 }
 function delGoal(i){goals.splice(i,1);sv('goals',goals);renderGoalEdit();renderGoals();}
+
+// -- WHY I DO THIS -------------------------------------------------------------─
+// The reminders of why the work matters. Seeded once from the old goal texts
+// (which read more like statements than finishable goals).
+function renderMission(){
+  var el=document.getElementById('missionItems');
+  if(!el)return;
+  el.innerHTML=mission.length
+    ?mission.map(function(m){return '<span class="mission-line">'+m+'</span>';}).join('')
+    :'<span style="font-size:11px;color:var(--t3)">Add the reminders of why you do this.</span>';
+}
+function openMissionModal(){
+  document.getElementById('modalTitle').textContent='Why I Do This';
+  document.getElementById('mIn1').placeholder='Add a reminder...';
+  document.getElementById('mIn1').value='';
+  document.getElementById('mIn2').style.display='none';
+  document.getElementById('mDayRow').style.display='none';
+  document.getElementById('mGoalArea').style.display='block';
+  renderMissionEdit();
+  document.getElementById('modalConfirm').textContent='Add';
+  mCb=()=>{
+    const v=document.getElementById('mIn1').value.trim();
+    if(!v)return true;
+    mission.push(v);sv('mission',mission);renderMissionEdit();renderMission();
+    document.getElementById('mIn1').value='';
+    return true;
+  };
+  document.getElementById('modalOv').classList.add('open');
+}
+function renderMissionEdit(){
+  document.getElementById('goalEditList').innerHTML=mission.map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--b);">
+      <span style="flex:1;font-size:12px;font-style:italic;">${m}</span>
+      <button onclick="delMission(${i})" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;">×</button>
+    </div>`).join('');
+}
+function delMission(i){mission.splice(i,1);sv('mission',mission);renderMissionEdit();renderMission();}
+
+// -- TODAY'S PLAN (written the night before) -----------------------------------─
+const tomorrowKey=()=>{const d=new Date();d.setDate(d.getDate()+1);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());};
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function renderPlan(){
+  var plans=ld('dayPlans',{});
+  var txtEl=document.getElementById('planTodayText');
+  if(!txtEl)return;
+  var t=plans[todayKey()];
+  if(t){txtEl.textContent=t;txtEl.classList.remove('empty');}
+  else{txtEl.textContent='Nothing planned last night. Set tomorrow\'s tonight \u2192';txtEl.classList.add('empty');}
+  var ta=document.getElementById('planTomorrowTa');
+  if(ta&&document.activeElement!==ta)ta.value=plans[tomorrowKey()]||'';
+}
+function savePlanTomorrow(){
+  var ta=document.getElementById('planTomorrowTa');
+  if(!ta)return;
+  var plans=ld('dayPlans',{});
+  var v=ta.value.trim();
+  if(v)plans[tomorrowKey()]=v;else delete plans[tomorrowKey()];
+  sv('dayPlans',plans);
+  var s=document.getElementById('planSaved');
+  if(s){s.style.display='inline';setTimeout(function(){s.style.display='none';},2000);}
+}
+function editPlanToday(){
+  var plans=ld('dayPlans',{});
+  var wrap=document.getElementById('planTodayEditWrap');
+  var txt=document.getElementById('planTodayText');
+  if(!wrap)return;
+  var open=wrap.style.display!=='none';
+  if(open){wrap.style.display='none';txt.style.display='block';return;}
+  document.getElementById('planTodayTa').value=plans[todayKey()]||'';
+  wrap.style.display='block';txt.style.display='none';
+}
+function savePlanToday(){
+  var plans=ld('dayPlans',{});
+  var v=document.getElementById('planTodayTa').value.trim();
+  if(v)plans[todayKey()]=v;else delete plans[todayKey()];
+  sv('dayPlans',plans);
+  document.getElementById('planTodayEditWrap').style.display='none';
+  document.getElementById('planTodayText').style.display='block';
+  renderPlan();
+}
+
+// -- 4-HOUR BURST PACER --------------------------------------------------------─
+// Every daily checkbox gets a minutes value (t.min, editable via the "Xm"
+// chip; falls back to parsing the dur string). Hitting Start walks the
+// sequence morning → biz dailies → evening against the clock: the box you
+// should be on right now highlights yellow; undone boxes you should already
+// be past get a faint yellow edge.
+const BURST_TARGET=240; // 4 hours
+function taskMin(t,fallback){
+  if(typeof t.min==='number'&&t.min>0)return t.min;
+  if(t.dur){
+    var m=String(t.dur).match(/(\d+(?:\.\d+)?)(?:\s*[\u2013\u2014-]\s*(\d+(?:\.\d+)?))?\s*min/i);
+    if(m){var a=parseFloat(m[1]);var b=m[2]?parseFloat(m[2]):a;return Math.round((a+b)/2);}
+  }
+  return fallback;
+}
+// choose-one categories budget one slot: the biggest task in the group
+function groupMin(list,fallback){
+  var mx=0;list.forEach(function(t){mx=Math.max(mx,taskMin(t,fallback));});
+  return mx||fallback;
+}
+function buildBurstSeq(){
+  var seq=[];
+  morning.forEach(function(t){seq.push({k:'m:'+t.id,label:t.name,min:taskMin(t,5)});});
+  bizVisNon.forEach(function(t){seq.push({k:'vn:'+t.id,label:t.name,min:taskMin(t,10)});});
+  seq.push({k:'v:*',label:'Visibility — choose one',min:groupMin(bizVis,15)});
+  bizClient.forEach(function(t){seq.push({k:'c:'+t.id,label:t.name,min:taskMin(t,10)});});
+  bizMoney.forEach(function(t){seq.push({k:'mo:'+t.id,label:t.name,min:taskMin(t,5)});});
+  seq.push({k:'a:*',label:'Admin — choose one',min:groupMin(bizAdmin,15)});
+  evening.forEach(function(t){seq.push({k:'e:'+t.id,label:t.name,min:taskMin(t,5)});});
+  return seq;
+}
+function burstState(){return ld('burst_'+todayKey(),null);}
+function toggleBurst(){
+  var b=burstState();
+  if(b&&b.start)sv('burst_'+todayKey(),{ended:Date.now()});
+  else sv('burst_'+todayKey(),{start:Date.now()});
+  _pace=computePace();
+  renderBurst();renderSection('morning');renderSection('evening');renderAllBiz();
+}
+function burstDoneMap(){
+  var ds=getDS();
+  return function(k){
+    var p=k.split(':');var pre=p[0],id=p[1];
+    if(pre==='m')return !!ds.m[id];
+    if(pre==='e')return !!ds.e[id];
+    if(pre==='vn')return !!ds.vn[id];
+    if(pre==='c')return !!ds.c[id];
+    if(pre==='mo')return !!ds.mo[id];
+    if(pre==='v')return bizVis.some(function(t){return ds.v[t.id];});
+    if(pre==='a')return bizAdmin.some(function(t){return ds.a[t.id];});
+    return false;
+  };
+}
+let _pace=null;
+function computePace(){
+  var b=burstState();
+  var seq=buildBurstSeq();
+  var planned=seq.reduce(function(s,x){return s+x.min;},0);
+  if(!b||!b.start)return {active:false,seq:seq,planned:planned,map:{}};
+  var elapsed=(Date.now()-b.start)/60000;
+  var isDone=burstDoneMap();
+  var map={},cum=0,nowLabel=null,behind=0;
+  seq.forEach(function(x){
+    var start=cum,end=cum+x.min;cum=end;
+    if(elapsed>=end){map[x.k]='past';if(!isDone(x.k))behind++;}
+    else if(elapsed>=start){map[x.k]='now';nowLabel=x.label;}
+  });
+  if(elapsed>=cum)nowLabel='done — everything should be checked by now';
+  return {active:true,seq:seq,planned:planned,map:map,elapsed:Math.round(elapsed),nowLabel:nowLabel,behind:behind};
+}
+// class for a task row given its pace key — '' when burst idle or task done
+function paceCls(k,done){
+  if(done||!_pace||!_pace.active)return '';
+  var st=_pace.map[k];
+  return st==='now'?' pace-now':st==='past'?' pace-behind':'';
+}
+function renderBurst(){
+  var stats=document.getElementById('burstStats');
+  var nowEl=document.getElementById('burstNow');
+  var btn=document.getElementById('burstBtn');
+  if(!stats)return;
+  _pace=computePace();
+  var boxes=_pace.seq.length;
+  var even=boxes?(BURST_TARGET/boxes):0;
+  var over=_pace.planned-BURST_TARGET;
+  var html='<div class="burst-stat"><span>Boxes in the run</span><b>'+boxes+'</b></div>'
+    +'<div class="burst-stat"><span>Even split of 4h</span><b>'+(even%1?even.toFixed(1):even)+' min each</b></div>'
+    +'<div class="burst-stat"><span>Planned (your minutes)</span><b style="color:'+(over>0?'var(--coral)':'var(--green)')+';">'+_pace.planned+' / '+BURST_TARGET+' min</b></div>';
+  if(over>0)html+='<div style="font-size:10px;color:var(--coral);padding-top:2px;">'+over+' min over the 4h budget — trim some chips</div>';
+  stats.innerHTML=html;
+  if(btn)btn.textContent=_pace.active?'End':'Start';
+  if(nowEl){
+    if(_pace.active){
+      nowEl.innerHTML='<div class="burst-now">&#9201; '+Math.floor(_pace.elapsed/60)+'h '+(_pace.elapsed%60)+'m in'
+        +(_pace.nowLabel?'<br>You should be at: <b>'+_pace.nowLabel+'</b>':'')
+        +(_pace.behind?'<br><span style="color:var(--coral);">'+_pace.behind+' box'+(_pace.behind===1?'':'es')+' behind pace</span>':'<br><span style="color:var(--green);">on pace &#10003;</span>')
+        +'</div>';
+    }else nowEl.innerHTML='';
+  }
+}
+// edit a task's minutes from its "Xm" chip
+function editMin(listKey,id){
+  var get,save,fallback=10;
+  if(listKey==='morning'){get=function(){return morning;};save=function(){sv('morning',morning);};fallback=5;}
+  else if(listKey==='evening'){get=function(){return evening;};save=function(){sv('evening',evening);};fallback=5;}
+  else if(listKey==='visNon'){get=function(){return bizVisNon;};save=function(){sv('bizVisNon',bizVisNon);};}
+  else if(BIZ_MAP[listKey]){get=function(){return BIZ_MAP[listKey].list();};save=function(){BIZ_MAP[listKey].sv(BIZ_MAP[listKey].list());};}
+  else return;
+  var t=get().find(function(x){return x.id===id;});
+  if(!t)return;
+  var cur=taskMin(t,fallback);
+  var v=prompt('Minutes for "'+t.name+'"',cur);
+  if(v===null)return;
+  var n=parseFloat(v);
+  if(isNaN(n)||n<=0)return;
+  t.min=Math.round(n*2)/2;
+  save();
+  renderAll();
+}
 
 // -- TASK RENDERER ------------------------------------------------------------─
 function makeTaskRow(t,doneMap,toggleFn,delFn,color,chkClass=''){
@@ -1617,16 +1841,18 @@ function renderSection(sec){
   const ds=getDS();
   const dm=sec==='morning'?ds.m:ds.e;
   var container=document.getElementById(sec+'List');
+  var pk=sec==='morning'?'m:':'e:';
   container.innerHTML=tasks.map(function(t){
     var done=!!dm[t.id];
     var ts=dm[t.id+'_ts']||'';
-    var row='<div class="task-row">'
+    var row='<div class="task-row'+paceCls(pk+t.id,done)+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk '+(done?'done':'')+'" onclick="togglePersonal(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(done?'done':'')+'">'+t.name+'</div>';
     if(ts)row+='<div class="task-ts">&#10003; '+ts+'</div>';
     if(t.dur&&!done)row+='<div class="task-dur">'+t.dur+'</div>';
     row+='</div>'
+      +'<span class="min-chip" onclick="editMin(\''+sec+'\',\''+t.id+'\')" title="Minutes budgeted — tap to change">'+taskMin(t,5)+'m</span>'
       +'<button class="task-del" onclick="delPersonal(this)">&#215;</button>'
       +'</div>';
     return row;
@@ -1934,6 +2160,131 @@ let todayLists=ld('todayLists',{});
 function getTodayItems(){return todayLists[viewKey()]||[];}
 function setTodayItems(items){todayLists[viewKey()]=items;sv('todayLists',todayLists);}
 
+// -- TODAY-LIST MERGE HELPERS (moved out of the Firebase module) ----------------
+// These are pure JS with no Firebase dependency. They used to live in the
+// module script, which is deferred AND can fail to run entirely if the
+// gstatic import is slow or blocked — which left rolloverTodayList calling
+// window.killTodayGhosts before it existed. Defined here, they're always
+// available, online or offline. Still assigned to window.* so the module's
+// sync listener finds them.
+// Identity key for a today-list item
+window._tlKey = function(item){ return item.todoId ? 't:' + item.todoId : 'n:' + item.name; };
+
+// -- DELETION TOMBSTONES -------------------------------------------------------
+// The sync merge is a union — without these, deleting an item locally loses to
+// any device/cloud copy that still has it, and the item resurrects at the
+// bottom of the list on the next sync. X-ing an item now records a tombstone;
+// merges and rollover drop any copy of that item CREATED BEFORE the deletion.
+// A genuine re-add gets a fresh id (which embeds its creation time), so it
+// postdates the tombstone and survives.
+window._tlItemTs = function(item){
+  var m=/^ty(\d{13})/.exec((item&&item.id)||'');
+  return m?parseInt(m[1],10):0;
+};
+window.recordTlTombstone = function(item){
+  try{
+    var tomb=ld('tlTombstones',{});
+    tomb[window._tlKey(item)]=Date.now();
+    // prune tombstones older than 14 days — by then every device has synced
+    var cutoff=Date.now()-14*86400000;
+    Object.keys(tomb).forEach(function(k){if(tomb[k]<cutoff)delete tomb[k];});
+    sv('tlTombstones',tomb);
+  }catch(e){}
+};
+window.applyTlTombstones = function(lists){
+  try{
+    var tomb=ld('tlTombstones',{});
+    if(!Object.keys(tomb).length)return lists;
+    Object.keys(lists).forEach(function(day){
+      var f=(lists[day]||[]).filter(function(item){
+        if(!item)return false;
+        var ts=tomb[window._tlKey(item)];
+        if(!ts)return true;
+        return window._tlItemTs(item)>ts; // created after the delete = real re-add
+      });
+      if(f.length)lists[day]=f;else delete lists[day];
+    });
+  }catch(e){}
+  return lists;
+};
+
+// GHOST KILLER: once an item is marked done on day D, any INCOMPLETE copy of the
+// same item whose lineage (carriedFrom, or its own day) started on-or-before D is
+// a stale-device ghost — kill it. A genuinely new task re-added later has a
+// lineage that starts AFTER the done record, so it survives.
+window.killTodayGhosts = function(lists) {
+  try {
+    var doneDay = {}; // key -> latest day it was completed
+    Object.keys(lists).forEach(function(day){
+      (lists[day] || []).forEach(function(item){
+        if(item && item.done){
+          var k = window._tlKey(item);
+          if(!doneDay[k] || day > doneDay[k]) doneDay[k] = day;
+        }
+      });
+    });
+    Object.keys(lists).forEach(function(day){
+      var filtered = (lists[day] || []).filter(function(item){
+        if(!item || !item.name) return false;
+        if(item.done) return true; // done items are the archive record — always keep
+        var dd = doneDay[window._tlKey(item)];
+        if(!dd) return true;
+        var origin = item.carriedFrom || day;
+        return origin >= dd; // kill only STRICTLY older lineage — a same-day re-add is a real task, not a ghost
+      });
+      if(filtered.length) lists[day] = filtered; else delete lists[day];
+    });
+  } catch(e) { console.warn('killTodayGhosts failed:', e); }
+  return lists;
+};
+
+// Union-merge two todayLists objects. Keeps every item from both sides,
+// dedupes within each day by todoId (or name), and "done" always wins so a
+// checked-off item never comes back to life. Earliest carriedFrom is kept so
+// the age counter can't be reset by a sync.
+window.mergeTodayLists = function(a, b) {
+  const out = {};
+  const days = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+  days.forEach(day => {
+    const seen = {};   // dedupe key -> item
+    const order = [];
+    [(a || {})[day] || [], (b || {})[day] || []].forEach(list => {
+      list.forEach(item => {
+        if(!item || !item.name) return;
+        const key = item.todoId ? 't:' + item.todoId : 'n:' + item.name;
+        const prev = seen[key];
+        if(!prev) { seen[key] = Object.assign({}, item); order.push(key); return; }
+        // same logical item on both sides — combine
+        if(item.done && !prev.done) { prev.done = true; prev.ts = item.ts || prev.ts; }
+        if(item.carriedFrom && (!prev.carriedFrom || item.carriedFrom < prev.carriedFrom)) prev.carriedFrom = item.carriedFrom;
+        if(!prev.todoId && item.todoId) prev.todoId = item.todoId;
+        // tag: client wins over internal/none so client emphasis never drops in a sync
+        if(item.tag === 'client' || (!prev.tag && item.tag)) prev.tag = item.tag;
+      });
+    });
+    const items = order.map(k => seen[k]);
+    if(items.length) out[day] = items;
+  });
+  // If an item was already carried to a newer day on one device, drop the
+  // older incomplete copy so it doesn't show up twice after rollover.
+  const dayKeys = Object.keys(out).sort();
+  for(let i = 0; i < dayKeys.length; i++) {
+    for(let j = i + 1; j < dayKeys.length; j++) {
+      const newer = out[dayKeys[j]];
+      out[dayKeys[i]] = out[dayKeys[i]].filter(item => {
+        if(item.done) return true; // done items stay as the record
+        return !newer.some(x => (item.todoId && x.todoId === item.todoId) || x.name === item.name);
+      });
+    }
+    if(!out[dayKeys[i]].length) delete out[dayKeys[i]];
+  }
+  // Final pass: strip deliberately-deleted items (tombstones), then kill newer
+  // incomplete ghosts of items already completed on an earlier day (stale
+  // device rolled them over before it got the cloud update).
+  window.applyTlTombstones(out);
+  return window.killTodayGhosts(out);
+};
+
 // Carry unfinished items from previous days into today (priority list).
 // Done items stay on their original day as the record. Idempotent + deduped.
 // HARDENED: per-item error isolation (one bad record can't abort the whole
@@ -1943,15 +2294,21 @@ function rolloverTodayList(){
   try{
     var tk=todayKey();
     // Purge stale-device ghosts BEFORE carrying anything, so a completed item
-    // is never re-carried onto today by a device with old data.
-    var beforeGhostKill=JSON.stringify(todayLists);
-    window.killTodayGhosts(todayLists);
-    var ghostsKilled=JSON.stringify(todayLists)!==beforeGhostKill;
+    // is never re-carried onto today by a device with old data. If the helper
+    // is somehow unavailable, skip the purge but NEVER skip the carry.
+    var ghostsKilled=false;
+    if(typeof window.killTodayGhosts==='function'){
+      var beforeGhostKill=JSON.stringify(todayLists);
+      window.killTodayGhosts(todayLists);
+      if(typeof window.applyTlTombstones==='function')window.applyTlTombstones(todayLists);
+      ghostsKilled=JSON.stringify(todayLists)!==beforeGhostKill;
+    }
+    var tlKey=(typeof window._tlKey==='function')?window._tlKey:function(item){return item.todoId?'t:'+item.todoId:'n:'+item.name;};
     // Build map of done items so the carry loop can double-check
     var doneDay={};
     Object.keys(todayLists).forEach(function(d){
       (todayLists[d]||[]).forEach(function(it){
-        if(it&&it.done){var kk=window._tlKey(it);if(!doneDay[kk]||d>doneDay[kk])doneDay[kk]=d;}
+        if(it&&it.done){var kk=tlKey(it);if(!doneDay[kk]||d>doneDay[kk])doneDay[kk]=d;}
       });
     });
     var pastKeys=Object.keys(todayLists).filter(function(k){return k<tk;}).sort();
@@ -1968,7 +2325,7 @@ function rolloverTodayList(){
           // if the same item was already completed on a LATER day, don't
           // resurrect it (strictly-earlier lineage only — a same-day re-add
           // is a real task, not a ghost)
-          var dd=doneDay[window._tlKey(item)];
+          var dd=doneDay[tlKey(item)];
           if(dd&&(item.carriedFrom||k)<dd){changed=true;return;}
           // if the linked to-do was completed elsewhere, the work IS done —
           // keep the item on its day as a DONE record instead of deleting it
@@ -2037,7 +2394,9 @@ function renderToday(){
   }
   if(!items.length){el.innerHTML='';emp.style.display='block';return;}
   emp.style.display='none';
-  el.innerHTML=items.map(function(t){
+  // active work on top, done items sink to the bottom (dimmed) as the record
+  var displayItems=items.filter(function(x){return !x.done;}).concat(items.filter(function(x){return x.done;}));
+  el.innerHTML=displayItems.map(function(t){
     var age=todayItemAge(t);
     var overdue=!t.done&&age>=2; // on the list 3+ days
     var isClient=t.tag==='client';
@@ -2045,7 +2404,7 @@ function renderToday(){
     if(t.ts)sub='<div class="task-ts">&#10003; '+t.ts+'</div>';
     else if(overdue)sub='<div class="task-ts due-fucker">&#9888; DUE TODAY FUCKER &middot; day '+(age+1)+'</div>';
     else if(t.carriedFrom)sub='<div class="task-ts" style="color:var(--y);opacity:.75;">&#8617; carried from '+fmtDateShort(t.carriedFrom)+'</div>';
-    return '<div class="task-row'+(overdue?' overdue':'')+(isClient?' client-row':'')+'" data-tid="'+t.id+'">'
+    return '<div class="task-row'+(overdue?' overdue':'')+(isClient?' client-row':'')+'"'+(t.done?' style="opacity:.5;"':'')+' data-tid="'+t.id+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk chk-circle '+(t.done?'done':'')+'" onclick="todayChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+t.name+'</div>'
@@ -2088,7 +2447,11 @@ function todayChk(btn){
 }
 function todayDel(btn){
   var id=btn.closest('.task-row').dataset.tid;
-  setTodayItems(getTodayItems().filter(function(x){return x.id!==id;}));
+  var items=getTodayItems();
+  var t=items.find(function(x){return x.id===id;});
+  // tombstone the delete so a sync merge can't resurrect it at the bottom
+  if(t&&typeof window.recordTlTombstone==='function')window.recordTlTombstone(t);
+  setTodayItems(items.filter(function(x){return x.id!==id;}));
   renderToday();renderTodo();
 }
 function openAddToday(){
@@ -2346,16 +2709,20 @@ function renderBizSection(key,elId,dmKey){
   var weekly_=isWeeklyBiz(key);
   var dm=weekly_?getWeeklyBizDm(key):getDS()[dmKey||cfg.dm];
   var el=document.getElementById(elId);
+  // pacing only applies to the daily-burst sections
+  var paced=['visibility','client','money','admin'].includes(key);
+  var groupKey=key==='visibility'?'v:*':key==='admin'?'a:*':null;
   el.innerHTML=tasks.map(function(t){
     var done=!!dm[t.id];
-    var ts=dm[t.id+'_ts']||'';
-    return '<div class="task-row">'
+    var pKey=groupKey||((cfg.dm)+':'+t.id);
+    return '<div class="task-row'+(paced?paceCls(pKey,done):'')+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk '+(done?'done':'')+'" onclick="bizChk(this)"></button>'
       +'<div class="task-info">'
       +'<div class="task-name '+(done?'done':'')+'">'+t.name+'</div>'
-      +(ts?'<div class="task-ts">&#10003; '+ts+'</div>':'')
+      +(dm[t.id+'_ts']?'<div class="task-ts">&#10003; '+dm[t.id+'_ts']+'</div>':'')
       +'</div>'
+      +(paced?'<span class="min-chip" onclick="editMin(\''+key+'\',\''+t.id+'\')" title="Minutes budgeted — tap to change">'+taskMin(t,10)+'m</span>':'')
       +'<button class="task-del" onclick="bizDel(this)">&#215;</button>'
       +'</div>';
   }).join('');
@@ -2383,10 +2750,11 @@ function renderAllBiz(){
   // Visibility non-negotiable
   {var vnDm=ds.vn;var vnEl=document.getElementById('visNonList');vnEl.innerHTML=bizVisNon.map(function(t){
     var done=!!vnDm[t.id];var ts=vnDm[t.id+'_ts']||'';
-    return '<div class="task-row">'
+    return '<div class="task-row'+paceCls('vn:'+t.id,done)+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk '+(done?'done':'')+'" onclick="vnChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(done?'done':'')+'">'+t.name+'</div>'+(ts?'<div class="task-ts">&#10003; '+ts+'</div>':'')+'</div>'
+      +'<span class="min-chip" onclick="editMin(\'visNon\',\''+t.id+'\')" title="Minutes budgeted — tap to change">'+taskMin(t,10)+'m</span>'
       +'<button class="task-del" onclick="vnDel(this)">&#215;</button>'
       +'</div>';
   }).join('');
@@ -4044,6 +4412,10 @@ function safeCall(fn,name){
   try{fn();}catch(e){console.error('Render error in '+name+':',e);}
 }
 function renderAll(){
+  safeCall(function(){_pace=computePace();},'computePace'); // before the lists, so rows get their pace classes
+  safeCall(renderBurst,'renderBurst');
+  safeCall(renderMission,'renderMission');
+  safeCall(renderPlan,'renderPlan');
   safeCall(function(){renderSection('morning');},'renderSection-morning');
   safeCall(function(){renderSection('evening');},'renderSection-evening');
   safeCall(renderScheduledFixed,'renderScheduledFixed');
@@ -4086,7 +4458,8 @@ function reloadFromStorage(){
   todayLists=ld('todayLists',{});
   contractorPays=ld('contractorPays',[]);
   contentIdeas=ld('contentIdeas',[]);
-  goals=ld('goals',DEF_GOALS);
+  goals=normalizeGoals(ld('goals',DEF_GOALS));
+  mission=ld('mission',[]);
   revLog=ld('revLog',[]);
   projects=ld('projects',[]);
   bizSales=ld('bizSales',DEF_BIZ.sales);
