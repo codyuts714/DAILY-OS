@@ -195,6 +195,15 @@ html{font-size:14px;-webkit-text-size-adjust:100%;}
 body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh;}
 
 .dashboard{max-width:1280px;margin:0 auto;padding:10px;}
+/* WIDE SCREENS — horizontal monitors: stop wasting the sides, fill the window */
+@media(min-width:1500px){
+  .dashboard{max-width:min(96vw,1760px);}
+  .stop-items,#callList{column-count:3;}
+}
+@media(min-width:2100px){
+  .dashboard{max-width:min(94vw,2200px);}
+  #morningList,#eveningList,#todoList,#todoArchive,#todayList,#pTodoList,#hoursList{column-count:3;}
+}
 
 /* TOP BAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);flex-wrap:wrap;gap:6px;}
