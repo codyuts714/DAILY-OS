@@ -3891,18 +3891,23 @@ function renderLaundry(){
   var el=document.getElementById('laundryList');
   if(!el)return;
   var w=getLaundryWeek();
-  var doneLoads=w.loads.filter(function(l){return l.washAt&&l.dryAt;}).length;
+  var doneLoads=w.loads.filter(function(l){return l.washAt&&l.dryAt&&l.foldAt;}).length;
   var cnt=document.getElementById('laundryCount');
   if(cnt)cnt.textContent=doneLoads+' of '+w.loads.length+' loads';
   el.innerHTML=w.loads.map(function(l,idx){
     var washDone=!!l.washAt;
     var dryDone=!!l.dryAt;
+    var foldDone=!!l.foldAt;
     var dryPending=washDone&&!dryDone&&(Date.now()-l.washAt>=LAUNDRY_REMIND_MS);
     var extra=idx>=3; // loads beyond the weekly 3 can be removed
+    var hint='';
+    if(washDone&&!dryDone)hint=' &middot; <span style="color:var(--y);">in the wash</span>';
+    else if(dryDone&&!foldDone)hint=' &middot; <span style="color:var(--coral);">sitting unfolded</span>';
     return '<div class="laundry-row">'
-      +'<span class="laundry-lbl">Load '+(idx+1)+(extra?' <span style="font-size:9px;color:var(--t3);">extra</span>':'')+(washDone&&!dryDone?' &middot; <span style="color:var(--y);">in the wash</span>':'')+'</span>'
+      +'<span class="laundry-lbl">Load '+(idx+1)+(extra?' <span style="font-size:9px;color:var(--t3);">extra</span>':'')+hint+'</span>'
       +'<button class="laundry-chk'+(washDone?' done':'')+'" onclick="laundryWash('+idx+')">'+(washDone?'&#10003; ':'')+'Wash</button>'
       +'<button class="laundry-chk'+(dryDone?' done':(dryPending?' pending':''))+'" onclick="laundryDry('+idx+')">'+(dryDone?'&#10003; ':'')+'Dry</button>'
+      +'<button class="laundry-chk'+(foldDone?' done':(dryDone&&!foldDone?' pending':''))+'" onclick="laundryFold('+idx+')">'+(foldDone?'&#10003; ':'')+'Fold</button>'
       +(extra?'<button class="task-del" onclick="laundryDelLoad('+idx+')" title="Remove extra load">&#215;</button>':'')
       +'</div>';
   }).join('');
@@ -3921,7 +3926,7 @@ function laundryDelLoad(idx){
 function laundryWash(idx){
   var w=getLaundryWeek();
   var l=w.loads[idx];if(!l)return;
-  if(l.washAt){delete l.washAt;delete l.dryAt;delete l.remindedAt;} // tap again to reset the load
+  if(l.washAt){delete l.washAt;delete l.dryAt;delete l.foldAt;delete l.remindedAt;} // tap again to reset the load
   else{
     l.washAt=Date.now();delete l.remindedAt;
     // ask for notification permission the first time so the dryer ping can fire
@@ -3932,8 +3937,15 @@ function laundryWash(idx){
 function laundryDry(idx){
   var w=getLaundryWeek();
   var l=w.loads[idx];if(!l)return;
-  if(l.dryAt)delete l.dryAt;
+  if(l.dryAt){delete l.dryAt;delete l.foldAt;}
   else{if(!l.washAt)l.washAt=Date.now();l.dryAt=Date.now();}
+  svLaundryWeek(w);renderLaundry();
+}
+function laundryFold(idx){
+  var w=getLaundryWeek();
+  var l=w.loads[idx];if(!l)return;
+  if(l.foldAt)delete l.foldAt;
+  else{if(!l.washAt)l.washAt=Date.now();if(!l.dryAt)l.dryAt=Date.now();l.foldAt=Date.now();}
   svLaundryWeek(w);renderLaundry();
 }
 function checkLaundryReminders(){
