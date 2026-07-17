@@ -770,7 +770,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
       <div class="card-hd">
         <div class="card-title"><span class="dot" style="background:var(--y)"></span>⚡ Daily Bursts</div>
       </div>
-      <div class="choose-label" style="color:var(--t2);">Three focused runs instead of one impossible block. Tap a target to change it, tap a box's &ldquo;Xm&rdquo; chip to set its minutes &mdash; when running, yellow marks where you should be by now.</div>
+      <div class="choose-label" style="color:var(--t2);">Three focused runs. Morning &amp; Evening are pure stopwatches &mdash; Start, do the list, Stop to clock your time and try to beat it. Business still walks box-by-box (tap a box's &ldquo;Xm&rdquo; chip). Tap any target to change it.</div>
       <div id="burstRows"></div>
     </div>
 
@@ -817,6 +817,20 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
       <div id="scheduledEmptyTop" style="font-size:11px;color:var(--t3);padding:4px 0;">Nothing recurring today.</div>
     </div>
   </div>
+</div>
+
+<!-- ═══ WEEKLY SCHEDULE ═══ -->
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <div class="section-divider-label" style="color:var(--purple);border-color:var(--purple);background:rgba(168,85,247,.08);">&#128197; Weekly Schedule</div>
+  <div class="section-divider-line"></div>
+</div>
+<div class="card" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>All Recurring Items</div>
+    <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()">+ Add Recurring</button>
+  </div>
+  <div class="weekly-grid" id="weeklyGrid"></div>
 </div>
 
 <!-- ═══ PERSONAL — work downward through the day ═══ -->
@@ -922,8 +936,8 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   <div class="section-divider-line"></div>
 </div>
 
-<!-- BIZ ROW 1: Visibility | Client Comms -->
-<div class="grid-2">
+<!-- BUSINESS GRID — 3 wide, smaller cards -->
+<div class="grid-3">
   <!-- UTS VISIBILITY -->
   <div class="card">
     <div class="card-hd">
@@ -952,10 +966,8 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div class="sec-track"><div class="sec-fill" id="clientBar" style="width:0%;background:var(--teal)"></div></div>
     <div id="clientList"></div>
   </div>
-</div>
 
-<!-- BIZ ROW 2: Sales & Growth | Money / Business -->
-<div class="grid-2">
+  <!-- Sales & Growth | Money / Business -->
   <!-- SALES / GROWTH -->
   <div class="card">
     <div class="card-hd">
@@ -983,10 +995,8 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div class="sec-track"><div class="sec-fill" id="moneyBar" style="width:0%;background:var(--green)"></div></div>
     <div id="moneyList"></div>
   </div>
-</div>
 
-<!-- BIZ ROW 3: Bottlenecks | Admin -->
-<div class="grid-2">
+  <!-- Bottlenecks | Admin -->
   <!-- BOTTLENECKS -->
   <div class="card">
     <div class="card-hd">
@@ -1018,10 +1028,8 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div class="choose-label">Choose one daily</div>
     <div id="adminList"></div>
   </div>
-</div>
 
-<!-- BIZ ROW 4: Weekly Content + Weekly Product + Content Ideas -->
-<div class="grid-3">
+  <!-- Weekly Content + Weekly Product + Content Ideas -->
   <!-- CONTENT -->
   <div class="card">
     <div class="card-hd">
@@ -1063,10 +1071,8 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div id="ideaList" style="max-height:260px;overflow-y:auto;"></div>
     <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
   </div>
-</div>
 
-<!-- BIZ ROW 5: Client Targets (NEW) | Pipeline -->
-<div class="grid-2">
+  <!-- Client Targets | Pipeline -->
   <!-- CLIENT TARGETS -->
   <div class="card">
     <div class="card-hd">
@@ -1103,20 +1109,6 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
     <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap today's sun when you make it through clean</div>
   </div>
   <div id="smokeRows"></div>
-</div>
-
-<!-- ═══ WEEKLY SCHEDULE ═══ -->
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label" style="color:var(--purple);border-color:var(--purple);background:rgba(168,85,247,.08);">&#128197; Weekly Schedule</div>
-  <div class="section-divider-line"></div>
-</div>
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>All Recurring Items</div>
-    <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()">+ Add Recurring</button>
-  </div>
-  <div class="weekly-grid" id="weeklyGrid"></div>
 </div>
 
 <!-- ═══ PROJECT BOARD ═══ -->
@@ -1791,13 +1783,39 @@ function buildBurstSeq(which){
   return seq;
 }
 function burstState(which){return ld('burst_'+which+'_'+todayKey(),null);}
-function anyBurstActive(){return BURST_DEFS.some(function(d){var b=burstState(d.id);return b&&b.start;});}
+function burstRunning(which){var b=burstState(which);return !!(b&&b.start&&!b.ended);}
+function anyBurstActive(){return BURST_DEFS.some(function(d){return burstRunning(d.id);});}
 function toggleBurst(which){
   var b=burstState(which);
-  if(b&&b.start)sv('burst_'+which+'_'+todayKey(),{ended:Date.now()});
-  else sv('burst_'+which+'_'+todayKey(),{start:Date.now()});
+  var k='burst_'+which+'_'+todayKey();
+  if(b&&b.start&&!b.ended){
+    // STOP — tasks are done, clock the run. This is the number to beat.
+    var ended=Date.now();
+    sv(k,{start:b.start,ended:ended});
+    var mins=Math.max(1,Math.round((ended-b.start)/60000));
+    var bt=ld('burstTimes',{});
+    if(!bt[todayKey()])bt[todayKey()]={};
+    bt[todayKey()][which]=mins;
+    sv('burstTimes',bt);
+  } else sv(k,{start:Date.now()}); // start (or restart — new time replaces old on stop)
   _pace=computePace();
   renderBurst();renderSection('morning');renderSection('evening');renderAllBiz();
+}
+function fmtMin(m){return m>=60?(Math.floor(m/60)+'h '+(m%60)+'m'):(m+'m');}
+function burstTimeStats(which){
+  var bt=ld('burstTimes',{});
+  var best=null,sum=0,n=0;
+  Object.keys(bt).forEach(function(day){
+    var m=bt[day]&&bt[day][which];
+    if(m&&(best===null||m<best))best=m;
+  });
+  for(var d=0;d<7;d++){
+    var dt=new Date();dt.setDate(dt.getDate()-d);
+    var kk=dt.getFullYear()+'-'+p2(dt.getMonth()+1)+'-'+p2(dt.getDate());
+    var m=bt[kk]&&bt[kk][which];
+    if(m){sum+=m;n++;}
+  }
+  return {best:best,avg:n?Math.round(sum/n):null,today:(bt[todayKey()]||{})[which]||null};
 }
 function burstDoneMap(){
   var ds=getDS();
@@ -1822,17 +1840,21 @@ function computePace(){
     var seq=buildBurstSeq(d.id);
     var planned=seq.reduce(function(s,x){return s+x.min;},0);
     var b=burstState(d.id);
-    var info={active:!!(b&&b.start),seq:seq,planned:planned,target:targets[d.id]};
+    var info={active:burstRunning(d.id),seq:seq,planned:planned,target:targets[d.id]};
     if(info.active){
       var elapsed=(Date.now()-b.start)/60000;
-      var cum=0,nowLabel=null,behind=0;
-      seq.forEach(function(x){
-        var start=cum,end=cum+x.min;cum=end;
-        if(elapsed>=end){map[x.k]='past';if(!isDone(x.k))behind++;}
-        else if(elapsed>=start){map[x.k]='now';nowLabel=x.label;}
-      });
-      if(elapsed>=cum)nowLabel='done — everything should be checked by now';
-      info.elapsed=Math.round(elapsed);info.nowLabel=nowLabel;info.behind=behind;
+      info.elapsed=Math.round(elapsed);
+      if(d.id==='b'){
+        // business keeps box-by-box pacing (its boxes still have minute chips)
+        var cum=0,nowLabel=null,behind=0;
+        seq.forEach(function(x){
+          var start=cum,end=cum+x.min;cum=end;
+          if(elapsed>=end){map[x.k]='past';if(!isDone(x.k))behind++;}
+          else if(elapsed>=start){map[x.k]='now';nowLabel=x.label;}
+        });
+        if(elapsed>=cum)nowLabel='done — everything should be checked by now';
+        info.nowLabel=nowLabel;info.behind=behind;
+      }
     }
     bursts[d.id]=info;
   });
@@ -1850,22 +1872,35 @@ function renderBurst(){
   _pace=computePace();
   el.innerHTML=BURST_DEFS.map(function(d,i){
     var info=_pace.bursts[d.id];
-    var over=info.planned-info.target;
+    var st=burstTimeStats(d.id);
     var hrs=(info.target/60);
     var html='<div style="'+(i?'border-top:1px solid var(--b);margin-top:8px;padding-top:8px;':'margin-top:6px;')+'">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">'
       +'<div style="font-size:12px;font-weight:600;">'+d.label+'</div>'
       +'<div style="display:flex;align-items:center;gap:6px;">'
       +'<span onclick="editBurstTarget(\''+d.id+'\')" style="cursor:pointer;font-size:10px;color:var(--y);border:1px solid var(--y3);border-radius:10px;padding:1px 7px;white-space:nowrap;" title="Tap to change this burst\'s target">'+(hrs%1?hrs.toFixed(1):hrs)+'h target</span>'
-      +'<button class="btn '+(info.active?'btn-ghost':'btn-y')+' btn-sm" onclick="toggleBurst(\''+d.id+'\')">'+(info.active?'End':'Start')+'</button>'
-      +'</div></div>'
-      +'<div class="burst-stat"><span>'+info.seq.length+' boxes &middot; planned</span><b style="color:'+(over>0?'var(--coral)':'var(--green)')+';">'+info.planned+' / '+info.target+' min</b></div>';
-    if(over>0)html+='<div style="font-size:10px;color:var(--coral);">'+over+' min over &mdash; trim some chips or tap the target</div>';
+      +'<button class="btn '+(info.active?'btn-ghost':'btn-y')+' btn-sm" onclick="toggleBurst(\''+d.id+'\')">'+(info.active?'&#9632; Stop':'Start')+'</button>'
+      +'</div></div>';
+    if(d.id==='b'){
+      var over=info.planned-info.target;
+      html+='<div class="burst-stat"><span>'+info.seq.length+' boxes &middot; planned</span><b style="color:'+(over>0?'var(--coral)':'var(--green)')+';">'+info.planned+' / '+info.target+' min</b></div>';
+      if(over>0)html+='<div style="font-size:10px;color:var(--coral);">'+over+' min over &mdash; trim some chips or tap the target</div>';
+    }
     if(info.active){
-      html+='<div class="burst-now">&#9201; '+Math.floor(info.elapsed/60)+'h '+(info.elapsed%60)+'m in'
-        +(info.nowLabel?'<br>You should be at: <b>'+info.nowLabel+'</b>':'')
-        +(info.behind?'<br><span style="color:var(--coral);">'+info.behind+' box'+(info.behind===1?'':'es')+' behind pace</span>':'<br><span style="color:var(--green);">on pace &#10003;</span>')
+      html+='<div class="burst-now">&#9201; <b>'+Math.floor(info.elapsed/60)+'h '+(info.elapsed%60)+'m</b> in &middot; target '+fmtMin(info.target)
+        +(d.id==='b'&&info.nowLabel?'<br>You should be at: <b>'+info.nowLabel+'</b>':'')
+        +(d.id==='b'?(info.behind?'<br><span style="color:var(--coral);">'+info.behind+' box'+(info.behind===1?'':'es')+' behind pace</span>':'<br><span style="color:var(--green);">on pace &#10003;</span>'):'')
+        +'<br><span style="color:var(--t2);font-size:10px;">Hit Stop when the list is done &mdash; that clocks your time</span>'
         +'</div>';
+    }else{
+      var bits=[];
+      if(st.today!==null){
+        var beat=st.today<=info.target;
+        bits.push('Today: <b style="color:'+(beat?'var(--green)':'var(--coral)')+';">'+fmtMin(st.today)+'</b>'+(beat?' &#10003;':' over target'));
+      }
+      if(st.best!==null)bits.push('Best: <b style="color:var(--y);">'+fmtMin(st.best)+'</b>');
+      if(st.avg!==null)bits.push('7d avg: '+fmtMin(st.avg));
+      if(bits.length)html+='<div class="burst-stat" style="display:block;">'+bits.join(' &middot; ')+'</div>';
     }
     html+='</div>';
     return html;
@@ -2043,9 +2078,7 @@ function renderSection(sec){
       +'<button class="chk '+(done?'done':'')+'" onclick="togglePersonal(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(done?'done':'')+'">'+t.name+'</div>';
     if(ts)row+='<div class="task-ts">&#10003; '+ts+'</div>';
-    if(t.dur&&!done)row+='<div class="task-dur">'+t.dur+'</div>';
     row+='</div>'
-      +'<span class="min-chip" onclick="editMin(\''+sec+'\',\''+t.id+'\')" title="Minutes budgeted — tap to change">'+taskMin(t,5)+'m</span>'
       +'<button class="task-del" onclick="delPersonal(this)">&#215;</button>'
       +'</div>';
     return row;
