@@ -31,8 +31,28 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+// Ask for read-only Calendar access alongside the normal sign-in — one Google
+// login now covers both cloud sync AND "Scheduled Today" auto-fill.
+provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
 
 let UID = null;
+
+// -- GOOGLE CALENDAR ACCESS TOKEN ----------------------------------------------
+// The Calendar API needs an OAuth access token, which Firebase only hands back
+// at the moment of sign-in (it isn't persisted across reloads by Firebase
+// itself), so we cache it ourselves for ~55min and let the dashboard code
+// (index.html's main script) pick it up via window.googleAccessToken.
+function cacheGCalToken(credential){
+  if(credential && credential.accessToken){
+    window.googleAccessToken = credential.accessToken;
+    window.googleAccessTokenExpiry = Date.now() + 55*60*1000;
+    try{
+      localStorage.setItem('_gcal_token', credential.accessToken);
+      localStorage.setItem('_gcal_token_exp', String(window.googleAccessTokenExpiry));
+    }catch(e){}
+    if(window.renderCalEvents) window.renderCalEvents();
+  }
+}
 
 // -- AUTH STATE ----------------------------------------------------------------
 onAuthStateChanged(auth, async (user) => {
@@ -61,14 +81,33 @@ window.googleSignIn = async function() {
   const loginBtn = document.getElementById('loginBtn');
   if (auth.currentUser) {
     await signOut(auth);
+    window.googleAccessToken = null;
+    window.googleAccessTokenExpiry = 0;
+    try{ localStorage.removeItem('_gcal_token'); localStorage.removeItem('_gcal_token_exp'); }catch(e){}
+    if(window.clearGCalCache) window.clearGCalCache();
+    if(window.renderCalEvents) window.renderCalEvents();
     return;
   }
   try {
     if(loginBtn){ loginBtn.textContent = 'Signing in...'; }
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    cacheGCalToken(GoogleAuthProvider.credentialFromResult(result));
   } catch(e) {
     if(loginBtn){ loginBtn.textContent = 'Sign in with Google'; }
     console.warn('Sign in failed:', e);
+  }
+};
+
+// Separate entry point for the "connect Google Calendar" link in the
+// Scheduled Today card. Always re-prompts for consent (to grab a fresh
+// access token / grant the calendar scope) without ever signing the user out
+// — unlike the header button, which toggles sign-in/sign-out.
+window.connectGoogleCalendar = async function(){
+  try{
+    const result = await signInWithPopup(auth, provider);
+    cacheGCalToken(GoogleAuthProvider.credentialFromResult(result));
+  }catch(e){
+    console.warn('Google Calendar connect failed:', e);
   }
 };
 
@@ -561,6 +600,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .cal-time{font-size:11px;color:var(--blue);font-weight:700;min-width:60px;flex-shrink:0;}
 .cal-name{font-size:13px;color:var(--t);flex:1;}
 .cal-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;}
+.cal-gtag{font-size:9px;font-weight:800;color:var(--blue);background:rgba(91,141,238,.15);border-radius:4px;padding:2px 5px;flex-shrink:0;}
 .modal-confirm{display:block;}
 
 .grid-main{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px;align-items:start;}
@@ -913,7 +953,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       </div>
       <div id="calEvents"></div>
       <div id="calNote" style="font-size:11px;color:var(--t3);padding:4px 0;">
-        Add events manually below &mdash; <span style="color:var(--blue);cursor:pointer;" onclick="showCalInfo()">connect Google Calendar &#8599;</span>
+        Add events manually below &mdash; <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">connect Google Calendar &#8599;</span>
       </div>
     </div>
 
@@ -1561,6 +1601,69 @@ const sv=(k,v)=>{
   }catch(e){}
   if(window.sv_cloud)window.sv_cloud(k,v);
 };
+
+// -- GOOGLE CALENDAR: read-only fetch, merged into the Scheduled Today card ----
+window.googleAccessToken=null;
+window.googleAccessTokenExpiry=0;
+(function(){ // pick up a still-valid token cached from an earlier sign-in
+  try{
+    var _exp=parseInt(localStorage.getItem('_gcal_token_exp')||'0',10);
+    if(_exp>Date.now()){
+      window.googleAccessToken=localStorage.getItem('_gcal_token');
+      window.googleAccessTokenExpiry=_exp;
+    }
+  }catch(e){}
+})();
+let gcalEvents={};       // dateKey -> [{name,time,isGoogle:true}], filled in as days are viewed
+let gcalFetchInFlight={};
+function clearGCalCache(){ gcalEvents={}; }
+window.clearGCalCache=clearGCalCache;
+function timeToMinutes(t){ // for sorting manual + Google events together
+  if(!t||t==='All day')return -1;
+  var m=t.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+  if(!m)return 9999;
+  var h=parseInt(m[1],10),min=parseInt(m[2],10),ap=(m[3]||'').toUpperCase();
+  if(ap==='PM'&&h!==12)h+=12;
+  if(ap==='AM'&&h===12)h=0;
+  return h*60+min;
+}
+function dayBoundsISO(){ // local midnight -> next midnight, for whichever day is in view
+  var start=new Date();start.setDate(start.getDate()+viewingDay);start.setHours(0,0,0,0);
+  var end=new Date(start);end.setDate(end.getDate()+1);
+  return {timeMin:start.toISOString(),timeMax:end.toISOString()};
+}
+async function fetchGCalEvents(dateKey){
+  if(!window.googleAccessToken||Date.now()>window.googleAccessTokenExpiry)return;
+  if(gcalFetchInFlight[dateKey])return;
+  gcalFetchInFlight[dateKey]=true;
+  try{
+    var b=dayBoundsISO();
+    var url='https://www.googleapis.com/calendar/v3/calendars/primary/events'
+      +'?timeMin='+encodeURIComponent(b.timeMin)
+      +'&timeMax='+encodeURIComponent(b.timeMax)
+      +'&singleEvents=true&orderBy=startTime&maxResults=20';
+    var res=await fetch(url,{headers:{Authorization:'Bearer '+window.googleAccessToken}});
+    if(res.status===401||res.status===403){
+      // token expired or revoked — drop it so the UI falls back to "connect" mode
+      window.googleAccessToken=null;window.googleAccessTokenExpiry=0;
+      try{localStorage.removeItem('_gcal_token');localStorage.removeItem('_gcal_token_exp');}catch(e){}
+      if(dateKey===viewKey())renderCalEvents();
+      return;
+    }
+    var data=await res.json();
+    gcalEvents[dateKey]=(data.items||[]).map(function(ev){
+      var isAllDay=!ev.start.dateTime;
+      var timeStr=isAllDay?'All day':new Date(ev.start.dateTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+      return {name:ev.summary||'(untitled)',time:timeStr,isGoogle:true};
+    });
+  }catch(e){
+    console.warn('Google Calendar fetch failed:',e);
+  }finally{
+    delete gcalFetchInFlight[dateKey];
+    if(dateKey===viewKey())renderCalEvents();
+  }
+}
+
 const p2=n=>String(n).padStart(2,'0');
 const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;};
 const fmtDate=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});};
@@ -4769,20 +4872,35 @@ function doMoveWeekly(id,targetKey){
 
 // -- CALENDAR EVENTS ----------------------------------------------------------
 function renderCalEvents(){
-  var events=ld('cal_'+viewKey(),[]);
+  var vk=viewKey();
+  var manual=ld('cal_'+vk,[]).map(function(e,i){return {name:e.name,time:e.time,isGoogle:false,idx:i};});
+  var tokenValid=window.googleAccessToken&&Date.now()<window.googleAccessTokenExpiry;
+  if(tokenValid&&!gcalEvents.hasOwnProperty(vk))fetchGCalEvents(vk); // fills in async, re-renders when done
+  var google=gcalEvents[vk]||[];
+  var all=manual.concat(google);
   var el=document.getElementById('calEvents');
   var note=document.getElementById('calNote');
-  if(!events.length){el.innerHTML='';note.style.display='block';return;}
-  note.style.display='none';
-  var sorted=events.slice().sort(function(a,b){return a.time.localeCompare(b.time);});
-  el.innerHTML=sorted.map(function(ev,i){
-    return '<div class="cal-event">'
-      +'<div class="cal-time">'+ev.time+'</div>'
-      +'<div class="cal-name">'+ev.name+'</div>'
-      +'<button class="cal-del" onclick="delCalEvent('+i+')">&#215;</button>'
-      +'</div>';
-  }).join('');
-  note.style.display='block';
+  if(!all.length){
+    el.innerHTML='';
+  } else {
+    var sorted=all.slice().sort(function(a,b){return timeToMinutes(a.time)-timeToMinutes(b.time);});
+    el.innerHTML=sorted.map(function(ev){
+      var right=ev.isGoogle
+        ?'<span class="cal-gtag" title="From Google Calendar">G</span>'
+        :'<button class="cal-del" onclick="delCalEvent('+ev.idx+')">&#215;</button>';
+      return '<div class="cal-event">'
+        +'<div class="cal-time">'+ev.time+'</div>'
+        +'<div class="cal-name">'+ev.name+'</div>'
+        +right
+        +'</div>';
+    }).join('');
+  }
+  if(note){
+    note.style.display='block';
+    note.innerHTML=tokenValid
+      ?'Add events manually below &mdash; <span style="color:var(--green);">&#10003; Google Calendar connected</span> &middot; <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">refresh</span>'
+      :'Add events manually below &mdash; <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">connect Google Calendar &#8599;</span>';
+  }
 }
 function delCalEvent(i){
   var events=ld('cal_'+viewKey(),[]);
@@ -4809,10 +4927,6 @@ function openAddCalEvent(){
   document.getElementById('modalOv').classList.add('open');
   setTimeout(function(){document.getElementById('mIn1').focus();},80);
 }
-function showCalInfo(){
-  alert('Google Calendar sync requires a backend server to handle OAuth. For now, add your daily events manually — they save per day. Firebase + Calendar API setup can be added as a next step.');
-}
-
 // -- EXPORT ------------------------------------------------------------------─
 let exportRange = 'month';
 
