@@ -445,6 +445,11 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .wc-gtag{font-size:8px;font-weight:800;color:var(--blue);border:1px solid var(--blue);border-radius:3px;padding:0 3px;line-height:1.3;}
 .wc-ev-n{font-size:11px;color:var(--t1);font-weight:600;word-break:break-word;line-height:1.25;}
 .wc-empty{font-size:11px;color:var(--t3);text-align:center;padding:8px 0;}
+/* recurring chips pinned in calendar columns */
+.wc-ev.wc-recur{border-style:dashed;background:rgba(255,193,7,.07);}
+.wc-rtag{font-size:9px;font-weight:800;color:var(--purple);border:1px solid var(--purple);border-radius:3px;padding:0 3px;line-height:1.3;}
+.wc-ev.wc-done{opacity:.45;}
+.wc-ev.wc-done .wc-ev-n{text-decoration:line-through;}
 
 /* CHART */
 .chart-wrap{position:relative;height:150px;}
@@ -908,6 +913,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       <button class="btn btn-ghost btn-sm" onclick="calWeekNav(-1)" title="Previous week">&#8592;</button>
       <button class="btn btn-ghost btn-sm" id="weekCalTodayBtn" onclick="calWeekNav(0)" style="display:none;color:var(--y);">Today</button>
       <button class="btn btn-ghost btn-sm" onclick="calWeekNav(1)" title="Next week">&#8594;</button>
+      <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()" style="color:var(--purple);">&#8635; Recurring</button>
       <button class="btn btn-ghost btn-sm" onclick="openAddCalEvent()">+ Add</button>
     </div>
   </div>
@@ -915,15 +921,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div id="weekCalNote" style="font-size:11px;color:var(--t3);padding:6px 0 0;">
     <span style="color:var(--blue);cursor:pointer;font-weight:700;" onclick="connectGoogleCalendar()">Connect Google Calendar &#8599;</span>
   </div>
-</div>
-
-<!-- ═══ RECURRING — same Sun–Sat columns as the calendar above, so double-booking jumps out ═══ -->
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Recurring</div>
-    <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()">+ Add Recurring</button>
-  </div>
-  <div class="wc-scroll"><div class="weekly-grid" id="weeklyGrid"></div></div>
 </div>
 
 <!-- TODAY'S PLAN — written the night before -->
@@ -973,11 +970,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       <div class="chart-wrap" style="height:110px;"><canvas id="trendTestChart"></canvas></div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 3px;">
-      <div class="stat-lbl" id="trendLbl">Completion trend (14 days)</div>
+      <div class="stat-lbl" id="trendLbl">Completion trend (all time)</div>
       <div style="display:flex;gap:3px;">
-        <button class="trend-rng active" id="rng14d" onclick="setTrendRange('14d')">14D</button>
+        <button class="trend-rng" id="rng14d" onclick="setTrendRange('14d')">14D</button>
         <button class="trend-rng" id="rngMonth" onclick="setTrendRange('month')">Month</button>
-        <button class="trend-rng" id="rngAll" onclick="setTrendRange('all')">All</button>
+        <button class="trend-rng active" id="rngAll" onclick="setTrendRange('all')">All</button>
       </div>
     </div>
     <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
@@ -3799,7 +3796,7 @@ function calcStreak(hist){
   return{current,best,total};
 }
 
-let trendRange='14d';
+let trendRange='all';
 function setTrendRange(r){
   trendRange=r;
   ['rng14d','rngMonth','rngAll'].forEach(function(id){
@@ -3820,10 +3817,8 @@ function trendDateKeys(hist){
     d=new Date();d.setDate(d.getDate()-13);
   }else if(trendRange==='month'){
     d=new Date();d.setDate(1);
-  }else{ // all time: from earliest recorded day
-    var hk=Object.keys(hist).sort();
-    if(!hk.length){d=new Date();d.setDate(d.getDate()-13);}
-    else{var p=hk[0].split('-').map(Number);d=new Date(p[0],p[1]-1,p[2]);}
+  }else{ // all time: starts July 10, 2026 — everything before that lives in the test-month chart above
+    d=new Date(2026,6,10);
   }
   while(d<=end){
     keys.push(d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()));
@@ -4696,10 +4691,13 @@ function loadJournalForDay(){
 
 // -- WEEKLY GRID --------------------------------------------------------------─
 function renderWeeklyGrid(){
+  // recurring now lives ON the calendar — refresh it whenever recurring changes
+  if(typeof renderWeekCal==='function'){try{renderWeekCal();}catch(e){}}
+  var el=document.getElementById('weeklyGrid');
+  if(!el)return;
   var DAYS_FULL=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var today=new Date().getDay();
   var wkState=ld('ws_'+weekKey(),{w:{}});
-  var el=document.getElementById('weeklyGrid');
   el.innerHTML='';
 
   for(var d=0;d<7;d++){
@@ -4997,10 +4995,28 @@ function renderWeekCal(){
   if(todayBtn)todayBtn.style.display=calWeekOffset===0?'none':'inline-block';
   var names=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   var wkData=gcalWeeks[wkStart];
+  // recurring items done-state for the current week (checkable on today only)
+  var dsW={};
+  try{ if(calWeekOffset===0&&typeof getDS==='function')dsW=getDS().w||{}; }catch(e){}
+  var curWkMoves={};
+  try{ if(calWeekOffset===0){var _ws=ld('ws_'+weekKey(),{w:{},moves:{}});curWkMoves=_ws.moves||{};} }catch(e){}
   var html='';
   for(var i=0;i<7;i++){
     var d=new Date(b.start);d.setDate(d.getDate()+i);
     var k=gcalDK(d);
+    // recurring items that fall on this weekday (honoring this week's moves when viewing the current week)
+    var recur=(typeof weekly!=='undefined'?weekly:[]).filter(function(w){
+      if(calWeekOffset===0){
+        var movedHere=w.days.some(function(od){return curWkMoves[w.id+'_'+od]===k;});
+        if(movedHere)return true;
+        if(w.days.includes(i)){
+          var movedAway=curWkMoves[w.id+'_'+i]&&curWkMoves[w.id+'_'+i]!==k;
+          return !movedAway;
+        }
+        return false;
+      }
+      return w.days.includes(i);
+    }).slice().sort(function(a,c){return timeToMinutes(a.dur)-timeToMinutes(c.dur);});
     var manual=ld('cal_'+k,[]).map(function(e,idx){return {name:e.name,time:e.time||'All day',mins:timeToMinutes(e.time),isGoogle:false,idx:idx};});
     var google=((wkData&&wkData.days&&wkData.days[k])||[]).map(function(e,gidx){e.gidx=gidx;return e;});
     var all=manual.concat(google).sort(function(a,c){return a.mins-c.mins;});
@@ -5009,6 +5025,15 @@ function renderWeekCal(){
       +'<div class="wc-hd"><span class="wc-dow">'+names[i]+'</span><span class="wc-date">'+d.getDate()+'</span>'
       +'<button class="wc-add" onclick="openAddCalEvent(\''+k+'\')" title="Add event this day">+</button></div>'
       +'<div class="wc-events">'
+      // recurring pinned on top, yellow-highlighted, so double-booking is obvious
+      +recur.map(function(w){
+          var done=isToday&&!!dsW[w.id];
+          var click=isToday?' onclick="toggleWeekly(\''+w.id+'\')" title="Recurring — tap to check off"':' title="Recurring"';
+          return '<div class="wc-ev wc-recur'+(done?' wc-done':'')+'"'+click+'>'
+            +'<div class="wc-ev-t">'+escHtml(w.dur||'')+'<span class="wc-rtag">&#8635;</span></div>'
+            +'<div class="wc-ev-n">'+escHtml(w.name)+'</div>'
+          +'</div>';
+        }).join('')
       +(all.length?all.map(function(ev){
           var click=ev.isGoogle
             ?' onclick="delGoogleEvent(\''+wkStart+'\',\''+k+'\','+ev.gidx+')" title="From Google Calendar — tap to delete"'
@@ -5017,7 +5042,7 @@ function renderWeekCal(){
             +'<div class="wc-ev-t">'+escHtml(ev.time)+(ev.isGoogle?'<span class="wc-gtag">G</span>':'')+'</div>'
             +'<div class="wc-ev-n">'+escHtml(ev.name)+'</div>'
           +'</div>';
-        }).join(''):'<div class="wc-empty">&mdash;</div>')
+        }).join(''):(recur.length?'':'<div class="wc-empty">&mdash;</div>'))
       +'</div></div>';
   }
   grid.innerHTML=html;
@@ -5036,7 +5061,7 @@ function renderWeekCal(){
     }else if(gcalError==='network'){
       note.innerHTML='<span style="color:var(--coral);">Couldn\'t reach Google Calendar.</span> <span style="color:var(--blue);cursor:pointer;" onclick="retryGCal()">Retry</span>';
     }else{
-      note.innerHTML='<span style="color:var(--green);">&#10003; Google Calendar connected</span> <span style="color:var(--t3);">&middot; showing all your calendars &middot; new events save straight to Google Calendar &middot;</span> <span style="color:var(--blue);cursor:pointer;" onclick="refreshGCal()">refresh</span> <span style="color:var(--t3);">&middot; tap an event to delete it</span>';
+      note.innerHTML='<span style="color:var(--green);">&#10003; Google Calendar connected</span> <span style="color:var(--t3);">&middot; showing all your calendars &middot; new events save straight to Google Calendar &middot;</span> <span style="color:var(--blue);cursor:pointer;" onclick="refreshGCal()">refresh</span> <span style="color:var(--t3);">&middot;</span> <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">reconnect &#8599;</span> <span style="color:var(--t3);">&middot; tap an event to delete it</span>';
     }
   }
 }
