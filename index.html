@@ -54,6 +54,7 @@ function cacheGCalToken(credential){
       localStorage.setItem('_gcal_token', credential.accessToken);
       localStorage.setItem('_gcal_token_exp', String(window.googleAccessTokenExpiry));
     }catch(e){}
+    if(window.clearGCalCache) window.clearGCalCache(); // fresh token → refetch, don't show stale/empty cache
     if(window.renderCalEvents) window.renderCalEvents();
   }
 }
@@ -421,6 +422,28 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .hours-val{font-size:12px;font-weight:700;min-width:34px;text-align:right;font-variant-numeric:tabular-nums;}
 .hours-btn{background:var(--bg4);border:1px solid var(--b2);color:var(--t);border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;}
 .hours-btn:active{background:var(--bg5);}
+
+/* WEEK CALENDAR */
+.wc-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.wc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;min-width:100%;}
+@media(max-width:760px){.wc-grid{grid-template-columns:repeat(7,minmax(104px,1fr));width:max-content;min-width:100%;}}
+.wc-day{background:var(--bg3);border:1px solid var(--b);border-radius:8px;padding:6px 6px 8px;display:flex;flex-direction:column;min-height:110px;}
+.wc-day.wc-today{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset;background:rgba(59,130,246,.06);}
+.wc-hd{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.wc-dow{font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--t2);}
+.wc-today .wc-dow{color:var(--blue);}
+.wc-date{font-size:12px;font-weight:800;color:var(--t1);}
+.wc-add{margin-left:auto;background:none;border:none;color:var(--t3);font-size:13px;font-weight:700;cursor:pointer;line-height:1;padding:0 2px;}
+.wc-add:hover{color:var(--blue);}
+.wc-events{display:flex;flex-direction:column;gap:4px;}
+.wc-ev{background:var(--bg4,rgba(255,255,255,.04));border:1px solid var(--b);border-radius:6px;padding:3px 6px;}
+.wc-ev.wc-g{border-left:2px solid var(--blue);}
+.wc-ev:not(.wc-g){cursor:pointer;}
+.wc-ev:not(.wc-g):hover{border-color:var(--coral);}
+.wc-ev-t{font-size:9px;color:var(--t2);font-weight:600;display:flex;align-items:center;gap:4px;}
+.wc-gtag{font-size:8px;font-weight:800;color:var(--blue);border:1px solid var(--blue);border-radius:3px;padding:0 3px;line-height:1.3;}
+.wc-ev-n{font-size:11px;color:var(--t1);font-weight:600;word-break:break-word;line-height:1.25;}
+.wc-empty{font-size:11px;color:var(--t3);text-align:center;padding:8px 0;}
 
 /* CHART */
 .chart-wrap{position:relative;height:150px;}
@@ -895,6 +918,18 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 <div class="viewing-past" id="viewingPast">📅 Viewing past day — read only</div>
 
+<!-- ═══ ROW 0: THIS WEEK — full-width Sun–Sat calendar (Google + manual) ═══ -->
+<div class="card" id="calCard" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--blue)"></span>This Week</div>
+    <button class="btn btn-ghost btn-sm" onclick="openAddCalEvent()">+ Add</button>
+  </div>
+  <div class="wc-scroll"><div class="wc-grid" id="weekCalGrid"></div></div>
+  <div id="weekCalNote" style="font-size:11px;color:var(--t3);padding:6px 0 0;">
+    <span style="color:var(--blue);cursor:pointer;font-weight:700;" onclick="connectGoogleCalendar()">Connect Google Calendar &#8599;</span>
+  </div>
+</div>
+
 <!-- ═══ ROW 1: TRACKING HQ — full width so the graphs breathe ═══ -->
 <div class="card" style="margin-bottom:10px;">
     <div class="card-hd">
@@ -947,20 +982,8 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 <!-- ═══ ROW 2: Money (wide) | Scheduled + Recurring ═══ -->
 <div class="grid-main">
 
-  <!-- SIDE: today's schedule -->
+  <!-- SIDE column -->
   <div class="side-col" style="order:2;">
-    <!-- SCHEDULED TODAY (Google Calendar placeholder) -->
-    <div class="card" id="calCard">
-      <div class="card-hd">
-        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Scheduled Today</div>
-        <button class="btn btn-ghost btn-sm" onclick="openAddCalEvent()">+ Add</button>
-      </div>
-      <div id="calEvents"></div>
-      <div id="calNote" style="font-size:11px;color:var(--t3);padding:4px 0;">
-        Add events manually below &mdash; <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">connect Google Calendar &#8599;</span>
-      </div>
-    </div>
-
     <!-- RECURRING TODAY -->
     <div class="card">
       <div class="card-hd">
@@ -1618,9 +1641,10 @@ window.googleAccessTokenExpiry=0;
     }
   }catch(e){}
 })();
-let gcalEvents={};       // dateKey -> [{name,time,isGoogle:true}], filled in as days are viewed
-let gcalFetchInFlight={};
-function clearGCalCache(){ gcalEvents={}; }
+let gcalWeek=null;       // {weekStart:'YYYY-MM-DD', days:{dateKey:[{name,time,mins,isGoogle:true}]}}
+let gcalFetching=false;
+let gcalError=null;      // 'api_disabled' | 'denied' | 'network' | null
+function clearGCalCache(){ gcalWeek=null; gcalError=null; }
 window.clearGCalCache=clearGCalCache;
 function timeToMinutes(t){ // for sorting manual + Google events together
   if(!t||t==='All day')return -1;
@@ -1631,44 +1655,98 @@ function timeToMinutes(t){ // for sorting manual + Google events together
   if(ap==='AM'&&h===12)h=0;
   return h*60+min;
 }
-function dayBoundsISO(){ // local midnight -> next midnight, for whichever day is in view
-  var start=new Date();start.setDate(start.getDate()+viewingDay);start.setHours(0,0,0,0);
-  var end=new Date(start);end.setDate(end.getDate()+1);
-  return {timeMin:start.toISOString(),timeMax:end.toISOString()};
+function weekBounds(){ // Sunday 00:00 local -> next Sunday 00:00, for the week containing today
+  var s=new Date();s.setHours(0,0,0,0);s.setDate(s.getDate()-s.getDay());
+  var e=new Date(s);e.setDate(e.getDate()+7);
+  return {start:s,end:e};
 }
-async function fetchGCalEvents(dateKey){
-  if(!window.googleAccessToken||Date.now()>window.googleAccessTokenExpiry)return;
-  if(gcalFetchInFlight[dateKey])return;
-  gcalFetchInFlight[dateKey]=true;
+function gcalDK(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+async function fetchGCalWeek(force){
+  if(!window.googleAccessToken||Date.now()>window.googleAccessTokenExpiry){renderWeekCal();return;}
+  if(gcalFetching)return;
+  var b=weekBounds();
+  var wkStart=gcalDK(b.start);
+  if(!force&&gcalWeek&&gcalWeek.weekStart===wkStart)return; // already have this week
+  gcalFetching=true;gcalError=null;renderWeekCal();
   try{
-    var b=dayBoundsISO();
-    var url='https://www.googleapis.com/calendar/v3/calendars/primary/events'
-      +'?timeMin='+encodeURIComponent(b.timeMin)
-      +'&timeMax='+encodeURIComponent(b.timeMax)
-      +'&singleEvents=true&orderBy=startTime&maxResults=20';
-    var res=await fetch(url,{headers:{Authorization:'Bearer '+window.googleAccessToken}});
-    if(res.status===401||res.status===403){
-      // token expired, revoked, or missing the calendar scope — log the real
-      // reason (visible in the browser console) instead of failing silently
-      try{ console.warn('Google Calendar fetch rejected:', res.status, await res.text()); }catch(e){}
-      window.googleAccessToken=null;window.googleAccessTokenExpiry=0;
-      try{localStorage.removeItem('_gcal_token');localStorage.removeItem('_gcal_token_exp');}catch(e){}
-      if(dateKey===viewKey())renderCalEvents();
-      return;
-    }
-    var data=await res.json();
-    gcalEvents[dateKey]=(data.items||[]).map(function(ev){
-      var isAllDay=!ev.start.dateTime;
-      var timeStr=isAllDay?'All day':new Date(ev.start.dateTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-      return {name:ev.summary||'(untitled)',time:timeStr,isGoogle:true};
-    });
+    var hdr={headers:{Authorization:'Bearer '+window.googleAccessToken}};
+    // 1) Pull EVERY calendar you have (work, personal, shared) — not just "primary".
+    //    Events living on a secondary calendar were invisible before; this was
+    //    the most common reason "my stuff isn't showing up".
+    var calIds=['primary'];
+    try{
+      var lr=await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader',hdr);
+      if(lr.ok){
+        var cl=await lr.json();
+        var ids=(cl.items||[]).filter(function(c){return c.selected!==false;}).map(function(c){return c.id;});
+        if(ids.length)calIds=ids;
+      }
+    }catch(e){}
+    // 2) One fetch per calendar, covering the whole Sun–Sat week.
+    var timeMin=b.start.toISOString(),timeMax=b.end.toISOString();
+    var results=await Promise.all(calIds.map(async function(id){
+      var url='https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(id)+'/events'
+        +'?timeMin='+encodeURIComponent(timeMin)+'&timeMax='+encodeURIComponent(timeMax)
+        +'&singleEvents=true&orderBy=startTime&maxResults=250';
+      var res=await fetch(url,hdr);
+      if(res.status===401||res.status===403){
+        var txt='';try{txt=await res.text();}catch(e){}
+        console.warn('Google Calendar fetch rejected:',id,res.status,txt);
+        if(calIds.length===1||id==='primary')throw {status:res.status,txt:txt};
+        return [];
+      }
+      if(!res.ok)return [];
+      var data=await res.json();
+      return data.items||[];
+    }));
+    var days={},seen={};
+    results.forEach(function(items){items.forEach(function(ev){
+      var uid=ev.iCalUID||ev.id;
+      if(ev.status==='cancelled')return;
+      var isAllDay=!(ev.start&&ev.start.dateTime);
+      if(isAllDay){
+        // all-day events use date strings and can span multiple days (end is exclusive)
+        var sp=(ev.start&&ev.start.date?ev.start.date:'').split('-').map(Number);
+        if(sp.length<3)return;
+        var ep=(ev.end&&ev.end.date?ev.end.date:ev.start.date).split('-').map(Number);
+        var sD=new Date(sp[0],sp[1]-1,sp[2]),eD=new Date(ep[0],ep[1]-1,ep[2]);
+        for(var d0=new Date(sD);d0<eD;d0.setDate(d0.getDate()+1)){
+          if(d0<b.start||d0>=b.end)continue;
+          var k0=gcalDK(d0),uk0=uid+'|'+k0;
+          if(seen[uk0])continue;seen[uk0]=1;
+          (days[k0]=days[k0]||[]).push({name:ev.summary||'(untitled)',time:'All day',mins:-1,isGoogle:true});
+        }
+        return;
+      }
+      var sd=new Date(ev.start.dateTime);
+      var k=gcalDK(sd),uk=uid+'|'+k;
+      if(seen[uk])return;seen[uk]=1;
+      (days[k]=days[k]||[]).push({
+        name:ev.summary||'(untitled)',
+        time:sd.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}),
+        mins:sd.getHours()*60+sd.getMinutes(),
+        isGoogle:true
+      });
+    });});
+    gcalWeek={weekStart:wkStart,days:days};
   }catch(e){
     console.warn('Google Calendar fetch failed:',e);
+    if(e&&e.status===401){
+      // token dead — wipe it so the UI clearly says "reconnect"
+      window.googleAccessToken=null;window.googleAccessTokenExpiry=0;
+      try{localStorage.removeItem('_gcal_token');localStorage.removeItem('_gcal_token_exp');}catch(x){}
+    }else if(e&&e.status===403){
+      gcalError=(e.txt&&e.txt.indexOf('accessNotConfigured')>-1)?'api_disabled':'denied';
+    }else{
+      gcalError='network';
+    }
   }finally{
-    delete gcalFetchInFlight[dateKey];
-    if(dateKey===viewKey())renderCalEvents();
+    gcalFetching=false;
+    renderWeekCal();
   }
 }
+window.retryGCal=function(){gcalError=null;fetchGCalWeek(true);};
+window.refreshGCal=function(){gcalWeek=null;gcalError=null;fetchGCalWeek(true);};
 
 const p2=n=>String(n).padStart(2,'0');
 const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;};
@@ -4876,44 +4954,63 @@ function doMoveWeekly(id,targetKey){
   closeModal();renderScheduledFixed();renderWeeklyGrid();
 }
 
-// -- CALENDAR EVENTS ----------------------------------------------------------
-function renderCalEvents(){
-  var vk=viewKey();
-  var manual=ld('cal_'+vk,[]).map(function(e,i){return {name:e.name,time:e.time,isGoogle:false,idx:i};});
+// -- CALENDAR EVENTS: full Sun–Sat week grid ----------------------------------
+function renderCalEvents(){renderWeekCal();} // old name kept — auth module + init still call it
+function renderWeekCal(){
+  var grid=document.getElementById('weekCalGrid');
+  if(!grid)return;
+  var b=weekBounds();
+  var tKey=todayKey();
   var tokenValid=window.googleAccessToken&&Date.now()<window.googleAccessTokenExpiry;
-  if(tokenValid&&!gcalEvents.hasOwnProperty(vk))fetchGCalEvents(vk); // fills in async, re-renders when done
-  var google=gcalEvents[vk]||[];
-  var all=manual.concat(google);
-  var el=document.getElementById('calEvents');
-  var note=document.getElementById('calNote');
-  if(!all.length){
-    el.innerHTML='';
-  } else {
-    var sorted=all.slice().sort(function(a,b){return timeToMinutes(a.time)-timeToMinutes(b.time);});
-    el.innerHTML=sorted.map(function(ev){
-      var right=ev.isGoogle
-        ?'<span class="cal-gtag" title="From Google Calendar">G</span>'
-        :'<button class="cal-del" onclick="delCalEvent('+ev.idx+')">&#215;</button>';
-      return '<div class="cal-event">'
-        +'<div class="cal-time">'+ev.time+'</div>'
-        +'<div class="cal-name">'+ev.name+'</div>'
-        +right
-        +'</div>';
-    }).join('');
+  // auto-fetch if we're connected but don't have this week yet (fetch re-renders when done)
+  if(tokenValid&&!gcalFetching&&!gcalError&&(!gcalWeek||gcalWeek.weekStart!==gcalDK(b.start)))fetchGCalWeek();
+  var names=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  var html='';
+  for(var i=0;i<7;i++){
+    var d=new Date(b.start);d.setDate(d.getDate()+i);
+    var k=gcalDK(d);
+    var manual=ld('cal_'+k,[]).map(function(e,idx){return {name:e.name,time:e.time||'All day',mins:timeToMinutes(e.time),isGoogle:false,idx:idx};});
+    var google=(gcalWeek&&gcalWeek.days&&gcalWeek.days[k])||[];
+    var all=manual.concat(google).sort(function(a,c){return a.mins-c.mins;});
+    var isToday=k===tKey;
+    html+='<div class="wc-day'+(isToday?' wc-today':'')+'">'
+      +'<div class="wc-hd"><span class="wc-dow">'+names[i]+'</span><span class="wc-date">'+d.getDate()+'</span>'
+      +'<button class="wc-add" onclick="openAddCalEvent(\''+k+'\')" title="Add event this day">+</button></div>'
+      +'<div class="wc-events">'
+      +(all.length?all.map(function(ev){
+          return '<div class="wc-ev'+(ev.isGoogle?' wc-g':'')+'"'
+            +(ev.isGoogle?' title="From Google Calendar"':' onclick="delCalEvent(\''+k+'\','+ev.idx+')" title="Tap to remove"')+'>'
+            +'<div class="wc-ev-t">'+escHtml(ev.time)+(ev.isGoogle?'<span class="wc-gtag">G</span>':'')+'</div>'
+            +'<div class="wc-ev-n">'+escHtml(ev.name)+'</div>'
+          +'</div>';
+        }).join(''):'<div class="wc-empty">&mdash;</div>')
+      +'</div></div>';
   }
+  grid.innerHTML=html;
+  var note=document.getElementById('weekCalNote');
   if(note){
-    note.style.display='block';
-    note.innerHTML=tokenValid
-      ?'Add events manually below &mdash; <span style="color:var(--green);">&#10003; Google Calendar connected</span> &middot; <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">refresh</span>'
-      :'Add events manually below &mdash; <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">connect Google Calendar &#8599;</span>';
+    if(gcalFetching){
+      note.innerHTML='Loading Google Calendar&hellip;';
+    }else if(!tokenValid){
+      note.innerHTML='<span style="color:var(--blue);cursor:pointer;font-weight:700;" onclick="connectGoogleCalendar()">Connect Google Calendar &#8599;</span> <span style="color:var(--t3);">&mdash; Google only issues a ~1-hour access token, so if events disappear after a while, tap this to reconnect.</span>';
+    }else if(gcalError==='api_disabled'){
+      note.innerHTML='<span style="color:var(--coral);font-weight:700;">Google Calendar API is not enabled for this app\'s Google Cloud project.</span> <span style="color:var(--t3);">Go to console.cloud.google.com &rarr; APIs &amp; Services &rarr; Library &rarr; enable "Google Calendar API" for project life-8b09d, then</span> <span style="color:var(--blue);cursor:pointer;" onclick="retryGCal()">retry</span>.';
+    }else if(gcalError==='denied'){
+      note.innerHTML='<span style="color:var(--coral);font-weight:700;">Google rejected the calendar request.</span> <span style="color:var(--blue);cursor:pointer;" onclick="connectGoogleCalendar()">Reconnect &amp; approve calendar access &#8599;</span> <span style="color:var(--t3);">(make sure the calendar checkbox is checked on the Google consent screen)</span>';
+    }else if(gcalError==='network'){
+      note.innerHTML='<span style="color:var(--coral);">Couldn\'t reach Google Calendar.</span> <span style="color:var(--blue);cursor:pointer;" onclick="retryGCal()">Retry</span>';
+    }else{
+      note.innerHTML='<span style="color:var(--green);">&#10003; Google Calendar connected</span> <span style="color:var(--t3);">&middot; showing all your calendars &middot;</span> <span style="color:var(--blue);cursor:pointer;" onclick="refreshGCal()">refresh</span> <span style="color:var(--t3);">&middot; + adds a manual event &middot; tap a manual event to remove it</span>';
+    }
   }
 }
-function delCalEvent(i){
-  var events=ld('cal_'+viewKey(),[]);
-  events.splice(i,1);sv('cal_'+viewKey(),events);renderCalEvents();
+function delCalEvent(dateKey,i){
+  var events=ld('cal_'+dateKey,[]);
+  events.splice(i,1);sv('cal_'+dateKey,events);renderWeekCal();
 }
-function openAddCalEvent(){
-  document.getElementById('modalTitle').textContent='Add Event';
+function openAddCalEvent(dateKey){
+  dateKey=dateKey||todayKey();
+  document.getElementById('modalTitle').textContent='Add Event — '+fmtDate(dateKey);
   document.getElementById('mIn1').style.display='block';
   document.getElementById('mIn1').placeholder='Event name...';
   document.getElementById('mIn1').value='';
@@ -4926,9 +5023,9 @@ function openAddCalEvent(){
   document.getElementById('modalConfirm').textContent='Add Event';
   mCb=function(n,t){
     if(!n.trim())return;
-    var events=ld('cal_'+viewKey(),[]);
+    var events=ld('cal_'+dateKey,[]);
     events.push({name:n.trim(),time:t.trim()||'All day'});
-    sv('cal_'+viewKey(),events);renderCalEvents();
+    sv('cal_'+dateKey,events);renderWeekCal();
   };
   document.getElementById('modalOv').classList.add('open');
   setTimeout(function(){document.getElementById('mIn1').focus();},80);
