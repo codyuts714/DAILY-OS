@@ -429,9 +429,16 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 /* WEEK CALENDAR */
 .wc-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .wc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;min-width:100%;}
-@media(max-width:760px){.wc-grid{grid-template-columns:repeat(7,minmax(104px,1fr));width:max-content;min-width:100%;}}
+/* rolling window: today is always column 1 — give it extra width */
+.wc-grid.wc-rolling{grid-template-columns:1.32fr repeat(6,1fr);}
+@media(max-width:760px){.wc-grid{grid-template-columns:repeat(7,minmax(104px,1fr));width:max-content;min-width:100%;}
+.wc-grid.wc-rolling{grid-template-columns:minmax(136px,1.32fr) repeat(6,minmax(104px,1fr));}}
 .wc-day{background:var(--bg3);border:1px solid var(--b);border-radius:8px;padding:6px 6px 8px;display:flex;flex-direction:column;min-height:110px;}
-.wc-day.wc-today{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset;background:rgba(59,130,246,.06);}
+.wc-day.wc-today{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset;background:rgba(59,130,246,.06);padding:8px 8px 10px;min-height:126px;}
+.wc-today .wc-hd{margin-bottom:7px;}
+.wc-today .wc-dow{font-size:10px;letter-spacing:.1em;}
+.wc-today .wc-date{font-size:16px;}
+.wc-today .wc-ev-n{font-size:12px;}
 .wc-hd{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
 .wc-dow{font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--t2);}
 .wc-today .wc-dow{color:var(--blue);}
@@ -905,14 +912,14 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 <div class="viewing-past" id="viewingPast">📅 Viewing past day — read only</div>
 
-<!-- ═══ ROW 0: THIS WEEK — full-width Sun–Sat calendar (Google + manual) ═══ -->
+<!-- ═══ ROW 0: NEXT 7 DAYS — rolling calendar starting today (Google + manual) ═══ -->
 <div class="card" id="calCard" style="margin-bottom:10px;">
   <div class="card-hd">
     <div class="card-title" style="display:flex;align-items:center;gap:8px;"><span class="dot" style="background:var(--y)"></span>Calendar <span id="weekCalLabel" style="font-size:11px;font-weight:600;color:var(--t2);"></span></div>
     <div style="display:flex;gap:4px;align-items:center;">
-      <button class="btn btn-ghost btn-sm" onclick="calWeekNav(-1)" title="Previous week">&#8592;</button>
+      <button class="btn btn-ghost btn-sm" id="weekCalBackBtn" onclick="calWeekNav(-1)" title="Back 7 days">&#8592;</button>
       <button class="btn btn-ghost btn-sm" id="weekCalTodayBtn" onclick="calWeekNav(0)" style="display:none;color:var(--y);">Today</button>
-      <button class="btn btn-ghost btn-sm" onclick="calWeekNav(1)" title="Next week">&#8594;</button>
+      <button class="btn btn-ghost btn-sm" onclick="calWeekNav(1)" title="Next 7 days">&#8594;</button>
       <button class="btn btn-ghost btn-sm" onclick="openAddWeekly()" style="color:var(--purple);">&#8635; Recurring</button>
       <button class="btn btn-ghost btn-sm" onclick="openAddCalEvent()">+ Add</button>
     </div>
@@ -1040,6 +1047,21 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div class="section-divider-line"></div>
 </div>
 
+<!-- PERSONAL TO-DO — first thing in Personal. Life stuff, separate from the
+     business queue. Every item shows how long it's been sitting. -->
+<div class="card" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Personal To-Do</div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <span class="sec-pct" style="color:var(--orange)" id="pTodoStat"></span>
+      <button class="btn btn-ghost btn-sm" onclick="openAddPersonalTodo()">+</button>
+    </div>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Oldest first &mdash; if it's been sitting a week, either do it or kill it</div>
+  <div id="pTodoList"></div>
+  <div id="pTodoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing here. Life admin goes in this one.</div>
+</div>
+
 <!-- ROW 2: Morning | Evening (Wind-Down) — side by side, bookends of the day -->
 <div class="grid-2">
   <!-- MORNING -->
@@ -1141,16 +1163,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
   <div class="choose-label" style="color:var(--t2);">Tap a slot when you call &mdash; it stamps when. They matter more than the work.</div>
   <div id="callList"></div>
-</div>
-
-<!-- PERSONAL TO-DO — life stuff, separate from the business queue -->
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Personal To-Do</div>
-    <button class="btn btn-ghost btn-sm" onclick="openAddPersonalTodo()">+</button>
-  </div>
-  <div id="pTodoList"></div>
-  <div id="pTodoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing here. Life admin goes in this one.</div>
 </div>
 
 <!-- ═══ BUSINESS — visibility first, then work down ═══ -->
@@ -1464,21 +1476,33 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       </div>
     </div>
     <div style="background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:10px;margin-bottom:12px;">
-      <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">Your export will include:</div>
-      <div style="font-size:12px;color:var(--t);line-height:1.8;">
-        ✓ Daily completion % for every day<br>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:6px;">Everything you track — nothing left out:</div>
+      <div style="font-size:11.5px;color:var(--t);line-height:1.75;">
+        ✓ Daily % — overall, business, life, self-check, mood<br>
         ✓ Task-by-task breakdown (done vs skipped)<br>
-        ✓ Streak data<br>
-        ✓ All journal entries<br>
-        ✓ Revenue log with totals<br>
-        ✓ Business section completion rates
+        ✓ Timed checks — wake up &amp; hard shutdown, late/early<br>
+        ✓ Daily bursts — minutes clocked vs target<br>
+        ✓ Hours by bucket, per day + totals<br>
+        ✓ Today List history — time spent, client tags, carry-overs<br>
+        ✓ To-Do queue + Personal To-Do with days sitting<br>
+        ✓ Knock It Off — per line, held vs broke<br>
+        ✓ Days Without streaks · Call Family · Laundry · Grocery<br>
+        ✓ Revenue, contractor payouts, net<br>
+        ✓ <b style="color:var(--y);">Every note</b> — system updates, project notes, prospect notes<br>
+        ✓ Pipeline w/ days cold · Client targets · Content ideas<br>
+        ✓ Night-before plans vs how the day actually went<br>
+        ✓ All journal entries, streaks, goals &amp; mission
       </div>
     </div>
     <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Paste this prompt into Claude with your file:</div>
-    <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:6px;padding:10px;font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:14px;font-style:italic;" id="suggestedPrompt"></div>
+    <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:6px;padding:10px;font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:12px;font-style:italic;" id="suggestedPrompt"></div>
+    <div style="font-size:10px;color:var(--t3);line-height:1.5;margin-bottom:12px;">
+      <b style="color:var(--t2);">Raw JSON</b> dumps every stored value exactly as saved — ignores the range above. Use it as a backup, or when you want the AI to see the literal data with zero summarizing.
+    </div>
     <div class="modal-row">
       <button class="modal-btn modal-cancel" onclick="closeExportModal()">Cancel</button>
-      <button class="modal-btn modal-confirm" onclick="doExport()">⬇ Download</button>
+      <button class="modal-btn modal-cancel" onclick="doExportRaw()" title="Complete raw backup — all time, every key">&#123; &#125; Raw JSON</button>
+      <button class="modal-btn modal-confirm" onclick="doExport()">⬇ Report</button>
     </div>
   </div>
 </div>
@@ -1629,6 +1653,7 @@ function clearGCalCache(){ gcalWeeks={}; gcalError=null; }
 window.clearGCalCache=clearGCalCache;
 window.calWeekNav=function(d){
   calWeekOffset=(d===0)?0:calWeekOffset+d;
+  if(calWeekOffset<0)calWeekOffset=0; // rolling window starts at today — never look back
   renderWeekCal();
 };
 function timeToMinutes(t){ // for sorting manual + Google events together
@@ -1640,8 +1665,8 @@ function timeToMinutes(t){ // for sorting manual + Google events together
   if(ap==='AM'&&h===12)h=0;
   return h*60+min;
 }
-function weekBounds(){ // Sunday 00:00 local -> next Sunday 00:00, for the week in view
-  var s=new Date();s.setHours(0,0,0,0);s.setDate(s.getDate()-s.getDay()+calWeekOffset*7);
+function weekBounds(){ // TODAY 00:00 -> +7 days: rolling window, no past days
+  var s=new Date();s.setHours(0,0,0,0);s.setDate(s.getDate()+calWeekOffset*7);
   var e=new Date(s);e.setDate(e.getDate()+7);
   return {start:s,end:e};
 }
@@ -2887,21 +2912,84 @@ function smokeChk(kind,dateKey){
 // -- PERSONAL TO-DO --------------------------------------------------------------
 // Life-admin list, separate from the business To-Do queue.
 let personalTodos=ld('personalTodos',[]);
+
+// When an item first landed on the list. New items store createdAt outright;
+// legacy items get it recovered from their id ('pt' + Date.now()) so nothing
+// added before this feature shows up as "added today".
+function pTodoCreated(t){
+  if(t.createdAt)return t.createdAt;
+  var m=String(t.id||'').match(/(\d{10,})/);
+  if(m){
+    var ms=parseInt(m[1],10);
+    if(ms>0&&ms<Date.now()+86400000){
+      var d=new Date(ms);
+      return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+    }
+  }
+  return todayKey();
+}
+// Days it's been sitting. 0 = added today.
+function pTodoAge(t){
+  var k=pTodoCreated(t);
+  var p=String(k).split('-').map(Number);
+  if(p.length!==3||isNaN(p[0]))return 0;
+  var o=new Date(p[0],p[1]-1,p[2]);
+  var n=new Date();
+  var today=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  return Math.max(0,Math.round((today-o)/86400000));
+}
+function pTodoAgeLabel(days){
+  if(days<=0)return 'added today';
+  if(days===1)return 'sitting for 1 day';
+  return 'sitting for '+days+' days';
+}
+// stamp the recovered date once so the age survives a sync/device change
+function migratePersonalTodoDates(){
+  var changed=false;
+  personalTodos.forEach(function(t){
+    if(!t.createdAt){t.createdAt=pTodoCreated(t);changed=true;}
+  });
+  if(changed)sv('personalTodos',personalTodos);
+}
+
 function renderPersonalTodo(){
   var el=document.getElementById('pTodoList');
   var emp=document.getElementById('pTodoEmpty');
   if(!el)return;
-  var items=personalTodos.slice().sort(function(a,b){return (a.done?1:0)-(b.done?1:0);});
+  // active first, oldest at the top so the stale stuff can't hide; done sinks
+  var items=personalTodos.slice().sort(function(a,b){
+    var d=(a.done?1:0)-(b.done?1:0);
+    if(d)return d;
+    if(a.done)return 0;
+    return pTodoAge(b)-pTodoAge(a);
+  });
   el.innerHTML=items.map(function(t){
+    var age=pTodoAge(t);
+    var col=t.done?'var(--t3)':(age>=7?'var(--coral)':(age>=3?'var(--y)':'var(--t3)'));
+    var wt=(!t.done&&age>=3)?'700':'400';
+    var sub;
+    if(t.done&&t.ts)sub='<div class="task-ts">&#10003; '+t.ts+' &middot; sat '+age+'d</div>';
+    else sub='<div class="task-ts" style="color:'+col+';font-weight:'+wt+';">'
+      +(!t.done&&age>=7?'&#9888; ':'')+pTodoAgeLabel(age)+'</div>';
     return '<div class="task-row" style="'+(t.done?'opacity:.45;':'')+'">'
       +'<button class="chk '+(t.done?'done':'')+'" onclick="togglePersonalTodo(\''+t.id+'\')"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+escHtml(t.text)+'</div>'
-      +(t.done&&t.ts?'<div class="task-ts">&#10003; '+t.ts+'</div>':'')
+      +sub
       +'</div>'
       +'<button class="task-del" onclick="delPersonalTodo(\''+t.id+'\')">&#215;</button>'
       +'</div>';
   }).join('');
   if(emp)emp.style.display=personalTodos.length?'none':'block';
+  var stat=document.getElementById('pTodoStat');
+  if(stat){
+    var open=personalTodos.filter(function(t){return !t.done;});
+    if(!open.length){stat.textContent=personalTodos.length?'all clear':'';stat.style.color='var(--green)';}
+    else{
+      var oldest=open.reduce(function(mx,t){return Math.max(mx,pTodoAge(t));},0);
+      stat.innerHTML=open.length+' open &middot; oldest '+oldest+'d';
+      stat.style.color=oldest>=7?'var(--coral)':'var(--orange)';
+    }
+  }
 }
 function togglePersonalTodo(id){
   var t=personalTodos.find(function(x){return x.id===id;});
@@ -2927,7 +3015,7 @@ function openAddPersonalTodo(){
   mCb=()=>{
     const v=document.getElementById('mIn1').value.trim();
     if(!v)return true;
-    personalTodos.push({id:'pt'+Date.now(),text:v,done:false});
+    personalTodos.push({id:'pt'+Date.now(),text:v,done:false,createdAt:todayKey()});
     sv('personalTodos',personalTodos);
     renderPersonalTodo();
     document.getElementById('mIn1').value='';
@@ -4982,47 +5070,61 @@ function renderWeekCal(){
   var fetching=!!gcalFetchingWeeks[wkStart];
   // auto-fetch if we're connected but don't have this week yet (fetch re-renders when done)
   if(tokenValid&&!fetching&&!gcalError&&!gcalWeeks[wkStart])fetchGCalWeek();
-  // week range label + "back to today" button
+  // window range label + "back to today" button
   var lbl=document.getElementById('weekCalLabel');
   if(lbl){
     var endD=new Date(b.start);endD.setDate(endD.getDate()+6);
     var opts={month:'short',day:'numeric'};
     var range=b.start.toLocaleDateString('en-US',opts)+' \u2013 '+endD.toLocaleDateString('en-US',opts);
-    lbl.textContent=calWeekOffset===0?range:(calWeekOffset===-1?'Last week \u00b7 ':calWeekOffset===1?'Next week \u00b7 ':'')+range;
+    lbl.textContent=calWeekOffset===0?('next 7 days \u00b7 '+range):('+'+(calWeekOffset*7)+' days \u00b7 '+range);
     lbl.style.color=calWeekOffset===0?'var(--t2)':'var(--y)';
   }
   var todayBtn=document.getElementById('weekCalTodayBtn');
   if(todayBtn)todayBtn.style.display=calWeekOffset===0?'none':'inline-block';
+  var backBtn=document.getElementById('weekCalBackBtn');
+  if(backBtn){
+    var atStart=calWeekOffset===0;
+    backBtn.style.opacity=atStart?'.25':'1';
+    backBtn.style.pointerEvents=atStart?'none':'auto';
+    backBtn.title=atStart?'Already showing today':'Back 7 days';
+  }
+  grid.className='wc-grid'+(calWeekOffset===0?' wc-rolling':'');
   var names=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   var wkData=gcalWeeks[wkStart];
-  // recurring items done-state for the current week (checkable on today only)
+  // recurring items done-state — only ever checkable on today
   var dsW={};
   try{ if(calWeekOffset===0&&typeof getDS==='function')dsW=getDS().w||{}; }catch(e){}
-  var curWkMoves={};
-  try{ if(calWeekOffset===0){var _ws=ld('ws_'+weekKey(),{w:{},moves:{}});curWkMoves=_ws.moves||{};} }catch(e){}
+  // the window can straddle two stored weeks now, so moves are looked up per day
+  var _movesCache={};
+  function movesFor(k){
+    var wkk=weekKeyFor(k);
+    if(!(wkk in _movesCache)){
+      try{ _movesCache[wkk]=(ld('ws_'+wkk,{w:{},moves:{}}).moves)||{}; }catch(e){ _movesCache[wkk]={}; }
+    }
+    return _movesCache[wkk];
+  }
   var html='';
   for(var i=0;i<7;i++){
     var d=new Date(b.start);d.setDate(d.getDate()+i);
     var k=gcalDK(d);
-    // recurring items that fall on this weekday (honoring this week's moves when viewing the current week)
+    var dow=d.getDay(); // real weekday — the column index is no longer the weekday
+    var mv=movesFor(k);
+    // recurring items that fall on this weekday (honoring that week's moves)
     var recur=(typeof weekly!=='undefined'?weekly:[]).filter(function(w){
-      if(calWeekOffset===0){
-        var movedHere=w.days.some(function(od){return curWkMoves[w.id+'_'+od]===k;});
-        if(movedHere)return true;
-        if(w.days.includes(i)){
-          var movedAway=curWkMoves[w.id+'_'+i]&&curWkMoves[w.id+'_'+i]!==k;
-          return !movedAway;
-        }
-        return false;
+      var movedHere=w.days.some(function(od){return mv[w.id+'_'+od]===k;});
+      if(movedHere)return true;
+      if(w.days.includes(dow)){
+        var movedAway=mv[w.id+'_'+dow]&&mv[w.id+'_'+dow]!==k;
+        return !movedAway;
       }
-      return w.days.includes(i);
+      return false;
     }).slice().sort(function(a,c){return timeToMinutes(a.dur)-timeToMinutes(c.dur);});
     var manual=ld('cal_'+k,[]).map(function(e,idx){return {name:e.name,time:e.time||'All day',mins:timeToMinutes(e.time),isGoogle:false,idx:idx};});
     var google=((wkData&&wkData.days&&wkData.days[k])||[]).map(function(e,gidx){e.gidx=gidx;return e;});
     var all=manual.concat(google).sort(function(a,c){return a.mins-c.mins;});
     var isToday=k===tKey;
     html+='<div class="wc-day'+(isToday?' wc-today':'')+'">'
-      +'<div class="wc-hd"><span class="wc-dow">'+names[i]+'</span><span class="wc-date">'+d.getDate()+'</span>'
+      +'<div class="wc-hd"><span class="wc-dow">'+(isToday?'TODAY':names[dow])+'</span><span class="wc-date">'+d.getDate()+'</span>'
       +'<button class="wc-add" onclick="openAddCalEvent(\''+k+'\')" title="Add event this day">+</button></div>'
       +'<div class="wc-events">'
       // recurring pinned on top, yellow-highlighted, so double-booking is obvious
@@ -5126,8 +5228,11 @@ function setExportRange(range, btn) {
 function updateSuggestedPrompt() {
   const labels = {week:'this week', month:'this month', all:'all time'};
   document.getElementById('suggestedPrompt').textContent =
-    'Here is my life and business data for ' + labels[exportRange] + '. ' +
-    'Please analyze: (1) which habits I am completing vs skipping most, (2) patterns in my journal entries — what keeps coming up, (3) how my revenue correlates with my productivity, (4) where my biggest gaps are and what I should focus on. Give me honest, specific insights.';
+    'Here is my full life and business tracker data for ' + labels[exportRange] + '. ' +
+    'Analyze it and be blunt with me: (1) which habits and tasks am I actually completing vs quietly skipping, (2) what patterns show up across my journal entries, self-checks and Knock It Off answers — what do I keep repeating, ' +
+    '(3) how do my hours by bucket, burst times and wake/shutdown times line up with my high vs low days, (4) what does my revenue correlate with, and does client work crowd out sales, ' +
+    '(5) what is sitting too long — personal to-dos, carried-over tasks, cold pipeline leads, unpaid projects, (6) what do my system update notes and project notes tell you about where my time leaks. ' +
+    'Then give me the three specific changes that would move the needle most. Do not soften it.';
 }
 
 function openExportModal() {
@@ -5171,20 +5276,64 @@ function dateInRange(dateStr, start, end) {
   return dt >= start && dt <= end;
 }
 
+// ---- export helpers ----------------------------------------------------------
+// Every day key that ANY tracker touched — not just days with a ds_ record, so
+// journal-only / hours-only / today-list-only days still make the export.
+function allTrackedDays(hist){
+  var set={};
+  Object.keys(hist||{}).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))set[k]=1;});
+  [ld('journals',{}),ld('todayLists',{}),ld('hoursLog',{}),ld('stopHits',{}),
+   ld('selfCheck',{}),ld('dayPlans',{}),ld('burstTimes',{})].forEach(function(m){
+    Object.keys(m||{}).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))set[k]=1;});
+  });
+  var sm=ld('smokeFree',{});
+  Object.keys(sm||{}).forEach(function(kind){
+    Object.keys(sm[kind]||{}).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))set[k]=1;});
+  });
+  return Object.keys(set).sort();
+}
+// days between a YYYY-MM-DD and today
+function daysSinceKey(k){
+  if(!k)return null;
+  var p=String(k).split('-').map(Number);
+  if(p.length!==3||isNaN(p[0]))return null;
+  var o=new Date(p[0],p[1]-1,p[2]);
+  var n=new Date();
+  return Math.max(0,Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-o)/86400000));
+}
+function expMoney(n){return '$'+Math.round(Number(n)||0).toLocaleString();}
+function expLate(min){
+  if(min===undefined||min===null||isNaN(min))return '';
+  var m=Math.round(min);
+  if(m===0)return 'on time';
+  return m>0?(m+'m late'):(Math.abs(m)+'m early');
+}
+
 function doExport() {
   var range = getDateRange();
   var start = range.start; var end = range.end;
-  var hist = buildLiveHist(); // daily % computed live from tracker data
+  var hist = buildLiveHist();               // daily % computed live from tracker data
   var journals = ld('journals', {});
   var revLogData = ld('revLog', []);
   var streakData = calcStreak(hist);
-  var nl = '\n';
 
-  var daysInRange = Object.keys(hist).filter(function(k){return dateInRange(k,start,end);}).sort();
+  var daysInRange = allTrackedDays(hist).filter(function(k){return dateInRange(k,start,end);});
   var journalsInRange = Object.keys(journals).filter(function(k){return dateInRange(k,start,end);}).sort();
   var revInRange = revLogData.filter(function(r){return dateInRange(r.date,start,end);});
 
-  // Task completion breakdown
+  // week keys covered by the range (weekly-scoped stores hang off these)
+  var weeksInRange=[];
+  daysInRange.forEach(function(k){
+    var wkKey=weekKeyFor(k);
+    if(weeksInRange.indexOf(wkKey)===-1)weeksInRange.push(wkKey);
+  });
+  weeksInRange.sort();
+
+  var lines = [];
+  var push=function(x){lines.push(x===undefined?'':x);};
+  var hdr=function(t){push('');push('== '+t+' ==');};
+
+  // ---------- TASK COMPLETION BREAKDOWN ----------
   var taskBreakdown = {};
   var allTasks = [
     {list:morning, dm_key:'m', sec:'Morning'},
@@ -5202,6 +5351,12 @@ function doExport() {
       taskBreakdown[t.id] = {name:t.name, sec:g.sec, dm_key:g.dm_key, done:0, total:0};
     });
   });
+  // timed checks (wake up / hard shutdown) collect their late/early stamps
+  var timedStats = {};
+  morning.concat(evening).forEach(function(t){
+    if(parseClock(t.dur)!==null)timedStats[t.id]={name:t.name,target:t.dur,hits:[]};
+  });
+
   daysInRange.forEach(function(k){
     var ds = ld('ds_'+k, {m:{},e:{},s:{},vn:{},v:{},c:{},mo:{},a:{},bt:{},co:{},pr:{}});
     allTasks.forEach(function(g){
@@ -5212,71 +5367,91 @@ function doExport() {
         }
       });
     });
-  });
-
-  // Weekly-tracked sections (Content + Product) — summarized by week, not by day
-  var weeksInRange=[];
-  daysInRange.forEach(function(k){
-    var dt=new Date(k);
-    var jan1=new Date(dt.getFullYear(),0,1);
-    var wk=Math.ceil(((dt-jan1)/86400000+jan1.getDay()+1)/7);
-    var wkKey=dt.getFullYear()+'-W'+(''+wk).padStart(2,'0');
-    if(!weeksInRange.includes(wkKey))weeksInRange.push(wkKey);
-  });
-  var weeklyBizSummary=[];
-  weeksInRange.forEach(function(wkKey){
-    var wbiz=ld('wbiz_'+wkKey,{content:{},product:{}});
-    var contentDone=bizContent.filter(function(t){return wbiz.content&&wbiz.content[t.id];}).length;
-    var productDone=bizProduct.filter(function(t){return wbiz.product&&wbiz.product[t.id];}).length;
-    weeklyBizSummary.push({
-      week:wkKey,
-      content:contentDone+'/'+bizContent.length,
-      product:productDone+'/'+bizProduct.length
+    ['m','e'].forEach(function(dk){
+      Object.keys(ds[dk]||{}).forEach(function(kk){
+        var m=kk.match(/^(.+)_late$/);
+        if(m&&timedStats[m[1]])timedStats[m[1]].hits.push({date:k,late:ds[dk][kk],ts:ds[dk][m[1]+'_ts']||''});
+      });
     });
   });
 
-  // Revenue
-  var totalRev = revInRange.reduce(function(s,r){return s+r.amount;}, 0);
+  // weekly business (Content + Product are tracked per week, not per day)
+  var weeklyBizSummary=[];
+  weeksInRange.forEach(function(wkKey){
+    var wbiz=ld('wbiz_'+wkKey,{content:{},product:{}});
+    var cDone=bizContent.filter(function(t){return wbiz.content&&wbiz.content[t.id];});
+    var pDone=bizProduct.filter(function(t){return wbiz.product&&wbiz.product[t.id];});
+    weeklyBizSummary.push({week:wkKey,cDone:cDone,pDone:pDone});
+  });
+
+  // revenue + payouts
+  var contractorData = ld('contractorPays',[]).filter(function(c){return dateInRange(c.date,start,end);});
+  var totalRev = revInRange.reduce(function(s,r){return s+(Number(r.amount)||0);}, 0);
+  var totalPay = contractorData.reduce(function(s,c){return s+(Number(c.amount)||0);}, 0);
   var byDay = {};
-  revInRange.forEach(function(r){ byDay[r.date]=(byDay[r.date]||0)+r.amount; });
+  revInRange.forEach(function(r){ byDay[r.date]=(byDay[r.date]||0)+(Number(r.amount)||0); });
   var bestRevDay = Object.entries(byDay).sort(function(a,b){return b[1]-a[1];})[0];
   var avgCompletion = daysInRange.length ? Math.round(daysInRange.reduce(function(s,k){return s+(hist[k]||0);},0)/daysInRange.length) : 0;
 
   var rangeLabel = exportRange === 'week' ? 'This Week' : exportRange === 'month' ? 'This Month' : 'All Time';
   var dateRange = start.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' to ' + end.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 
-  var lines = [];
-  lines.push('DAILY OS -- DATA EXPORT');
-  lines.push(rangeLabel + ' | ' + dateRange);
-  lines.push('');
-  lines.push('== OVERVIEW ==');
-  lines.push('Days tracked: ' + daysInRange.length);
-  lines.push('Average completion: ' + avgCompletion + '%');
-  lines.push('Current streak: ' + streakData.current + ' days');
-  lines.push('Best streak ever: ' + streakData.best + ' days');
-  lines.push('Perfect 100% days: ' + streakData.total);
-  lines.push('');
-  lines.push('== DAILY COMPLETION ==');
+  // ============================== HEADER ==============================
+  push('YOUR LIFE - YOUR TIMELINE -- FULL DATA EXPORT');
+  push(rangeLabel + ' | ' + dateRange);
+  push('Generated ' + new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));
+  push('Note: weekly-scoped sections (recurring schedule, laundry, calls, content/product) cover the whole week any day in range touches.');
+
+  hdr('OVERVIEW');
+  push('Days tracked: ' + daysInRange.length);
+  push('Average completion: ' + avgCompletion + '%');
+  push('Current streak: ' + streakData.current + ' days');
+  push('Best streak ever: ' + streakData.best + ' days');
+  push('Perfect 100% days: ' + streakData.total);
+  push('Revenue in range: ' + expMoney(totalRev) + '  |  Contractor payouts: ' + expMoney(totalPay) + '  |  Net: ' + expMoney(totalRev-totalPay));
+
+  // ============================== WHY / GOALS / RULES ==============================
+  hdr('WHY I DO THIS (mission statements)');
+  (Array.isArray(mission)?mission:[]).forEach(function(m){push('  - '+m);});
+  if(!(Array.isArray(mission)&&mission.length))push('  (none set)');
+
+  hdr('GOALS');
+  goals.forEach(function(g){push('  ['+(g.done?'DONE':'open')+'] '+g.text);});
+  if(!goals.length)push('  (none set)');
+
+  hdr('MY RULE');
+  push('  ' + stopRule);
+
+  // ============================== DAY BY DAY ==============================
+  hdr('DAILY COMPLETION (overall / business / life)');
+  push('date        bar          overall  biz   life  self-check  mood');
   daysInRange.forEach(function(k){
+    var c = computeDayPct(k);
     var pct = hist[k] || 0;
     var filled = Math.round(pct/10);
     var bar = '';
     for(var i=0;i<10;i++) bar += i < filled ? '#' : '-';
-    lines.push(k + '  [' + bar + ']  ' + pct + '%');
+    var sc = ld('selfCheck',{})[k] || '-';
+    var entry = journals[k] ? getJournalEntry(journals,k) : null;
+    var mood = entry && entry.mood && moodByKey(entry.mood) ? moodByKey(entry.mood).l : '-';
+    push(k + '  [' + bar + ']  ' + (pct+'%   ').slice(0,6)
+      + '  ' + ((c.bPct+'%')+'   ').slice(0,5)
+      + ' ' + ((c.pPct+'%')+'   ').slice(0,5)
+      + ' ' + (sc+'          ').slice(0,11)
+      + ' ' + mood);
   });
-  lines.push('');
 
-  // Group tasks by section
+  // ============================== TASK BREAKDOWN ==============================
   var sections = {};
   Object.values(taskBreakdown).forEach(function(t){
     if(!sections[t.sec]) sections[t.sec] = [];
     sections[t.sec].push(t);
   });
-  lines.push('== TASK BREAKDOWN (sorted by completion rate) ==');
+  hdr('TASK BREAKDOWN (sorted by completion rate)');
   Object.entries(sections).forEach(function(entry){
     var sec = entry[0]; var tasks = entry[1];
-    lines.push('');
-    lines.push('[' + sec.toUpperCase() + ']');
+    push('');
+    push('[' + sec.toUpperCase() + ']');
     tasks.sort(function(a,b){
       var ra = a.total ? a.done/a.total : 0;
       var rb = b.total ? b.done/b.total : 0;
@@ -5284,33 +5459,403 @@ function doExport() {
     }).forEach(function(t){
       var pct = t.total ? Math.round(t.done/t.total*100) : 0;
       var flag = pct >= 80 ? 'STRONG' : pct >= 50 ? 'OK' : 'WEAK';
-      lines.push('  [' + flag + '] ' + t.name + ' -- ' + pct + '% (' + t.done + '/' + t.total + ' days)');
+      push('  [' + flag + '] ' + t.name + ' -- ' + pct + '% (' + t.done + '/' + t.total + ' days)');
     });
   });
-  lines.push('');
 
-  lines.push('== REVENUE ==');
-  lines.push('Total: $' + Math.round(totalRev).toLocaleString());
-  if(bestRevDay) lines.push('Best day: $' + Math.round(bestRevDay[1]).toLocaleString() + ' on ' + fmtDate(bestRevDay[0]));
-  lines.push('');
-  lines.push('Log:');
+  // ============================== TIMED CHECKS ==============================
+  hdr('TIMED CHECKS (wake up / hard shutdown vs target)');
+  var anyTimed=false;
+  Object.keys(timedStats).forEach(function(id){
+    var t=timedStats[id];
+    if(!t.hits.length)return;
+    anyTimed=true;
+    var avg=Math.round(t.hits.reduce(function(s,h){return s+(Number(h.late)||0);},0)/t.hits.length);
+    var onTime=t.hits.filter(function(h){return Number(h.late)<=0;}).length;
+    push('');
+    push('[' + t.name.toUpperCase() + ' -- target ' + t.target + ']');
+    push('  Logged ' + t.hits.length + ' times | avg ' + expLate(avg) + ' | hit target ' + onTime + '/' + t.hits.length + ' (' + Math.round(onTime/t.hits.length*100) + '%)');
+    t.hits.sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(h){
+      push('  ' + h.date + '  ' + (h.ts||'') + '  ' + expLate(h.late));
+    });
+  });
+  if(!anyTimed)push('  (no timed checks logged in range)');
+
+  // ============================== BURSTS ==============================
+  hdr('DAILY BURSTS (actual minutes clocked vs target)');
+  var bt=ld('burstTimes',{});
+  var tg=burstTargets();
+  var burstNames={m:'Morning',b:'Business',e:'Evening'};
+  ['m','b','e'].forEach(function(w){
+    var runs=daysInRange.filter(function(k){return bt[k]&&bt[k][w];}).map(function(k){return {date:k,min:bt[k][w]};});
+    push('');
+    push('[' + burstNames[w].toUpperCase() + ' BURST -- target ' + tg[w] + 'm]');
+    if(!runs.length){push('  (never clocked in range)');return;}
+    var sum=runs.reduce(function(s,r){return s+r.min;},0);
+    var best=runs.reduce(function(m,r){return Math.min(m,r.min);},99999);
+    push('  Runs: ' + runs.length + ' | avg ' + Math.round(sum/runs.length) + 'm | fastest ' + best + 'm | under target ' + runs.filter(function(r){return r.min<=tg[w];}).length + '/' + runs.length);
+    runs.forEach(function(r){push('  ' + r.date + '  ' + r.min + 'm  (' + (r.min-tg[w]>0?'+':'') + (r.min-tg[w]) + ' vs target)');});
+  });
+
+  // ============================== HOURS BY BUCKET ==============================
+  hdr('HOURS BY BUCKET');
+  var hoursData=ld('hoursLog',{});
+  var bucketTotals={};
+  var hoursDays=daysInRange.filter(function(k){return hoursData[k]&&Object.keys(hoursData[k]).length;});
+  HOUR_BUCKETS.forEach(function(b){bucketTotals[b.k]=0;});
+  hoursDays.forEach(function(k){
+    HOUR_BUCKETS.forEach(function(b){bucketTotals[b.k]+=(hoursData[k][b.k]||0);});
+  });
+  var grandHours=HOUR_BUCKETS.reduce(function(s,b){return s+bucketTotals[b.k];},0);
+  push('Total logged: ' + grandHours + 'h across ' + hoursDays.length + ' days (avg ' + (hoursDays.length?(grandHours/hoursDays.length).toFixed(1):0) + 'h/day)');
+  HOUR_BUCKETS.forEach(function(b){
+    var pct=grandHours?Math.round(bucketTotals[b.k]/grandHours*100):0;
+    push('  ' + (b.l+'            ').slice(0,14) + bucketTotals[b.k] + 'h  (' + pct + '% of logged time)');
+  });
+  if(hoursDays.length){
+    push('');
+    push('Per day:');
+    hoursDays.forEach(function(k){
+      var d=hoursData[k];
+      var parts=HOUR_BUCKETS.filter(function(b){return d[b.k];}).map(function(b){return b.l+' '+d[b.k]+'h';});
+      var dTot=HOUR_BUCKETS.reduce(function(s,b){return s+(d[b.k]||0);},0);
+      push('  ' + k + '  ' + dTot + 'h total  -- ' + parts.join(', '));
+    });
+  }
+
+  // ============================== TODAY LIST HISTORY ==============================
+  hdr('TODAY LIST HISTORY (what got put on the day, time spent, carried-over)');
+  var tls=ld('todayLists',{});
+  var tlDays=daysInRange.filter(function(k){return tls[k]&&tls[k].length;});
+  var tlTotal=0,tlDone=0,tlClient=0,tlTimedMs=0,tlTimedN=0;
+  tlDays.forEach(function(k){
+    var items=tls[k]||[];
+    push('');
+    push('[' + k + ' -- ' + items.filter(function(i){return i.done;}).length + '/' + items.length + ' done]');
+    items.forEach(function(i){
+      tlTotal++;
+      if(i.done)tlDone++;
+      if(i.tag==='client')tlClient++;
+      var ms=(i.spentMs||0);
+      if(ms){tlTimedMs+=ms;tlTimedN++;}
+      var bits=[];
+      bits.push(i.done?'DONE':'not done');
+      bits.push(i.tag==='client'?'CLIENT':'internal');
+      if(i.ts)bits.push('checked '+i.ts);
+      if(ms)bits.push('took '+fmtDurMs(ms));
+      if(i.carriedFrom){
+        var age=Math.round((new Date(k.split('-')[0],k.split('-')[1]-1,k.split('-')[2])-new Date(i.carriedFrom.split('-')[0],i.carriedFrom.split('-')[1]-1,i.carriedFrom.split('-')[2]))/86400000);
+        bits.push('carried from '+i.carriedFrom+' (day '+(age+1)+' on the list)');
+      }
+      if(i.todoId)bits.push('from to-do queue');
+      push('  - ' + i.name + '  [' + bits.join(' | ') + ']');
+    });
+  });
+  if(!tlDays.length)push('  (nothing on the today list in range)');
+  else{
+    push('');
+    push('Today List totals: ' + tlDone + '/' + tlTotal + ' completed (' + (tlTotal?Math.round(tlDone/tlTotal*100):0) + '%) | '
+      + tlClient + ' client-tagged | ' + tlTimedN + ' timed, avg ' + (tlTimedN?fmtDurMs(Math.round(tlTimedMs/tlTimedN)):'n/a') + ' per task');
+  }
+
+  // ============================== TO-DO QUEUE ==============================
+  hdr('TO-DO QUEUE (business — looming, no deadline)');
+  var todoActive=todos.filter(function(t){return !t.completedAt;});
+  var todoDone=todos.filter(function(t){return !!t.completedAt;});
+  push('Open: ' + todoActive.length + ' | Completed all-time: ' + todoDone.length);
+  push('');
+  push('Open items (in his order):');
+  todoActive.forEach(function(t,i){
+    push('  ' + (i+1) + '. ' + t.name + (t.dur?'  [est '+t.dur+']':''));
+  });
+  if(!todoActive.length)push('  (empty)');
+  var todoDoneRange=todoDone.filter(function(t){return dateInRange(String(t.completedAt).slice(0,10),start,end);});
+  push('');
+  push('Completed in range (' + todoDoneRange.length + '):');
+  todoDoneRange.sort(function(a,b){return String(a.completedAt).localeCompare(String(b.completedAt));}).forEach(function(t){
+    push('  ' + String(t.completedAt).slice(0,10) + '  ' + t.name);
+  });
+  if(!todoDoneRange.length)push('  (none)');
+
+  // ============================== PERSONAL TO-DO ==============================
+  hdr('PERSONAL TO-DO (life admin -- with how long each has been sitting)');
+  var pOpen=personalTodos.filter(function(t){return !t.done;}).slice().sort(function(a,b){return pTodoAge(b)-pTodoAge(a);});
+  var pDoneList=personalTodos.filter(function(t){return t.done;});
+  push('Open: ' + pOpen.length + ' | Done: ' + pDoneList.length);
+  if(pOpen.length){
+    var oldest=pTodoAge(pOpen[0]);
+    var stale=pOpen.filter(function(t){return pTodoAge(t)>=7;}).length;
+    push('Oldest open item: ' + oldest + ' days | items sitting 7+ days: ' + stale);
+  }
+  push('');
+  push('Open (oldest first):');
+  pOpen.forEach(function(t){
+    var a=pTodoAge(t);
+    push('  [' + (a>=7?'STALE':a>=3?'AGING':'fresh ') + '] ' + t.text + ' -- ' + pTodoAgeLabel(a) + ' (added ' + pTodoCreated(t) + ')');
+  });
+  if(!pOpen.length)push('  (empty)');
+  push('');
+  push('Done:');
+  pDoneList.forEach(function(t){
+    push('  ' + t.text + (t.ts?'  -- checked '+t.ts:'') + '  (added ' + pTodoCreated(t) + ', sat ' + pTodoAge(t) + 'd)');
+  });
+  if(!pDoneList.length)push('  (none)');
+
+  // ============================== KNOCK IT OFF ==============================
+  hdr('KNOCK IT OFF (the stop list -- did you or didn\'t you)');
+  var sh=ld('stopHits',{});
+  var lineStats={};
+  stopList.forEach(function(l){lineStats[l]={held:0,broke:0};});
+  var stopDays=daysInRange.filter(function(k){return sh[k]&&Object.keys(sh[k]).length;});
+  stopDays.forEach(function(k){
+    Object.keys(sh[k]).forEach(function(line){
+      if(!lineStats[line])lineStats[line]={held:0,broke:0};
+      if(sh[k][line]==='n')lineStats[line].held++;      // 'n' = didn't do it = held the line
+      else if(sh[k][line]==='y')lineStats[line].broke++; // 'y' = did the thing he's trying to stop
+    });
+  });
+  push('Days answered: ' + stopDays.length);
+  push('');
+  push('Per line (held = you did NOT do it):');
+  Object.keys(lineStats).sort(function(a,b){
+    var ra=lineStats[a].held+lineStats[a].broke, rb=lineStats[b].held+lineStats[b].broke;
+    var pa=ra?lineStats[a].held/ra:0, pb=rb?lineStats[b].held/rb:0;
+    return pa-pb; // worst first — that's the useful end
+  }).forEach(function(l){
+    var st=lineStats[l];
+    var tot=st.held+st.broke;
+    var pct=tot?Math.round(st.held/tot*100):0;
+    push('  [' + (tot?pct+'% held':'no data') + '] ' + l + '  (held ' + st.held + ', broke ' + st.broke + ', answered ' + tot + ')');
+  });
+  push('');
+  push('Per day:');
+  stopDays.forEach(function(k){
+    var d=sh[k];
+    var held=Object.keys(d).filter(function(l){return d[l]==='n';}).length;
+    var ans=Object.keys(d).length;
+    var broke=Object.keys(d).filter(function(l){return d[l]==='y';});
+    push('  ' + k + '  held ' + held + '/' + ans + ' answered (of ' + stopList.length + ' lines)' + (broke.length?'  -- broke: '+broke.join(' ; '):''));
+  });
+  if(!stopDays.length)push('  (no answers in range)');
+
+  // ============================== DAYS WITHOUT ==============================
+  hdr('DAYS WITHOUT (alcohol / tobacco / weed)');
+  SMOKE_KINDS.forEach(function(kind){
+    var map=(smokeFree[kind.key])||{};
+    var st=smokeStreak(map);
+    var cleanInRange=daysInRange.filter(function(k){return map[k];}).length;
+    var label=kind.label.replace(/&#\d+;/g,'').trim();
+    push('  ' + (label+'          ').slice(0,12) + 'current streak ' + st.current + 'd | longest ' + st.best + 'd | clean ' + cleanInRange + '/' + daysInRange.length + ' days in range');
+  });
+
+  // ============================== CALL FAMILY ==============================
+  hdr('CALL FAMILY');
+  var people=ld('callPeople',DEF_CALLS);
+  var cLog=ld('callLog',[]);
+  people.forEach(function(pn){
+    var mine=cLog.filter(function(e){return e.pid===pn.id;}).sort(function(a,b){return a.ts-b.ts;});
+    var inR=mine.filter(function(e){
+      var d=new Date(e.ts);
+      return dateInRange(d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),start,end);
+    });
+    var last=mine.length?mine[mine.length-1].ts:null;
+    var since=last?Math.floor((Date.now()-last)/86400000):null;
+    push('  ' + (pn.name+'            ').slice(0,14) + 'target ' + pn.target + '/wk | ' + inR.length + ' calls in range | last: '
+      + (last?fmtCallStamp(last)+' ('+since+'d ago)':'never logged'));
+  });
+  if(!people.length)push('  (nobody on the list)');
+
+  // ============================== LAUNDRY + GROCERY ==============================
+  hdr('LAUNDRY (by week)');
+  weeksInRange.forEach(function(wk){
+    var w=ld('laundry_'+wk,null);
+    if(!w||!Array.isArray(w.loads)){push('  ' + wk + '  (no data)');return;}
+    var full=w.loads.filter(function(l){return l.washAt&&l.dryAt&&l.foldAt;}).length;
+    var unfolded=w.loads.filter(function(l){return l.dryAt&&!l.foldAt;}).length;
+    var stuck=w.loads.filter(function(l){return l.washAt&&!l.dryAt;}).length;
+    push('  ' + wk + '  ' + full + '/' + w.loads.length + ' loads fully done'
+      + (unfolded?'  | '+unfolded+' washed+dried but never folded':'')
+      + (stuck?'  | '+stuck+' left in the washer':''));
+  });
+  if(!weeksInRange.length)push('  (no weeks in range)');
+
+  hdr('GROCERY RESTOCK (current list)');
+  var groc=ld('grocery',[]);
+  groc.forEach(function(g){push('  [' + (g.got?'picked up':'needed   ') + '] ' + g.name);});
+  if(!groc.length)push('  (nothing needed)');
+
+  // ============================== RECURRING SCHEDULE ==============================
+  hdr('RECURRING WEEKLY SCHEDULE');
+  var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  weekly.forEach(function(w){
+    push('  ' + w.name + (w.dur?'  ('+w.dur+')':'') + '  -- ' + (w.days||[]).map(function(d){return DOW[d];}).join(', '));
+  });
+  if(!weekly.length)push('  (nothing recurring)');
+  var arch=ld('weeklyArchive',[]).filter(function(a){return dateInRange(a.date,start,end);});
+  if(arch.length){
+    push('');
+    push('Recurring completions logged in range:');
+    arch.sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(a){
+      push('  ' + a.date + '  ' + a.name + (a.ts?'  ('+a.ts+')':''));
+    });
+  }
+
+  // ============================== REVENUE ==============================
+  hdr('REVENUE');
+  push('Total: ' + expMoney(totalRev) + ' across ' + revInRange.length + ' entries');
+  if(bestRevDay) push('Best day: ' + expMoney(bestRevDay[1]) + ' on ' + fmtDate(bestRevDay[0]));
+  if(daysInRange.length) push('Avg per tracked day: ' + expMoney(totalRev/daysInRange.length));
+  push('');
+  push('Log:');
   revInRange.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(r){
-    lines.push('  ' + fmtDate(r.date) + '  $' + Number(r.amount).toLocaleString() + '  ' + r.job);
+    push('  ' + r.date + '  ' + expMoney(r.amount) + '  ' + r.job + (r.stage?'  [auto-logged: '+r.stage+']':''));
   });
-  lines.push('');
+  if(!revInRange.length)push('  (no revenue logged in range)');
 
-  lines.push('== JOURNAL ENTRIES ==');
-  journalsInRange.forEach(function(k){
-    var pct = hist[k] || 0;
-    var entry = getJournalEntry(journals,k);
-    lines.push('');
-    lines.push('[' + k + (entry.title?' -- '+entry.title:'') + ' -- ' + pct + '% completion day' + (entry.mood&&moodByKey(entry.mood)?' -- mood: '+moodByKey(entry.mood).l:'') + ']');
-    lines.push(entry.text);
-    lines.push('---');
+  hdr('CONTRACTOR PAYOUTS');
+  push('Total paid out: ' + expMoney(totalPay));
+  var byWho={};
+  contractorData.forEach(function(c){byWho[c.name]=(byWho[c.name]||0)+(Number(c.amount)||0);});
+  Object.keys(byWho).forEach(function(n){push('  ' + n + ': ' + expMoney(byWho[n]));});
+  push('');
+  contractorData.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).forEach(function(c){
+    push('  ' + c.date + '  ' + expMoney(c.amount) + '  ' + c.name);
   });
-  lines.push('');
-  lines.push('== SUGGESTED AI PROMPT ==');
-  lines.push(document.getElementById('suggestedPrompt').textContent);
+  if(!contractorData.length)push('  (none in range)');
+
+  // ============================== PROJECTS (incl. notes) ==============================
+  hdr('PROJECT BOARD (all projects, with notes)');
+  projects.forEach(function(pj){
+    var st=pj.stages||{};
+    var stageTxt=['contract','deposit','delivered','final'].map(function(s){return (st[s]?'[x] ':'[ ] ')+s;}).join('  ');
+    var total=(Number(pj.amount)||0)+(Number(pj.addons)||0);
+    push('');
+    push('[' + pj.name + ']' + (pj.client?'  client: '+pj.client:''));
+    push('  Value: ' + expMoney(pj.amount) + (Number(pj.addons)?'  + add-ons ' + expMoney(pj.addons) + '  = ' + expMoney(total):''));
+    push('  Stages: ' + stageTxt);
+    var dts=[];
+    if(pj.startDate)dts.push('start '+pj.startDate);
+    if(pj.shootDate)dts.push('shoot '+pj.shootDate);
+    if(pj.dueDate){
+      var dd=daysSinceKey(pj.dueDate);
+      dts.push('due '+pj.dueDate+(dd!==null?(dd>0?' ('+dd+'d PAST DUE)':dd===0?' (due today)':''):''));
+    }
+    if(dts.length)push('  Dates: ' + dts.join(' | '));
+    var owed=[];
+    if(!st.deposit)owed.push('deposit');
+    if(!st.final)owed.push('final');
+    if(owed.length)push('  Awaiting payment: ' + owed.join(' + '));
+    if(pj.notes&&String(pj.notes).trim()){
+      push('  NOTES:');
+      String(pj.notes).split('\n').forEach(function(ln){push('    ' + ln);});
+    }
+  });
+  if(!projects.length)push('  (no projects on the board)');
+
+  // ============================== PIPELINE ==============================
+  hdr('PIPELINE');
+  var byStage={};
+  PIPE_STAGES.forEach(function(s){byStage[s.k]=[];});
+  pipeline.forEach(function(pl){(byStage[pl.stage]||(byStage[pl.stage]=[])).push(pl);});
+  var pipeValue=pipeline.filter(function(pl){return ['contacted','talked','proposal'].indexOf(pl.stage)>=0;})
+    .reduce(function(s,pl){return s+(Number(pl.value)||0);},0);
+  push('Leads: ' + pipeline.length + ' | open pipeline value: ' + expMoney(pipeValue));
+  push('Touches per week: ' + weeksInRange.map(function(w){return w+'='+(pipeTouches[w]||0);}).join(', '));
+  PIPE_STAGES.forEach(function(s){
+    var group=byStage[s.k]||[];
+    if(!group.length)return;
+    push('');
+    push('[' + s.l.toUpperCase() + ' -- ' + group.length + ']');
+    group.forEach(function(pl){
+      var stale=daysSinceKey(pl.lastTouch);
+      var old=daysSinceKey(pl.added);
+      push('  ' + pl.name + (pl.value?'  ('+expMoney(pl.value)+')':'')
+        + '  -- added ' + (pl.added||'?') + (old!==null?' ('+old+'d ago)':'')
+        + ', last touched ' + (pl.lastTouch||'never') + (stale!==null?' ('+stale+'d ago'+(stale>=14?' -- GOING COLD':'')+')':''));
+    });
+  });
+  if(!pipeline.length)push('  (pipeline empty)');
+
+  // ============================== CLIENT TARGETS ==============================
+  hdr('CLIENT TARGETS + PROSPECT BANK (with notes)');
+  clientTargets.forEach(function(ct){
+    push('');
+    push('[' + ct.type + ' -- ' + (ct.prospects||[]).length + ' prospects]');
+    (ct.prospects||[]).forEach(function(pr){
+      push('  - ' + pr.name + (pr.sentAt?'  [pushed to pipeline '+pr.sentAt+']':''));
+      if(pr.note&&pr.note.trim())push('      note: ' + pr.note);
+    });
+    if(!(ct.prospects||[]).length)push('  (no prospects banked yet)');
+  });
+  if(!clientTargets.length)push('  (no client types defined)');
+
+  // ============================== CONTENT IDEAS ==============================
+  hdr('CONTENT IDEAS');
+  var fresh=contentIdeas.filter(function(i){return !i.usedAt;});
+  var used=contentIdeas.filter(function(i){return !!i.usedAt;});
+  push('Fresh: ' + fresh.length + ' | used: ' + used.length);
+  push('');
+  push('Fresh (unposted):');
+  fresh.forEach(function(i){push('  - ' + i.name);});
+  if(!fresh.length)push('  (bank is empty)');
+  push('');
+  push('Used:');
+  used.slice().sort(function(a,b){return String(a.usedAt).localeCompare(String(b.usedAt));}).forEach(function(i){
+    push('  ' + i.usedAt + '  ' + i.name);
+  });
+  if(!used.length)push('  (none)');
+
+  // ============================== WEEKLY BUSINESS ==============================
+  hdr('WEEKLY BUSINESS (Content + Product -- tracked per week)');
+  weeklyBizSummary.forEach(function(w){
+    push('');
+    push('[' + w.week + ']');
+    push('  Content: ' + w.cDone.length + '/' + bizContent.length + (w.cDone.length?'  -- '+w.cDone.map(function(t){return t.name;}).join(', '):''));
+    push('  Product: ' + w.pDone.length + '/' + bizProduct.length + (w.pDone.length?'  -- '+w.pDone.map(function(t){return t.name;}).join(', '):''));
+  });
+  if(!weeklyBizSummary.length)push('  (no weeks in range)');
+
+  // ============================== SYSTEM UPDATE NOTES ==============================
+  hdr('SYSTEM UPDATE NOTES (what he changed, every note)');
+  var sl=sysLog.filter(function(e){return dateInRange(e.date,start,end);});
+  push('Entries in range: ' + sl.length + ' (all-time: ' + sysLog.length + ')');
+  push('');
+  sl.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).forEach(function(e){
+    push('  ' + e.date + '  [' + e.task + ']');
+    push('    ' + e.note);
+  });
+  if(!sl.length)push('  (no system notes in range)');
+
+  // ============================== NIGHT-BEFORE PLANS ==============================
+  hdr('NIGHT-BEFORE PLANS (what he said he\'d do vs the day he had)');
+  var plans=ld('dayPlans',{});
+  var planDays=Object.keys(plans).filter(function(k){return dateInRange(k,start,end);}).sort();
+  planDays.forEach(function(k){
+    push('');
+    push('[' + k + ' -- day ended at ' + (hist[k]||0) + '%]');
+    String(plans[k]).split('\n').forEach(function(ln){push('  ' + ln);});
+  });
+  if(!planDays.length)push('  (no plans written in range)');
+
+  // ============================== JOURNAL ==============================
+  hdr('JOURNAL ENTRIES');
+  journalsInRange.forEach(function(k){
+    var c = computeDayPct(k);
+    var entry = getJournalEntry(journals,k);
+    var sc = ld('selfCheck',{})[k];
+    push('');
+    push('[' + k + (entry.title?' -- '+entry.title:'') + ']');
+    push('  day ' + c.pct + '% overall (business ' + c.bPct + '%, life ' + c.pPct + '%)'
+      + (entry.mood&&moodByKey(entry.mood)?' | mood: '+moodByKey(entry.mood).l:'')
+      + (sc?' | operated as: '+sc+' self':''));
+    push(entry.text);
+    push('---');
+  });
+  if(!journalsInRange.length)push('  (no entries in range)');
+
+  // ============================== PROMPT ==============================
+  hdr('SUGGESTED AI PROMPT');
+  push(document.getElementById('suggestedPrompt').textContent);
 
   var out = lines.join('\n');
   var blob = new Blob([out], {type:'text/plain'});
@@ -5318,7 +5863,41 @@ function doExport() {
   var a = document.createElement('a');
   var dateSlug = new Date().toISOString().slice(0,10);
   a.href = url;
-  a.download = 'dailyos-' + exportRange + '-' + dateSlug + '.txt';
+  a.download = 'lifetimeline-' + exportRange + '-' + dateSlug + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  closeExportModal();
+}
+
+// Raw dump — every key this app owns, exactly as stored. Nothing summarized,
+// nothing dropped. This is the backup / the "give the AI literally everything"
+// option. Ignores the range filter on purpose.
+function doExportRaw(){
+  var data={};
+  var skipped=0;
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(!k)continue;
+    if(k.slice(0,4)==='_ts_'||k.slice(0,6)==='_gcal_'){skipped++;continue;} // sync + auth internals
+    try{data[k]=JSON.parse(localStorage.getItem(k));}
+    catch(e){data[k]=localStorage.getItem(k);}
+  }
+  var out={
+    _meta:{
+      app:'YOUR LIFE - YOUR TIMELINE',
+      exported:new Date().toISOString(),
+      exportedLocal:new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}),
+      keys:Object.keys(data).length,
+      internalKeysSkipped:skipped,
+      note:'Complete raw store. Day data lives under ds_YYYY-MM-DD, week data under ws_/wbiz_/laundry_/calls_ + week key. Every note field is included verbatim.'
+    },
+    data:data
+  };
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='lifetimeline-raw-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
   URL.revokeObjectURL(url);
   closeExportModal();
@@ -5660,6 +6239,7 @@ function reloadFromStorage(){
   clientTargets=ld('clientTargets',[]);
   try{ensureTimedTasks();}catch(e){}
   try{migrateStopHits();}catch(e){}
+  try{migratePersonalTodoDates();}catch(e){}
   loadJournalForDay();
   rolloverTodayList();
   renderAll();
@@ -5683,6 +6263,7 @@ function safeInit(){
     updateDayNav();
     ensureTimedTasks();
     migrateStopHits();
+    migratePersonalTodoDates();
     loadJournalForDay();
     rolloverTodayList();
     renderAll();
