@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>YOUR LIFE - YOUR TIMELINE</title>
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>window.Chart||document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
 <script type="module">
@@ -181,13 +183,13 @@ window.sync_from_cloud = function() {
 </script>
 <style>
 :root {
-  --y:#FFF3B0;--y2:#FFF3B018;--y3:#FFF3B044;
+  --y:#f2c94c;--y2:#f2c94c18;--y3:#f2c94c44;
   --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#1e1e1e;--bg5:#252525;
   --b:#1e1e1e;--b2:#2a2a2a;--b3:#333;
   --t:#f0f0f0;--t2:#888;--t3:#444;
   --green:#00d68f;--blue:#5b8dee;--purple:#a855f7;
   --coral:#ff6b6b;--teal:#14b8a6;--orange:#f97316;--pink:#ec4899;
-  --biz:#FFF3B0;
+  --biz:#f2c94c;
   --r:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -312,14 +314,14 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .smoke-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;flex-wrap:wrap;gap:4px;}
 .smoke-name{font-size:12px;font-weight:700;color:var(--t);}
 .smoke-stats{font-size:11px;color:var(--t2);}
-.smoke-stats b{color:#FED000;font-size:13px;}
+.smoke-stats b{color:#f2c94c;font-size:13px;}
 .sun-strip{display:flex;gap:2px;align-items:flex-end;overflow-x:auto;padding-bottom:2px;}
 .sun-cell{display:flex;flex-direction:column;align-items:center;gap:1px;flex:0 0 auto;}
 .sun-btn{background:none;border:none;padding:2px;cursor:pointer;line-height:0;border-radius:6px;}
 .sun-btn.today{outline:1px dashed var(--y3);outline-offset:1px;}
 .sun-btn svg{width:20px;height:20px;transition:all .15s;}
 .sun-btn .sun-off{fill:none;stroke:var(--t3);opacity:.45;}
-.sun-btn .sun-on{fill:#FED000;stroke:#FED000;filter:drop-shadow(0 0 4px rgba(254,208,0,.55));}
+.sun-btn .sun-on{fill:#f2c94c;stroke:#f2c94c;filter:drop-shadow(0 0 4px rgba(242,201,76,.55));}
 .sun-day{font-size:8px;color:var(--t3);}
 .mood-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
 .mood-chip{display:flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--b2);border-radius:20px;padding:3px 9px;font-size:13px;color:var(--t2);cursor:pointer;transition:all .12s;}
@@ -346,10 +348,10 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .task-row.overdue .task-name{color:var(--coral);font-weight:700;}
 .tag-pill{font-size:8px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:9px;border:1px solid var(--b3);color:var(--t2);background:transparent;cursor:pointer;flex-shrink:0;margin-top:3px;text-transform:uppercase;transition:all .15s;font-family:inherit;}
 .tag-pill:hover{border-color:var(--t2);}
-.tag-pill.client{color:#0a0a0a;background:#FED000;border-color:#FED000;box-shadow:0 0 6px rgba(254,208,0,.35);}
-.task-row.client-row{border-left:2px solid #FED000;padding-left:6px;background:rgba(254,208,0,.04);border-radius:4px;}
+.tag-pill.client{color:#0a0a0a;background:#f2c94c;border-color:#f2c94c;box-shadow:0 0 6px rgba(242,201,76,.35);}
+.task-row.client-row{border-left:2px solid #f2c94c;padding-left:6px;background:rgba(242,201,76,.04);border-radius:4px;}
 .task-row.client-row.overdue{border-left:2px solid var(--coral);}
-.client-count{font-size:9px;font-weight:800;color:#0a0a0a;background:#FED000;padding:2px 7px;border-radius:9px;letter-spacing:.05em;white-space:nowrap;}
+.client-count{font-size:9px;font-weight:800;color:#0a0a0a;background:#f2c94c;padding:2px 7px;border-radius:9px;letter-spacing:.05em;white-space:nowrap;}
 .due-fucker{color:var(--coral);font-weight:800;letter-spacing:.06em;text-transform:uppercase;animation:duePulse 1.3s ease-in-out infinite;}
 @keyframes duePulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
@@ -514,7 +516,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .stop-line b{color:var(--coral);font-weight:800;}
 .stop-yn{font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .stop-yn.yes-on{background:rgba(255,107,107,.18);border-color:var(--coral);color:var(--coral);}
-.stop-yn.no-on{background:rgba(255,243,176,.16);border-color:var(--y);color:var(--y);}
+.stop-yn.no-on{background:rgba(242,201,76,.16);border-color:var(--y);color:var(--y);}
 .stop-rule{font-size:11px;color:var(--coral);font-style:italic;margin-top:8px;padding-top:7px;border-top:1px dashed rgba(255,107,107,.3);line-height:1.4;}
 /* CALL FAMILY */
 #callList{column-count:2;column-gap:14px;}
@@ -525,7 +527,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .call-last.overdue{color:var(--coral);font-weight:700;}
 /* TODAY LIST TIMERS */
 .timer-btn{font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);cursor:pointer;transition:all .15s;white-space:nowrap;}
-.timer-btn.running{background:rgba(255,243,176,.16);border-color:var(--y);color:var(--y);animation:laundryPulse 2s infinite;}
+.timer-btn.running{background:rgba(242,201,76,.16);border-color:var(--y);color:var(--y);animation:laundryPulse 2s infinite;}
 .task-time{font-size:10px;color:var(--t2);white-space:nowrap;}
 .task-time.running{color:var(--y);font-weight:700;}
 /* TIMED CHECKS — late/early stamps */
@@ -534,7 +536,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .time-chip{display:inline-block;font-size:9px;font-weight:800;color:var(--y);border:1px solid var(--y3);border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:1px;}
 /* -- CHECKABLE GOALS (taller) -- */
 .goal-pill{font-size:15px;font-weight:800;color:var(--y);background:var(--bg3);border:1px solid var(--y3);border-radius:99px;padding:9px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .15s;user-select:none;}
-.goal-pill:hover{border-color:var(--y);background:rgba(255,243,176,.08);}
+.goal-pill:hover{border-color:var(--y);background:rgba(242,201,76,.08);}
 .goal-pill .g-chk{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--b2);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#000;flex-shrink:0;}
 .goal-pill.done{color:var(--t3);font-weight:700;border-color:var(--b2);}
 .goal-pill.done .g-txt{text-decoration:line-through;}
@@ -547,12 +549,12 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .plan-today-text.empty{color:var(--t3);font-style:italic;}
 .plan-ta{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:6px;color:var(--t);font-size:12px;padding:8px;min-height:56px;resize:vertical;font-family:inherit;}
 /* -- 4H BURST PACING -- */
-.task-row.pace-now{background:rgba(255,243,176,.10);border-left:3px solid var(--y);border-radius:6px;}
-.task-row.pace-behind{border-left:3px solid rgba(255,243,176,.35);border-radius:6px;}
+.task-row.pace-now{background:rgba(242,201,76,.10);border-left:3px solid var(--y);border-radius:6px;}
+.task-row.pace-behind{border-left:3px solid rgba(242,201,76,.35);border-radius:6px;}
 .min-chip{font-size:9px;font-weight:700;color:var(--t3);background:var(--bg3);border:1px solid var(--b);border-radius:99px;padding:2px 7px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .min-chip:hover{color:var(--y);border-color:var(--y3);}
 .burst-stat{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);padding:2px 0;}
-.burst-now{background:rgba(255,243,176,.08);border:1px solid var(--y3);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--y);margin-top:7px;line-height:1.4;}
+.burst-now{background:rgba(242,201,76,.08);border:1px solid var(--y3);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--y);margin-top:7px;line-height:1.4;}
 /* CAL EVENTS */
 .cal-event{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--b);}
 .cal-event:last-child{border-bottom:none;}
@@ -603,7 +605,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .day-nav-btn:disabled{opacity:.3;cursor:default;}
 .day-nav-label{font-size:14px;font-weight:700;color:var(--t);min-width:160px;text-align:center;}
 .day-nav-today{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--y);color:#000;font-weight:700;cursor:pointer;border:none;}
-.viewing-past{display:none;background:rgba(255,243,176,.08);border:1px solid var(--y3);border-radius:var(--r);padding:8px 14px;margin-bottom:10px;text-align:center;font-size:12px;color:var(--y);}
+.viewing-past{display:none;background:rgba(242,201,76,.08);border:1px solid var(--y3);border-radius:var(--r);padding:8px 14px;margin-bottom:10px;text-align:center;font-size:12px;color:var(--y);}
 .viewing-past.show{display:block;}
 /* PAST DAY READ-ONLY */
 .past-overlay{pointer-events:none;opacity:.7;}
@@ -628,6 +630,162 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .week-chk.done::after{content:'';position:absolute;top:1px;left:3px;width:4px;height:6px;border:1.5px solid #000;border-top:none;border-left:none;transform:rotate(45deg);}
 .week-drag-hint{font-size:9px;color:var(--t3);text-align:center;margin-top:6px;letter-spacing:.03em;}
 </style>
+<style id="uts-skin">
+/* ═══════════════ UTS PORTAL SKIN — visual layer only ═══════════════ */
+:root{
+  --y:#f2c94c; --y2:rgba(242,201,76,.09); --y3:rgba(242,201,76,.3);
+  --gold:#f2c94c; --gold-soft:#d8b654; --gold-pale:#fbe8a8;
+  --gold-glow:rgba(242,201,76,.32);
+  --bg:#0a0b0d; --bg2:#15171b; --bg3:#1c1f25; --bg4:#22262d; --bg5:#2a2e36;
+  --b:#1f2228; --b2:#2a2d34; --b3:#33363f;
+  --t:#f2f0ea; --t2:#9195a0; --t3:#5c606a;
+  --green:#4ade80; --teal:#22d3b0; --coral:#f0556b;
+  --biz:#f2c94c;
+  --r:13px;
+  --display:'Rajdhani',sans-serif; --bodyfont:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+body{
+  font-family:var(--bodyfont);
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(242,201,76,.09), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 100% 0%, rgba(34,211,176,.05), transparent 60%),
+    radial-gradient(ellipse 700px 400px at 50% 100%, rgba(242,201,76,.04), transparent 65%),
+    var(--bg);
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.dashboard{position:relative;z-index:1}
+::selection{background:var(--gold-glow)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ── sticky glass topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(10,11,13,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--b);border-bottom:1px solid var(--b2);border-radius:0 0 var(--r) var(--r);
+}
+.topbar-left svg{filter:drop-shadow(0 0 10px var(--gold-glow))}
+.topbar-title{
+  font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.12em;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--gold-pale),var(--t) 65%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.topbar-title span{-webkit-text-fill-color:var(--gold)}
+.clock{font-family:var(--display);font-weight:700;letter-spacing:.06em}
+.topbar-date{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em}
+.topbar-streak{font-family:var(--display);font-weight:700;letter-spacing:.05em}
+
+/* ── every card becomes a UTS gradient panel with the gold shimmer line ── */
+.card,.proj-card,.week-col,.target-type,.rev-stat,
+.mission-banner,.goals-banner,.stop-banner,.plan-card,.day-nav,.modal{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--b);
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 14px 30px -18px rgba(0,0,0,.6);
+  transition:border-color .2s;
+}
+.card,.proj-card{border-radius:var(--r);position:relative}
+.card::before,.proj-card::before,.mission-banner::before,.goals-banner::before,.plan-card::before{
+  content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(242,201,76,.35),transparent);opacity:.55;pointer-events:none;
+}
+.card:hover,.proj-card:hover{border-color:var(--b3)}
+.mission-banner,.goals-banner,.plan-card,.stop-banner{position:relative;border-radius:var(--r)}
+.stop-banner::before{
+  content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(240,85,107,.4),transparent);opacity:.6;pointer-events:none;
+}
+.mission-banner{border-left:3px solid var(--gold)}
+.goals-banner{border-left:3px solid var(--gold)}
+.stop-banner{border-left:3px solid var(--coral);background:linear-gradient(180deg,#211418,var(--bg2))}
+.plan-card{border-left:4px solid #5b8dee}
+
+/* ── card headers → UTS eyebrow style ── */
+.card-title{
+  font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--t);
+}
+.card-title .dot{box-shadow:0 0 10px var(--gold-glow)}
+.mission-label,.goals-label,.stop-label,.section-divider-label,.week-col-hd,
+.choose-label,.target-type-name,.proj-date-lbl,.plan-hd{
+  font-family:var(--display);letter-spacing:.09em;
+}
+.plan-hd{font-weight:700}
+
+/* ── big numbers → Rajdhani display ── */
+.big-stat,.sec-pct,.rev-stat .n,.proj-amt,.proj-amt-input,.hours-val,.corr-r,.day-nav-label{
+  font-family:var(--display);font-weight:700;letter-spacing:.02em;
+}
+.big-stat{text-shadow:0 0 24px rgba(242,201,76,.25)}
+
+/* ── mono accents (ids, dates, small meta) ── */
+.stat-lbl,.rev-stat .l,.rev-date-lbl,.task-ts,.task-dur,.task-time,.j-date,
+.pipe-sub,.prospect-note,.call-last,.week-item-time,.sun-day,.choose-note,
+.proj-dates,.await-sub,.card-internal{
+  font-family:var(--mono);letter-spacing:.04em;
+}
+
+/* ── pills / chips / tags → UTS tag look ── */
+.goal-pill,.tag-pill,.pipe-stage,.fpill,.stop-yn,.timer-btn,.laundry-chk,
+.min-chip,.trend-rng,.client-count,.day-nav-today,.topbar-streak,.time-chip,
+.section-divider-label,.mood-chip span,.w-tag,.collapse-btn,.prospect-btn{
+  font-family:var(--display);font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+}
+.goal-pill{background:var(--bg4);border:1px solid rgba(242,201,76,.28);color:var(--gold)}
+.goal-pill:hover{border-color:var(--gold);background:rgba(242,201,76,.07);box-shadow:0 0 14px -4px var(--gold-glow)}
+.goal-pill.done{color:var(--t3);border-color:var(--b2);box-shadow:none}
+.fpill.active,.tag-pill.client,.client-count,.day-nav-today,
+.s-dot.full,.chk.done,.laundry-chk.done{
+  background:linear-gradient(180deg,var(--gold-pale),var(--gold));border-color:var(--gold);color:#2b2103;
+}
+.chk.done{box-shadow:0 0 10px -2px var(--gold-glow)}
+.tag-pill.client{box-shadow:0 0 8px rgba(242,201,76,.35)}
+
+/* ── buttons → UTS gold gradient / ghost ── */
+.btn{font-family:var(--display);font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:9px;transition:.15s}
+.btn-y,.modal-confirm{
+  background:linear-gradient(180deg,var(--gold-pale),var(--gold));color:#2b2103;
+  box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 6px 16px -6px rgba(242,201,76,.5);
+}
+.btn-y:hover{opacity:1;filter:brightness(1.06);transform:translateY(-1px);
+  box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 10px 20px -6px rgba(242,201,76,.6)}
+.btn-ghost{background:none;border:1px solid var(--b2);color:var(--t2);font-weight:600}
+.btn-ghost:hover{color:var(--t);border-color:var(--t2)}
+.modal-cancel{font-family:var(--display);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+#loginBtn{font-family:var(--display) !important;font-weight:700 !important;letter-spacing:.05em;text-transform:uppercase}
+
+/* ── progress bars → gold gradient fills ── */
+.sec-track,.prog-track,.hours-bar-wrap,.proj-progress-track,.bal-bar{background:#20232a}
+.sec-fill,.prog-fill{transition:width .5s cubic-bezier(.4,1.4,.5,1)}
+
+/* ── inputs ── */
+.inp,.jta,.plan-ta,.proj-notes textarea,.proj-date-input,select{
+  background:var(--bg4);border:1px solid var(--b2);border-radius:9px;color:var(--t);
+}
+.inp:focus,.jta:focus,.plan-ta:focus,.proj-notes textarea:focus,.proj-date-input:focus{border-color:var(--gold)}
+.inp::placeholder,.jta::placeholder,.plan-ta::placeholder{color:var(--t3)}
+
+/* ── rows & dividers ── */
+.section-divider-label.business{color:var(--gold);border-color:rgba(242,201,76,.3);background:rgba(242,201,76,.08)}
+.task-row,.pipe-row,.hours-row,.rev-row,.j-entry,.cal-event,.await-row,.laundry-row,.call-row,.prospect-row{border-color:var(--b)}
+.task-row.pace-now{background:rgba(242,201,76,.08);border-left:3px solid var(--gold)}
+.task-row.client-row{border-left:2px solid var(--gold);background:rgba(242,201,76,.04)}
+.week-col.today-col{border-color:rgba(242,201,76,.35);background:linear-gradient(180deg,rgba(242,201,76,.10),var(--bg2))}
+.burst-now{background:rgba(242,201,76,.07);border-color:rgba(242,201,76,.3);color:var(--gold)}
+.viewing-past{background:rgba(242,201,76,.07);border-color:rgba(242,201,76,.3);color:var(--gold)}
+.toast{background:linear-gradient(180deg,var(--bg3),var(--bg2));border-color:var(--gold);border-radius:var(--r);
+  box-shadow:0 0 30px -8px var(--gold-glow),0 8px 30px rgba(0,0,0,.6)}
+.modal{border-radius:16px 16px 0 0;border-color:var(--b2)}
+.modal-title{font-family:var(--display);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── scrollbars ── */
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border:2px solid var(--bg)}
+html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
+
+/* keep goal-check circle readable on gold */
+.goal-pill .g-chk{border-color:var(--b3)}
+.goal-pill.done .g-chk{background:var(--green);border-color:var(--green)}
+</style>
+
 </head>
 <body>
 <div class="dashboard">
@@ -1201,7 +1359,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 <!-- DAYS WITHOUT — stays at the bottom -->
 <div class="card" style="margin-bottom:10px;">
   <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:#FED000"></span>Days Without</div>
+    <div class="card-title"><span class="dot" style="background:#f2c94c"></span>Days Without</div>
     <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap Clean each day you go without &mdash; cut it all down</div>
   </div>
   <div id="smokeRows"></div>
@@ -1755,10 +1913,10 @@ function renderStopChart(){
     data:{labels:labels,datasets:[{
       label:'% held',
       data:vals,
-      borderColor:'#FFF3B0',
-      backgroundColor:'rgba(255,243,176,0.08)',
+      borderColor:'#f2c94c',
+      backgroundColor:'rgba(242,201,76,0.08)',
       fill:true,tension:0.35,
-      pointBackgroundColor:'#FFF3B0',
+      pointBackgroundColor:'#f2c94c',
       pointRadius:2,pointHitRadius:6,borderWidth:2
     }]},
     options:{responsive:true,maintainAspectRatio:false,animation:false,
@@ -3053,7 +3211,7 @@ const PIPE_STAGES=[
   {k:'cold',l:'Cold',c:'#888'},
   {k:'contacted',l:'Contacted',c:'#5b8dee'},
   {k:'talked',l:'Talked',c:'#14b8a6'},
-  {k:'proposal',l:'Proposal',c:'#FFF3B0'},
+  {k:'proposal',l:'Proposal',c:'#f2c94c'},
   {k:'won',l:'Won',c:'#00d68f'},
   {k:'lost',l:'Lost',c:'#555'}
 ];
@@ -3137,7 +3295,7 @@ function delLead(btn){
 
 // -- HOURS BY BUCKET ------------------------------------------------------------
 const HOUR_BUCKETS=[
-  {k:'edit',l:'Editing',c:'#FFF3B0'},
+  {k:'edit',l:'Editing',c:'#f2c94c'},
   {k:'shoot',l:'Shooting',c:'#ec4899'},
   {k:'admin',l:'Admin',c:'#5b8dee'},
   {k:'pipe',l:'Pipeline',c:'#ff6b6b'},
@@ -3510,10 +3668,10 @@ function renderTrendChart(hist){
       {
         label:'Business',
         data:bizVals,
-        borderColor:'#FFF3B0',
-        backgroundColor:'rgba(255,243,176,0.06)',
+        borderColor:'#f2c94c',
+        backgroundColor:'rgba(242,201,76,0.06)',
         fill:false,tension:0.35,spanGaps:true,
-        pointBackgroundColor:'#FFF3B0',
+        pointBackgroundColor:'#f2c94c',
         pointRadius:long?0:2,
         pointHitRadius:6,
         borderWidth:long?1.5:2
@@ -3663,7 +3821,7 @@ function renderCompChart(hist){
   const ctx=compCanvas.getContext('2d');
   compChart=new Chart(ctx,{
     type:'bar',
-    data:{labels,datasets:[{data:values,backgroundColor:values.map(v=>v===100?'#FFF3B0':v>50?'#FFF3B066':'#FFF3B022'),borderRadius:3}]},
+    data:{labels,datasets:[{data:values,backgroundColor:values.map(v=>v===100?'#f2c94c':v>50?'#f2c94c66':'#f2c94c22'),borderRadius:3}]},
     options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#444',font:{size:9},maxTicksLimit:8},grid:{color:'#161616'}},
               y:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'},min:0,max:100}}}
@@ -4253,7 +4411,7 @@ function renderRevenue(){
     if(revCanvas){
       const ctx=revCanvas.getContext('2d');
       revChart=new Chart(ctx,{type:'line',
-        data:{labels:sorted.map(([k])=>fmtDate(k)),datasets:[{data:sorted.map(([,v])=>Math.round(v)),borderColor:'#FFF3B0',backgroundColor:'rgba(255,243,176,0.07)',fill:true,tension:0.4,pointBackgroundColor:'#FFF3B0',pointRadius:3,borderWidth:2}]},
+        data:{labels:sorted.map(([k])=>fmtDate(k)),datasets:[{data:sorted.map(([,v])=>Math.round(v)),borderColor:'#f2c94c',backgroundColor:'rgba(242,201,76,0.07)',fill:true,tension:0.4,pointBackgroundColor:'#f2c94c',pointRadius:3,borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
           scales:{x:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'}},
                   y:{ticks:{color:'#444',font:{size:9},callback:v=>'$'+v},grid:{color:'#161616'},beginAtZero:true}}}
