@@ -34,6 +34,10 @@ const provider = new GoogleAuthProvider();
 // Ask for read-only Calendar access alongside the normal sign-in — one Google
 // login now covers both cloud sync AND "Scheduled Today" auto-fill.
 provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
+// Force the full consent screen every time, so the Calendar permission is
+// always explicitly shown/re-granted instead of Google silently reusing an
+// older, narrower approval that doesn't include it.
+provider.setCustomParameters({ prompt: 'consent' });
 
 let UID = null;
 
@@ -1644,7 +1648,9 @@ async function fetchGCalEvents(dateKey){
       +'&singleEvents=true&orderBy=startTime&maxResults=20';
     var res=await fetch(url,{headers:{Authorization:'Bearer '+window.googleAccessToken}});
     if(res.status===401||res.status===403){
-      // token expired or revoked — drop it so the UI falls back to "connect" mode
+      // token expired, revoked, or missing the calendar scope — log the real
+      // reason (visible in the browser console) instead of failing silently
+      try{ console.warn('Google Calendar fetch rejected:', res.status, await res.text()); }catch(e){}
       window.googleAccessToken=null;window.googleAccessTokenExpiry=0;
       try{localStorage.removeItem('_gcal_token');localStorage.removeItem('_gcal_token_exp');}catch(e){}
       if(dateKey===viewKey())renderCalEvents();
