@@ -943,6 +943,55 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 <div class="viewing-past" id="viewingPast">📅 Viewing past day — read only</div>
 
+<!-- ═══ ROW 1: TRACKING HQ — full width so the graphs breathe ═══ -->
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-hd">
+      <div class="card-title"><span class="dot" style="background:var(--y)"></span>Today Overall</div>
+      <div class="big-stat" id="overallPct" style="font-size:40px;">0%</div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+      <div style="flex:2;min-width:180px;">
+        <div class="sec-track"><div class="sec-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--y),#ffb300)"></div></div>
+      </div>
+      <span style="font-size:10px;color:var(--t2);white-space:nowrap;" id="overallSub">0 of 0 complete</span>
+      <div style="flex:1;min-width:120px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Personal <span id="personalPct" style="color:var(--green);font-weight:700;font-size:18px;">0%</span></div>
+        <div class="sec-track"><div class="sec-fill" id="personalBar" style="width:0%;background:var(--green)"></div></div>
+      </div>
+      <div style="flex:1;min-width:120px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Business <span id="bizSplitPct" style="color:var(--y);font-weight:700;font-size:18px;">0%</span></div>
+        <div class="sec-track"><div class="sec-fill" id="bizSplitBar" style="width:0%;background:var(--y)"></div></div>
+      </div>
+    </div>
+    <div id="testChartBlock">
+      <div class="stat-lbl" style="margin-bottom:4px;color:rgba(168,85,247,.9);">Start &mdash; test month</div>
+      <div class="chart-wrap" style="height:110px;"><canvas id="trendTestChart"></canvas></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 3px;">
+      <div class="stat-lbl" id="trendLbl">Completion trend (all time)</div>
+      <div style="display:flex;gap:3px;">
+        <button class="trend-rng" id="rng14d" onclick="setTrendRange('14d')">14D</button>
+        <button class="trend-rng" id="rngMonth" onclick="setTrendRange('month')">Month</button>
+        <button class="trend-rng active" id="rngAll" onclick="setTrendRange('all')">All</button>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:var(--y);" id="thisWeekAvg">0%</div>
+        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">This week avg</div>
+      </div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;" id="lastWeekAvg">0%</div>
+        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Last week avg</div>
+      </div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:var(--green);" id="bestDayPct">0%</div>
+        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;" id="bestDayLbl">Best day</div>
+      </div>
+    </div>
+</div>
+
 <!-- ═══ ROW 0: NEXT 7 DAYS — rolling calendar starting today (Google + manual) ═══ -->
 <div class="card" id="calCard" style="margin-bottom:10px;">
   <div class="card-hd">
@@ -981,55 +1030,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       <span id="planSaved" style="font-size:11px;color:var(--green);display:none;">✓ Saved for tomorrow</span>
     </div>
   </div>
-</div>
-
-<!-- ═══ ROW 1: TRACKING HQ — full width so the graphs breathe ═══ -->
-<div class="card" style="margin-bottom:10px;">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--y)"></span>Today Overall</div>
-      <div class="big-stat" id="overallPct">0%</div>
-    </div>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
-      <div style="flex:2;min-width:180px;">
-        <div class="sec-track"><div class="sec-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--y),#ffb300)"></div></div>
-      </div>
-      <span style="font-size:10px;color:var(--t2);white-space:nowrap;" id="overallSub">0 of 0 complete</span>
-      <div style="flex:1;min-width:120px;">
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Personal <span id="personalPct" style="color:var(--green);font-weight:700;">0%</span></div>
-        <div class="sec-track"><div class="sec-fill" id="personalBar" style="width:0%;background:var(--green)"></div></div>
-      </div>
-      <div style="flex:1;min-width:120px;">
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Business <span id="bizSplitPct" style="color:var(--y);font-weight:700;">0%</span></div>
-        <div class="sec-track"><div class="sec-fill" id="bizSplitBar" style="width:0%;background:var(--y)"></div></div>
-      </div>
-    </div>
-    <div id="testChartBlock">
-      <div class="stat-lbl" style="margin-bottom:4px;color:rgba(168,85,247,.9);">Start &mdash; test month</div>
-      <div class="chart-wrap" style="height:110px;"><canvas id="trendTestChart"></canvas></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 3px;">
-      <div class="stat-lbl" id="trendLbl">Completion trend (all time)</div>
-      <div style="display:flex;gap:3px;">
-        <button class="trend-rng" id="rng14d" onclick="setTrendRange('14d')">14D</button>
-        <button class="trend-rng" id="rngMonth" onclick="setTrendRange('month')">Month</button>
-        <button class="trend-rng active" id="rngAll" onclick="setTrendRange('all')">All</button>
-      </div>
-    </div>
-    <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
-    <div style="display:flex;gap:8px;margin-top:6px;">
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
-        <div style="font-size:14px;font-weight:800;color:var(--y);" id="thisWeekAvg">0%</div>
-        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">This week avg</div>
-      </div>
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
-        <div style="font-size:14px;font-weight:800;" id="lastWeekAvg">0%</div>
-        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Last week avg</div>
-      </div>
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:4px 9px;text-align:center;">
-        <div style="font-size:14px;font-weight:800;color:var(--green);" id="bestDayPct">0%</div>
-        <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;" id="bestDayLbl">Best day</div>
-      </div>
-    </div>
 </div>
 
 <!-- ═══ ROW 2: Money — Revenue | Contractor Payments side by side ═══ -->
@@ -1250,38 +1250,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 
 
-<!-- CLIENT TARGETS | PIPELINE — 2 wide at the top of business -->
-<div class="grid-2">
-  <!-- CLIENT TARGETS -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--y)"></span>Client Targets</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--y)" id="targetCount">0 prospects</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddTargetType()">+ Type</button>
-      </div>
-    </div>
-    <div class="choose-label" style="color:var(--t2);">Types of clients you want (luxury hotels, injury lawyers...) &mdash; bank prospects, then &#8594; push to Pipeline when you reach out</div>
-    <div id="targetList"></div>
-    <div id="targetEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No client types yet. Who do you want to shoot for?</div>
-  </div>
-
-  <!-- PIPELINE -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--coral)"></span>Pipeline</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--coral)" id="pipeTouchCount">0 touches this wk</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddLead()">+</button>
-      </div>
-    </div>
-    <div class="choose-label" style="color:var(--t2);">Tap the stage to advance a lead &middot; tap &#128075; every time you reach out</div>
-    <div id="pipeList" style="max-height:300px;overflow-y:auto;"></div>
-    <div id="pipeEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;">No leads yet. Two new clients don't find themselves.</div>
-  </div>
-</div>
-
-<!-- BUSINESS BURST — sits under Client Targets / Pipeline -->
+<!-- BUSINESS BURST -->
 <div class="card" style="margin-bottom:10px;padding:10px 14px;">
   <div id="burstStrip_b"></div>
   <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--b);">
@@ -1436,34 +1405,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Tap Clean each day you go without &mdash; cut it all down</div>
   </div>
   <div id="smokeRows"></div>
-</div>
-
-<!-- ═══ PROJECT BOARD ═══ -->
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label" style="color:var(--green);border-color:var(--green);background:rgba(0,214,143,.08);">&#128193; Project Board</div>
-  <div class="section-divider-line"></div>
-</div>
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd" onclick="toggleProjectBoard()" style="cursor:pointer;">
-    <div class="card-title"><span class="dot" style="background:var(--green)"></span>Active Projects</div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <button class="btn btn-y btn-sm" onclick="event.stopPropagation();openAddProject()">+ New Project</button>
-      <button class="collapse-btn" onclick="event.stopPropagation();toggleProjectBoard()"><span id="projBoardArrow">&#9662;</span> <span id="projBoardLbl">Collapse</span></button>
-    </div>
-  </div>
-  <div id="projectBoardWrap">
-    <div id="projectBoard"></div>
-    <div id="projectBoardEmpty" style="font-size:12px;color:var(--t3);padding:10px 0;display:none;">No projects yet &mdash; add your first one.</div>
-  </div>
-</div>
-<div class="card" style="margin-bottom:10px;" id="awaitingCard">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Awaiting Payment</div>
-    <div style="font-size:16px;font-weight:800;color:var(--orange);" id="awaitingTotal">$0</div>
-  </div>
-  <div id="awaitingPaymentLog"></div>
-  <div id="awaitingEmpty" style="font-size:12px;color:var(--t3);padding:6px 0;display:none;">Nothing pending &mdash; all caught up.</div>
 </div>
 
 <!-- KNOCK IT OFF — parked at the bottom for now, pending redo -->
