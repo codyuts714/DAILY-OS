@@ -7,7 +7,38 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>YOUR LIFE - YOUR TIMELINE</title>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="TIMELINE">
+<meta name="mobile-web-app-capable" content="yes">
+<script>
+/* -- PWA: register the service worker (required for the install prompt) ------
+   Registered relative to this page so it works at a subpath like /DAILY-OS/. */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(function (reg) {
+        // If a new build is waiting, activate it right away.
+        if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+        reg.addEventListener('updatefound', function () {
+          var nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', function () {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              nw.postMessage('SKIP_WAITING');
+            }
+          });
+        });
+      })
+      .catch(function (e) { console.warn('SW registration failed:', e); });
+    var refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (refreshing) return; refreshing = true; window.location.reload();
+    });
+  });
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
