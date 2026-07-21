@@ -515,6 +515,24 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .btn-ghost{background:var(--bg4);color:var(--t2);border:1px solid var(--b2);font-weight:500;}
 .btn-ghost:hover{color:var(--t);}
 .btn-sm{padding:3px 9px;font-size:11px;}
+/* -- SYSTEM FIX LOG -- */
+.fix-row{display:flex;gap:7px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--b);}
+.fix-row:last-child{border-bottom:none;}
+.fix-row.flagged{border-left:2px solid var(--coral);padding-left:6px;background:rgba(240,85,107,.05);border-radius:4px;}
+.fix-row.isdone{opacity:.45;}
+.fix-txt{font-size:12px;color:var(--t);line-height:1.4;word-break:break-word;cursor:text;}
+.fix-row.isdone .fix-txt{text-decoration:line-through;color:var(--t2);}
+.fix-meta{font-size:9.5px;color:var(--t3);margin-top:2px;letter-spacing:.02em;}
+.fix-meta .fix-fixed{color:var(--green);}
+.fix-sys{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;padding:1px 5px;border-radius:99px;border:1px solid var(--b2);color:var(--t2);white-space:nowrap;}
+.fix-sys.s-daily{color:var(--y);border-color:var(--y3);}
+.fix-sys.s-brain{color:var(--teal);border-color:rgba(34,211,176,.35);}
+.fix-flagbtn{background:none;border:none;cursor:pointer;font-size:11px;line-height:1;opacity:.25;padding:2px;}
+.fix-flagbtn.on{opacity:1;}
+.fix-actions{display:flex;gap:4px;align-items:center;margin-left:auto;}
+.fix-mini{background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px;padding:2px 3px;}
+.fix-mini:hover{color:var(--t);}
+.fix-mini.del:hover{color:var(--coral);}
 
 /* ADD ROW */
 .add-row{display:flex;gap:5px;margin-top:7px;align-items:center;}
@@ -552,51 +570,6 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .day-btn.on{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:700;}
 
 /* PROJECT BOARD */
-#projectBoard{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:700px){#projectBoard{grid-template-columns:1fr;}}
-.proj-card{background:var(--bg3);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;margin-bottom:0;}
-.proj-card.complete{opacity:.6;}
-.proj-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
-.proj-name{font-size:14px;font-weight:700;color:var(--t);}
-.proj-name-input{display:block;width:100%;background:none;border:none;color:var(--t);font-size:14px;font-weight:700;padding:2px 0;outline:none;border-bottom:1px solid transparent;}
-.proj-name-input:focus{border-bottom-color:var(--y);}
-.proj-name-input::placeholder{color:var(--t3);font-weight:400;}
-.proj-client-input{display:block;width:100%;background:none;border:none;color:var(--t2);font-size:11px;padding:2px 0;outline:none;border-bottom:1px solid transparent;margin-top:1px;}
-.proj-client-input:focus{border-bottom-color:var(--y);}
-.proj-client-input::placeholder{color:var(--t3);}
-.proj-amt-input{background:none;border:none;color:var(--y);font-size:16px;font-weight:800;text-align:right;outline:none;border-bottom:1px solid transparent;width:90px;}
-.proj-amt-input:focus{border-bottom-color:var(--y);}
-.proj-amt-input::placeholder{color:var(--t3);}
-.proj-date-input{background:var(--bg4);border:1px solid var(--b2);color:var(--t);font-size:11px;border-radius:4px;padding:3px 5px;outline:none;margin-top:1px;width:100px;}
-.proj-date-input:focus{border-color:var(--y);}
-.proj-client{font-size:11px;color:var(--t2);margin-top:1px;}
-.proj-amt{font-size:16px;font-weight:800;color:var(--y);text-align:right;flex-shrink:0;}
-.proj-amt-sub{font-size:10px;color:var(--t2);text-align:right;}
-.proj-dates{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--t2);margin-bottom:10px;}
-.proj-date-item{display:flex;flex-direction:column;}
-.proj-date-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);}
-.proj-date-val{color:var(--t);font-size:12px;margin-top:1px;}
-.proj-stages{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
-.proj-stage{flex:1;min-width:110px;display:flex;align-items:center;gap:6px;background:var(--bg4);border:1px solid var(--b2);border-radius:6px;padding:6px 8px;cursor:pointer;transition:all .15s;}
-.proj-stage.done{background:rgba(0,214,143,.12);border-color:var(--green);}
-.proj-stage-chk{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--b3);background:none;flex-shrink:0;position:relative;}
-.proj-stage.done .proj-stage-chk{background:var(--green);border-color:var(--green);}
-.proj-stage.done .proj-stage-chk::after{content:'';position:absolute;top:1px;left:3px;width:4px;height:7px;border:1.5px solid #000;border-top:none;border-left:none;transform:rotate(45deg);}
-.proj-stage-label{font-size:11px;color:var(--t2);}
-.proj-stage.done .proj-stage-label{color:var(--green);}
-.proj-notes{margin-top:8px;}
-.proj-notes textarea{width:100%;background:var(--bg4);border:1px solid var(--b2);color:var(--t);border-radius:6px;padding:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:50px;outline:none;}
-.proj-notes textarea:focus{border-color:var(--y);}
-.proj-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
-.proj-del-link{font-size:11px;color:var(--t3);cursor:pointer;background:none;border:none;}
-.proj-del-link:hover{color:var(--coral);}
-.proj-progress-track{height:4px;background:var(--bg4);border-radius:99px;overflow:hidden;margin-bottom:10px;}
-.proj-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:99px;transition:width .4s;}
-.await-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--b);font-size:12px;}
-.await-row:last-child{border-bottom:none;}
-.await-name{color:var(--t);}
-.await-sub{font-size:10px;color:var(--t2);}
-.await-amt{color:var(--orange);font-weight:700;}
 
 /* SCROLLBAR */
 /* inner card lists — moderate so they don't eat card space */
@@ -790,19 +763,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .topbar-streak{font-family:var(--display);font-weight:700;letter-spacing:.05em}
 
 /* ── every card becomes a UTS gradient panel with the gold shimmer line ── */
-.card,.proj-card,.week-col,.target-type,.rev-stat,
+.card,.week-col,.target-type,.rev-stat,
 .mission-banner,.goals-banner,.stop-banner,.plan-card,.day-nav,.modal{
   background:linear-gradient(180deg,var(--bg3),var(--bg2));
   border:1px solid var(--b);
   box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 14px 30px -18px rgba(0,0,0,.6);
   transition:border-color .2s;
 }
-.card,.proj-card{border-radius:var(--r);position:relative}
-.card::before,.proj-card::before,.mission-banner::before,.goals-banner::before,.plan-card::before{
+.card{border-radius:var(--r);position:relative}
+.card::before,.mission-banner::before,.goals-banner::before,.plan-card::before{
   content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
   background:linear-gradient(90deg,transparent,rgba(242,201,76,.35),transparent);opacity:.55;pointer-events:none;
 }
-.card:hover,.proj-card:hover{border-color:var(--b3)}
+.card:hover{border-color:var(--b3)}
 .mission-banner,.goals-banner,.plan-card,.stop-banner{position:relative;border-radius:var(--r)}
 .stop-banner::before{
   content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
@@ -819,13 +792,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 }
 .card-title .dot{box-shadow:0 0 10px var(--gold-glow)}
 .mission-label,.goals-label,.stop-label,.section-divider-label,.week-col-hd,
-.choose-label,.target-type-name,.proj-date-lbl,.plan-hd{
+.choose-label,.target-type-name,.plan-hd{
   font-family:var(--display);letter-spacing:.09em;
 }
 .plan-hd{font-weight:700}
 
 /* ── big numbers → Rajdhani display ── */
-.big-stat,.sec-pct,.rev-stat .n,.proj-amt,.proj-amt-input,.hours-val,.corr-r,.day-nav-label{
+.big-stat,.sec-pct,.rev-stat .n,.hours-val,.corr-r,.day-nav-label{
   font-family:var(--display);font-weight:700;letter-spacing:.02em;
 }
 .big-stat{text-shadow:0 0 24px rgba(242,201,76,.25)}
@@ -833,7 +806,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* ── mono accents (ids, dates, small meta) ── */
 .stat-lbl,.rev-stat .l,.rev-date-lbl,.task-ts,.task-dur,.task-time,.j-date,
 .pipe-sub,.prospect-note,.call-last,.week-item-time,.sun-day,.choose-note,
-.proj-dates,.await-sub,.card-internal{
+.card-internal{
   font-family:var(--mono);letter-spacing:.04em;
 }
 
@@ -867,19 +840,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 #loginBtn{font-family:var(--display) !important;font-weight:700 !important;letter-spacing:.05em;text-transform:uppercase}
 
 /* ── progress bars → gold gradient fills ── */
-.sec-track,.prog-track,.hours-bar-wrap,.proj-progress-track,.bal-bar{background:#20232a}
+.sec-track,.prog-track,.hours-bar-wrap,.bal-bar{background:#20232a}
 .sec-fill,.prog-fill{transition:width .5s cubic-bezier(.4,1.4,.5,1)}
 
 /* ── inputs ── */
-.inp,.jta,.plan-ta,.proj-notes textarea,.proj-date-input,select{
+.inp,.jta,.plan-ta,select{
   background:var(--bg4);border:1px solid var(--b2);border-radius:9px;color:var(--t);
 }
-.inp:focus,.jta:focus,.plan-ta:focus,.proj-notes textarea:focus,.proj-date-input:focus{border-color:var(--gold)}
+.inp:focus,.jta:focus,.plan-ta:focus{border-color:var(--gold)}
 .inp::placeholder,.jta::placeholder,.plan-ta::placeholder{color:var(--t3)}
 
 /* ── rows & dividers ── */
 .section-divider-label.business{color:var(--gold);border-color:rgba(242,201,76,.3);background:rgba(242,201,76,.08)}
-.task-row,.pipe-row,.hours-row,.rev-row,.j-entry,.cal-event,.await-row,.laundry-row,.call-row,.prospect-row{border-color:var(--b)}
+.task-row,.pipe-row,.hours-row,.rev-row,.j-entry,.cal-event,.laundry-row,.call-row,.prospect-row{border-color:var(--b)}
 .task-row.pace-now{background:rgba(242,201,76,.08);border-left:3px solid var(--gold)}
 .task-row.client-row{border-left:2px solid var(--gold);background:rgba(242,201,76,.04)}
 .week-col.today-col{border-color:rgba(242,201,76,.35);background:linear-gradient(180deg,rgba(242,201,76,.10),var(--bg2))}
@@ -1424,6 +1397,45 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <button class="goals-edit-btn" onclick="openStopModal()">✎ Edit</button>
 </div>
 
+<!-- SYSTEM FIX LOG — very bottom -->
+<div class="card" id="fixLogCard" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--teal)"></span>System Fix Log</div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <span id="fixOpenBadge" style="font-size:10px;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.06em;"></span>
+      <button class="btn btn-ghost btn-sm" onclick="copyFixLog('all')" title="Copy every open item, grouped by system">&#128203; Copy open</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyFixLog('flag')" title="Copy only the flagged items">&#128681; Copy flagged</button>
+    </div>
+  </div>
+  <div style="font-size:10px;color:var(--t3);margin-bottom:8px;">Drop in anything that needs changed as you spot it. Copy the list into Claude with the index file, then check it off when it's fixed &mdash; the fix gets time-stamped.</div>
+
+  <!-- ADD ROW -->
+  <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">
+    <div style="display:flex;gap:5px;" id="fixSysPicker">
+      <button class="fpill active" data-sys="Daily OS" onclick="setFixSys(this)">Daily OS</button>
+      <button class="fpill" data-sys="Studio Brain OS" onclick="setFixSys(this)">Studio Brain OS</button>
+      <button class="fpill" data-sys="Other" onclick="setFixSys(this)">Other</button>
+    </div>
+    <button class="fpill" id="fixFlagToggle" onclick="toggleFixFlagNew()" title="Flag this one as urgent">&#128681; Flag</button>
+  </div>
+  <div style="display:flex;gap:5px;align-items:flex-start;margin-bottom:10px;">
+    <input class="inp" id="fixIn" style="flex:1;margin-bottom:0;" placeholder="What needs changed? (e.g. Today List drops carried items after 2 days)" onkeydown="if(event.key==='Enter')addFix();">
+    <button class="btn btn-y btn-sm" onclick="addFix()">Add</button>
+  </div>
+
+  <!-- FILTERS -->
+  <div style="display:flex;gap:5px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+    <button class="fpill active" data-f="open" onclick="setFixFilter(this)">Open</button>
+    <button class="fpill" data-f="fixed" onclick="setFixFilter(this)">Fixed</button>
+    <button class="fpill" data-f="all" onclick="setFixFilter(this)">All</button>
+    <span id="fixStats" style="font-size:10px;color:var(--t3);margin-left:4px;"></span>
+  </div>
+
+  <div id="fixList"></div>
+  <div id="fixEmpty" style="font-size:11px;color:var(--t3);padding:6px 0;display:none;">Nothing logged. Add the first thing you want changed.</div>
+  <div id="fixCopyNote" style="font-size:10px;color:var(--green);margin-top:6px;display:none;">&#10003; Copied &mdash; paste it into Claude with your index file.</div>
+</div>
+
 <!-- LAUNDRY TOAST -->
 <div class="toast" id="laundryToast">
   <div style="font-size:22px;margin-bottom:4px;">&#129530;</div>
@@ -1460,8 +1472,9 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
         ✓ Knock It Off — per line, held vs broke<br>
         ✓ Days Without streaks · Call Family · Laundry · Grocery<br>
         ✓ Revenue, contractor payouts, net<br>
-        ✓ <b style="color:var(--y);">Every note</b> — system updates, project notes, prospect notes<br>
+        ✓ <b style="color:var(--y);">Every note</b> — system updates, prospect notes, fix log<br>
         ✓ Pipeline w/ days cold · Client targets · Content ideas<br>
+        ✓ System Fix Log — open items, days sitting, fix timestamps<br>
         ✓ Night-before plans vs how the day actually went<br>
         ✓ All journal entries, streaks, goals &amp; mission
       </div>
@@ -1795,7 +1808,6 @@ let stopList=ld('stopList',DEF_STOP);
 let stopRule=ld('stopRule',"If I've been thinking about it for 10+ minutes, I'm probably avoiding the work that would actually solve it.");
 let stopHits=ld('stopHits',{}); // dayKey -> {lineText:true} — tap a line when you held it that day
 let revLog=ld('revLog',[]);
-let projects=ld('projects',[]);
 let revFilter='week';
 let revChart=null,compChart=null,trendChart=null,trendTestChart=null;
 
@@ -5203,7 +5215,7 @@ function updateSuggestedPrompt() {
     'Here is my full life and business tracker data for ' + labels[exportRange] + '. ' +
     'Analyze it and be blunt with me: (1) which habits and tasks am I actually completing vs quietly skipping, (2) what patterns show up across my journal entries, self-checks and Knock It Off answers — what do I keep repeating, ' +
     '(3) how do my hours by bucket, burst times and wake/shutdown times line up with my high vs low days, (4) what does my revenue correlate with, and does client work crowd out sales, ' +
-    '(5) what is sitting too long — personal to-dos, carried-over tasks, cold pipeline leads, unpaid projects, (6) what do my system update notes and project notes tell you about where my time leaks. ' +
+    '(5) what is sitting too long — personal to-dos, carried-over tasks, cold pipeline leads, open system fixes, (6) what do my system update notes and fix log tell you about where my time leaks. ' +
     'Then give me the three specific changes that would move the needle most. Do not soften it.';
 }
 
@@ -5695,35 +5707,6 @@ function doExport() {
   });
   if(!contractorData.length)push('  (none in range)');
 
-  // ============================== PROJECTS (incl. notes) ==============================
-  hdr('PROJECT BOARD (all projects, with notes)');
-  projects.forEach(function(pj){
-    var st=pj.stages||{};
-    var stageTxt=['contract','deposit','delivered','final'].map(function(s){return (st[s]?'[x] ':'[ ] ')+s;}).join('  ');
-    var total=(Number(pj.amount)||0)+(Number(pj.addons)||0);
-    push('');
-    push('[' + pj.name + ']' + (pj.client?'  client: '+pj.client:''));
-    push('  Value: ' + expMoney(pj.amount) + (Number(pj.addons)?'  + add-ons ' + expMoney(pj.addons) + '  = ' + expMoney(total):''));
-    push('  Stages: ' + stageTxt);
-    var dts=[];
-    if(pj.startDate)dts.push('start '+pj.startDate);
-    if(pj.shootDate)dts.push('shoot '+pj.shootDate);
-    if(pj.dueDate){
-      var dd=daysSinceKey(pj.dueDate);
-      dts.push('due '+pj.dueDate+(dd!==null?(dd>0?' ('+dd+'d PAST DUE)':dd===0?' (due today)':''):''));
-    }
-    if(dts.length)push('  Dates: ' + dts.join(' | '));
-    var owed=[];
-    if(!st.deposit)owed.push('deposit');
-    if(!st.final)owed.push('final');
-    if(owed.length)push('  Awaiting payment: ' + owed.join(' + '));
-    if(pj.notes&&String(pj.notes).trim()){
-      push('  NOTES:');
-      String(pj.notes).split('\n').forEach(function(ln){push('    ' + ln);});
-    }
-  });
-  if(!projects.length)push('  (no projects on the board)');
-
   // ============================== PIPELINE ==============================
   hdr('PIPELINE');
   var byStage={};
@@ -5797,6 +5780,26 @@ function doExport() {
     push('    ' + e.note);
   });
   if(!sl.length)push('  (no system notes in range)');
+
+  // ============================== SYSTEM FIX LOG ==============================
+  hdr('SYSTEM FIX LOG (things that needed changed on the trackers)');
+  var fxOpen=fixLog.filter(function(e){return !e.fixedAt;});
+  var fxDone=fixLog.filter(function(e){return !!e.fixedAt;});
+  push('Open: ' + fxOpen.length + '  |  Fixed all-time: ' + fxDone.length);
+  push('');
+  push('  -- STILL OPEN --');
+  fxOpen.slice().sort(function(a,b){return String(a.created).localeCompare(String(b.created));}).forEach(function(e){
+    push('  [' + e.sys + ']' + (e.flag?' [FLAGGED]':'') + ' ' + e.txt);
+    push('     logged ' + fixDateOnly(e.created) + '  -- sitting ' + fixDaysOpen(e.created) + ' days');
+  });
+  if(!fxOpen.length)push('  (nothing open)');
+  push('');
+  push('  -- FIXED --');
+  fxDone.slice().sort(function(a,b){return String(a.fixedAt).localeCompare(String(b.fixedAt));}).forEach(function(e){
+    push('  [' + e.sys + '] ' + e.txt);
+    push('     logged ' + fixDateOnly(e.created) + '  -> fixed ' + fixTs(e.fixedAt));
+  });
+  if(!fxDone.length)push('  (nothing fixed yet)');
 
   // ============================== NIGHT-BEFORE PLANS ==============================
   hdr('NIGHT-BEFORE PLANS (what he said he\'d do vs the day he had)');
@@ -5891,248 +5894,259 @@ function checkMonthEnd() {
 }
 
 // -- INIT ----------------------------------------------------------------------
-// -- PROJECT BOARD --------------------------------------------------------------
-function toggleProjectBoard(){
-  var collapsed=!ld('projBoardCollapsed',false);
-  sv('projBoardCollapsed',collapsed);
-  applyProjBoardCollapseState();
-}
 function fmtDateShort(s){
   if(!s)return '';
   var parts=s.split('-').map(Number);
   return new Date(parts[0],parts[1]-1,parts[2]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
-function renderProjects(){
-  var el=document.getElementById('projectBoard');
-  var emp=document.getElementById('projectBoardEmpty');
-  if(!projects.length){el.innerHTML='';emp.style.display='block';renderAwaitingPayment();return;}
-  emp.style.display='none';
-
-  var sorted=projects.slice().sort(function(a,b){
-    var aDone=a.stages.final?1:0, bDone=b.stages.final?1:0;
-    if(aDone!==bDone)return aDone-bDone;
-    return (a.dueDate||'9999').localeCompare(b.dueDate||'9999');
-  });
-
-  el.innerHTML=sorted.map(function(p){
-    var stagesDone=['contract','deposit','delivered','final'].filter(function(s){return p.stages[s];}).length;
-    var pct=Math.round(stagesDone/4*100);
-    var isComplete=p.stages.final;
-    var amt=p.amount||0;
-    var half=amt/2;
-
-    var html='<div class="proj-card '+(isComplete?'complete':'')+'" data-pid="'+p.id+'">';
-
-    html+='<div class="proj-hd">';
-    html+='<div style="flex:1;">';
-    html+='<input class="proj-name-input" data-field="name" value="'+escAttr(p.name)+'" placeholder="Project name" onchange="updateProjField(this)">';
-    html+='<input class="proj-client-input" data-field="client" value="'+escAttr(p.client||'')+'" placeholder="Client name (optional)" onchange="updateProjField(this)">';
-    html+='</div>';
-    html+='<div style="text-align:right;flex-shrink:0;">';
-    html+='<div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;">';
-    html+='<span style="font-size:14px;color:var(--y);font-weight:800;">$</span>';
-    html+='<input class="proj-amt-input" data-field="amount" type="number" value="'+amt+'" placeholder="0" onchange="updateProjField(this)">';
-    html+='</div>';
-    html+='<div class="proj-amt-sub">$'+Math.round(half).toLocaleString()+' x2</div>';
-    html+='</div>';
-    html+='</div>';
-
-    var addons=p.addons||0;
-    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--t2);">';
-    html+='<span>+ Add-ons:</span>';
-    html+='<span style="color:var(--y);">$</span>';
-    html+='<input class="proj-amt-input" data-field="addons" type="number" value="'+addons+'" placeholder="0" onchange="updateProjField(this)" style="width:60px;font-size:12px;font-weight:700;text-align:left;">';
-    html+='<span style="color:var(--t3);">(added to final payment)</span>';
-    html+='</div>';
-
-    html+='<div class="proj-progress-track"><div class="proj-progress-fill" style="width:'+pct+'%"></div></div>';
-
-    html+='<div class="proj-dates">';
-    html+='<div class="proj-date-item"><span class="proj-date-lbl">Start</span><input class="proj-date-input" data-field="startDate" type="date" value="'+(p.startDate||'')+'" onchange="updateProjField(this)"></div>';
-    html+='<div class="proj-date-item"><span class="proj-date-lbl">Shoot</span><input class="proj-date-input" data-field="shootDate" type="date" value="'+(p.shootDate||'')+'" onchange="updateProjField(this)"></div>';
-    html+='<div class="proj-date-item"><span class="proj-date-lbl">Due</span><input class="proj-date-input" data-field="dueDate" type="date" value="'+(p.dueDate||'')+'" onchange="updateProjField(this)"></div>';
-    html+='</div>';
-
-    html+='<div class="proj-stages">';
-    var stageDefs=[
-      {k:'contract',l:'Contract / deposit sent'},
-      {k:'deposit',l:'Deposit paid'},
-      {k:'delivered',l:'Delivered — awaiting final'},
-      {k:'final',l:'Final payment received'}
-    ];
-    stageDefs.forEach(function(sd){
-      var done=!!p.stages[sd.k];
-      html+='<div class="proj-stage '+(done?'done':'')+'" data-stage="'+sd.k+'" onclick="toggleProjStage(this)">';
-      html+='<div class="proj-stage-chk"></div><div class="proj-stage-label">'+sd.l+'</div>';
-      html+='</div>';
-    });
-    html+='</div>';
-
-    html+='<div class="proj-notes"><textarea placeholder="Notes — where this project stands..." onchange="updateProjNote(this)">'+(p.notes||'')+'</textarea></div>';
-
-    html+='<div class="proj-footer">';
-    html+='<span style="font-size:10px;color:var(--t3);">'+stagesDone+'/4 stages</span>';
-    html+='<button class="proj-del-link" onclick="deleteProject(this)">Delete project</button>';
-    html+='</div>';
-
-    html+='</div>';
-    return html;
-  }).join('');
-
-  renderAwaitingPayment();
-}
-
 function escAttr(s){
   return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-}
-
-function updateProjField(input){
-  var card=input.closest('.proj-card');
-  var pid=card.dataset.pid;
-  var field=input.dataset.field;
-  var p=projects.find(function(x){return x.id===pid;});
-  if(!p)return;
-  var val=input.value;
-  if(field==='amount'||field==='addons'){
-    val=parseFloat(val)||0;
-  }
-  p[field]=val;
-
-  // If final payment already posted to revenue, update that entry's amount to reflect new total/addons
-  if((field==='amount'||field==='addons') && p.stages && p.stages.final){
-    var half=Math.round((p.amount||0)/2)+(p.addons||0);
-    var entry=revLog.find(function(r){return r.projectId===p.id && r.stage==='final';});
-    if(entry){entry.amount=half;sv('revLog',revLog);}
-  }
-  // Same for deposit if amount changes
-  if(field==='amount' && p.stages && p.stages.deposit){
-    var halfDep=Math.round((p.amount||0)/2);
-    var entryDep=revLog.find(function(r){return r.projectId===p.id && r.stage==='deposit';});
-    if(entryDep){entryDep.amount=halfDep;sv('revLog',revLog);}
-  }
-
-  sv('projects',projects);
-  renderProjects();
-  renderRevenue();
-}
-
-function toggleProjStage(el){
-  var card=el.closest('.proj-card');
-  var pid=card.dataset.pid;
-  var stage=el.dataset.stage;
-  var p=projects.find(function(x){return x.id===pid;});
-  if(!p)return;
-
-  var wasOn=!!p.stages[stage];
-  p.stages[stage]=!wasOn;
-
-  // Auto-post to revenue when deposit or final is checked ON
-  if(!wasOn && (stage==='deposit' || stage==='final')){
-    var half=Math.round((p.amount||0)/2);
-    if(stage==='final')half+=(p.addons||0); // add-ons get added to final payment
-    var label=(stage==='deposit'?'Deposit -- ':'Final payment -- ')+p.name;
-    revLog.unshift({id:'r'+Date.now(),job:label,amount:half,date:todayKey(),projectId:p.id,stage:stage});
-    sv('revLog',revLog);
-  }
-  // If unchecking, remove the matching revenue entry we auto-created
-  if(wasOn && (stage==='deposit' || stage==='final')){
-    revLog=revLog.filter(function(r){return !(r.projectId===p.id && r.stage===stage);});
-    sv('revLog',revLog);
-  }
-
-  sv('projects',projects);
-  renderProjects();
-  renderRevenue();
-}
-
-function updateProjNote(textarea){
-  var card=textarea.closest('.proj-card');
-  var pid=card.dataset.pid;
-  var p=projects.find(function(x){return x.id===pid;});
-  if(!p)return;
-  p.notes=textarea.value;
-  sv('projects',projects);
-}
-
-function deleteProject(btn){
-  var card=btn.closest('.proj-card');
-  var pid=card.dataset.pid;
-  projects=projects.filter(function(p){return p.id!==pid;});
-  // also clean up any revenue entries tied to this project
-  revLog=revLog.filter(function(r){return r.projectId!==pid;});
-  sv('projects',projects);sv('revLog',revLog);
-  renderProjects();renderRevenue();
-}
-
-function openAddProject(){
-  openModal('New Project','Project name...','',false,function(name){
-    if(!name.trim())return;
-    projects.unshift({
-      id:'p'+Date.now(),
-      name:name.trim(),
-      amount:0,
-      addons:0,
-      client:'',
-      startDate:'',
-      shootDate:'',
-      dueDate:'',
-      stages:{contract:false,deposit:false,delivered:false,final:false},
-      notes:''
-    });
-    sv('projects',projects);
-    renderProjects();
-  });
-}
-
-function renderAwaitingPayment(){
-  var el=document.getElementById('awaitingPaymentLog');
-  var emp=document.getElementById('awaitingEmpty');
-  var totalEl=document.getElementById('awaitingTotal');
-  var pending=projects.filter(function(p){
-    return !p.stages.deposit || !p.stages.final; // owed on deposit AND/OR final
-  });
-  if(!pending.length){
-    el.innerHTML='';emp.style.display='block';
-    if(totalEl)totalEl.textContent='$0';
-    return;
-  }
-  emp.style.display='none';
-
-  var grandTotal=0;
-  el.innerHTML=pending.map(function(p){
-    var half=Math.round((p.amount||0)/2);
-    var finalAmt=half+(p.addons||0);
-    var owedDeposit=!p.stages.deposit;
-    var owedFinal=!p.stages.final;
-    var rowTotal=0;
-    var waitingParts=[];
-
-    if(owedDeposit){
-      rowTotal+=half;
-      waitingParts.push('Deposit ($'+half.toLocaleString()+')');
-    }
-    if(owedFinal){
-      rowTotal+=finalAmt;
-      var finalLabel='Final ($'+finalAmt.toLocaleString()+')';
-      if(!p.stages.delivered)finalLabel+=' — not delivered yet';
-      waitingParts.push(finalLabel);
-    }
-
-    grandTotal+=rowTotal;
-
-    return '<div class="await-row">'
-      +'<div><div class="await-name">'+p.name+(p.client?' -- '+p.client:'')+'</div><div class="await-sub">Waiting on: '+waitingParts.join(' + ')+'</div></div>'
-      +'<div class="await-amt">$'+rowTotal.toLocaleString()+'</div>'
-      +'</div>';
-  }).join('');
-
-  if(totalEl)totalEl.textContent='$'+grandTotal.toLocaleString();
 }
 
 function safeCall(fn,name){
   try{fn();}catch(e){console.error('Render error in '+name+':',e);}
 }
+// ============================== SYSTEM FIX LOG ==============================
+// A running queue of "this needs changed" items for Daily OS / Studio Brain OS.
+// Log it → flag it → copy the batch into Claude → check it off (stamps date+time).
+let fixLog=ld('fixLog',[]);
+let _fixNewSys=ld('fixLastSys','Daily OS');
+let _fixNewFlag=false;
+let _fixFilter='open';
+
+function fixTs(iso){
+  if(!iso)return '';
+  try{
+    var d=new Date(iso);
+    return d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
+  }catch(e){return iso;}
+}
+function fixDateOnly(iso){
+  if(!iso)return '';
+  try{
+    return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'America/Los_Angeles'});
+  }catch(e){return iso;}
+}
+function fixDaysOpen(iso){
+  if(!iso)return 0;
+  var ms=Date.now()-new Date(iso).getTime();
+  return Math.max(0,Math.floor(ms/86400000));
+}
+function fixSysCls(s){
+  if(s==='Daily OS')return 's-daily';
+  if(s==='Studio Brain OS')return 's-brain';
+  return '';
+}
+
+function setFixSys(btn){
+  _fixNewSys=btn.dataset.sys;
+  sv('fixLastSys',_fixNewSys);
+  var row=document.getElementById('fixSysPicker');
+  if(row)Array.prototype.forEach.call(row.querySelectorAll('.fpill'),function(b){b.classList.toggle('active',b===btn);});
+}
+function toggleFixFlagNew(){
+  _fixNewFlag=!_fixNewFlag;
+  var b=document.getElementById('fixFlagToggle');
+  if(b)b.classList.toggle('active',_fixNewFlag);
+}
+function setFixFilter(btn){
+  _fixFilter=btn.dataset.f;
+  var p=btn.parentNode;
+  Array.prototype.forEach.call(p.querySelectorAll('.fpill'),function(b){b.classList.toggle('active',b===btn);});
+  renderFixLog();
+}
+
+function addFix(){
+  var inp=document.getElementById('fixIn');
+  if(!inp)return;
+  var t=(inp.value||'').trim();
+  if(!t)return;
+  fixLog.push({
+    id:'fx'+Date.now()+Math.floor(Math.random()*1000),
+    sys:_fixNewSys,
+    txt:t,
+    flag:_fixNewFlag,
+    created:new Date().toISOString(),
+    fixedAt:null
+  });
+  sv('fixLog',fixLog);
+  inp.value='';
+  _fixNewFlag=false;
+  var fb=document.getElementById('fixFlagToggle');
+  if(fb)fb.classList.remove('active');
+  renderFixLog();
+}
+
+function fixToggleDone(id){
+  var e=fixLog.filter(function(x){return x.id===id;})[0];
+  if(!e)return;
+  e.fixedAt=e.fixedAt?null:new Date().toISOString();
+  sv('fixLog',fixLog);
+  renderFixLog();
+}
+function fixToggleFlag(id){
+  var e=fixLog.filter(function(x){return x.id===id;})[0];
+  if(!e)return;
+  e.flag=!e.flag;
+  sv('fixLog',fixLog);
+  renderFixLog();
+}
+function fixEdit(id){
+  var e=fixLog.filter(function(x){return x.id===id;})[0];
+  if(!e)return;
+  var v=prompt('Edit this item:',e.txt);
+  if(v===null)return;
+  v=v.trim();
+  if(!v)return;
+  e.txt=v;
+  sv('fixLog',fixLog);
+  renderFixLog();
+}
+function fixDel(id){
+  fixLog=fixLog.filter(function(x){return x.id!==id;});
+  sv('fixLog',fixLog);
+  renderFixLog();
+}
+function clearFixedOlderThan30(){
+  var cut=Date.now()-30*86400000;
+  fixLog=fixLog.filter(function(x){return !x.fixedAt||new Date(x.fixedAt).getTime()>cut;});
+  sv('fixLog',fixLog);
+  renderFixLog();
+}
+
+// -- copy to clipboard, formatted for pasting straight into Claude ------------
+function _fixClipboard(text,label){
+  function flash(){
+    var n=document.getElementById('fixCopyNote');
+    if(!n)return;
+    n.textContent='✓ '+(label||'Copied')+' — paste it into Claude with your index file.';
+    n.style.display='block';
+    setTimeout(function(){n.style.display='none';},3500);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(flash,function(){_fixClipFallback(text,flash);});
+  }else{
+    _fixClipFallback(text,flash);
+  }
+}
+function _fixClipFallback(text,cb){
+  try{
+    var ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    cb&&cb();
+  }catch(e){
+    prompt('Copy this:',text);
+  }
+}
+
+function copyFixLog(mode){
+  var open=fixLog.filter(function(e){return !e.fixedAt;});
+  if(mode==='flag')open=open.filter(function(e){return e.flag;});
+  if(!open.length){
+    _fixClipboard('(nothing to fix — queue is clear)','Queue is empty');
+    return;
+  }
+  var lines=[];
+  lines.push('SYSTEM FIX QUEUE — '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));
+  lines.push('These are changes I need made to the attached index.html. Please make each one and tell me what you changed.');
+  lines.push('');
+  var systems=[];
+  open.forEach(function(e){if(systems.indexOf(e.sys)<0)systems.push(e.sys);});
+  var n=0;
+  systems.forEach(function(s){
+    lines.push('## '+s.toUpperCase());
+    open.filter(function(e){return e.sys===s;})
+        .sort(function(a,b){return (b.flag?1:0)-(a.flag?1:0);})
+        .forEach(function(e){
+          n++;
+          lines.push(n+'. '+(e.flag?'[FLAGGED] ':'')+e.txt+'  (logged '+fixDateOnly(e.created)+')');
+        });
+    lines.push('');
+  });
+  _fixClipboard(lines.join('\n'),'Copied '+n+' item'+(n===1?'':'s'));
+}
+function fixCopyOne(id){
+  var e=fixLog.filter(function(x){return x.id===id;})[0];
+  if(!e)return;
+  _fixClipboard('['+e.sys+'] '+e.txt,'Copied 1 item');
+}
+
+function renderFixLog(){
+  var el=document.getElementById('fixList');
+  if(!el)return;
+  var emp=document.getElementById('fixEmpty');
+  var badge=document.getElementById('fixOpenBadge');
+  var stats=document.getElementById('fixStats');
+
+  var open=fixLog.filter(function(e){return !e.fixedAt;});
+  var done=fixLog.filter(function(e){return !!e.fixedAt;});
+  var flagged=open.filter(function(e){return e.flag;});
+  var weekCut=Date.now()-7*86400000;
+  var doneWeek=done.filter(function(e){return new Date(e.fixedAt).getTime()>weekCut;});
+
+  if(badge)badge.textContent=open.length?(open.length+' open'+(flagged.length?' · '+flagged.length+' flagged':'')):'all clear ✓';
+  if(badge)badge.style.color=flagged.length?'var(--coral)':(open.length?'var(--y)':'var(--green)');
+  if(stats)stats.textContent=open.length+' open · '+done.length+' fixed all-time · '+doneWeek.length+' fixed this week';
+
+  var rows;
+  if(_fixFilter==='open')rows=open.slice();
+  else if(_fixFilter==='fixed')rows=done.slice();
+  else rows=fixLog.slice();
+
+  // flagged first, then oldest-first for open; most recently fixed first for done
+  rows.sort(function(a,b){
+    if(!a.fixedAt&&!b.fixedAt){
+      if(!!b.flag!==!!a.flag)return (b.flag?1:0)-(a.flag?1:0);
+      return String(a.created).localeCompare(String(b.created));
+    }
+    if(!a.fixedAt)return -1;
+    if(!b.fixedAt)return 1;
+    return String(b.fixedAt).localeCompare(String(a.fixedAt));
+  });
+
+  if(!rows.length){
+    el.innerHTML='';
+    if(emp){
+      emp.style.display='block';
+      emp.textContent=_fixFilter==='fixed'?'Nothing marked fixed yet.':(fixLog.length?'Nothing open — queue is clear. ✓':'Nothing logged. Add the first thing you want changed.');
+    }
+    return;
+  }
+  if(emp)emp.style.display='none';
+
+  el.innerHTML=rows.map(function(e){
+    var isDone=!!e.fixedAt;
+    var days=fixDaysOpen(e.created);
+    var meta=isDone
+      ? '<span class="fix-fixed">✓ Fixed '+fixTs(e.fixedAt)+'</span> · logged '+fixDateOnly(e.created)
+      : 'logged '+fixDateOnly(e.created)+(days>=1?' · sitting '+days+' day'+(days===1?'':'s'):' · today');
+    return '<div class="fix-row'+(e.flag&&!isDone?' flagged':'')+(isDone?' isdone':'')+'">'
+      +'<button class="chk '+(isDone?'done':'')+'" onclick="fixToggleDone(\''+e.id+'\')" title="'+(isDone?'Reopen':'Mark fixed — stamps the date and time')+'"></button>'
+      +'<button class="fix-flagbtn'+(e.flag?' on':'')+'" onclick="fixToggleFlag(\''+e.id+'\')" title="Flag / unflag">&#128681;</button>'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">'
+          +'<span class="fix-sys '+fixSysCls(e.sys)+'">'+escHtml(e.sys)+'</span>'
+          +'<span class="fix-txt" onclick="fixEdit(\''+e.id+'\')" title="Tap to edit">'+escHtml(e.txt)+'</span>'
+        +'</div>'
+        +'<div class="fix-meta">'+meta+'</div>'
+      +'</div>'
+      +'<div class="fix-actions">'
+        +'<button class="fix-mini" onclick="fixCopyOne(\''+e.id+'\')" title="Copy just this one">&#128203;</button>'
+        +'<button class="fix-mini del" onclick="fixDel(\''+e.id+'\')" title="Delete">&#215;</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+window.setFixSys=setFixSys;window.toggleFixFlagNew=toggleFixFlagNew;window.setFixFilter=setFixFilter;
+window.addFix=addFix;window.fixToggleDone=fixToggleDone;window.fixToggleFlag=fixToggleFlag;
+window.fixEdit=fixEdit;window.fixDel=fixDel;window.copyFixLog=copyFixLog;window.fixCopyOne=fixCopyOne;
+window.renderFixLog=renderFixLog;window.clearFixedOlderThan30=clearFixedOlderThan30;
+
 function renderAll(){
   safeCall(function(){_pace=computePace();},'computePace'); // before the lists, so rows get their pace classes
   safeCall(renderBurst,'renderBurst');
@@ -6156,8 +6170,6 @@ function renderAll(){
   safeCall(renderRevenue,'renderRevenue');
   safeCall(renderWeeklyGrid,'renderWeeklyGrid');
   safeCall(renderCalEvents,'renderCalEvents');
-  safeCall(renderProjects,'renderProjects');
-  safeCall(applyProjBoardCollapseState,'applyProjBoardCollapseState');
   safeCall(renderPipeline,'renderPipeline');
   safeCall(renderHours,'renderHours');
   safeCall(renderTargets,'renderTargets');
@@ -6165,16 +6177,7 @@ function renderAll(){
   safeCall(renderGrocery,'renderGrocery');
   safeCall(renderCalls,'renderCalls');
   safeCall(renderCorrelation,'renderCorrelation');
-}
-
-function applyProjBoardCollapseState(){
-  var collapsed=ld('projBoardCollapsed',false);
-  var wrap=document.getElementById('projectBoardWrap');
-  var arrow=document.getElementById('projBoardArrow');
-  var lbl=document.getElementById('projBoardLbl');
-  if(wrap)wrap.style.display=collapsed?'none':'block';
-  if(arrow)arrow.textContent=collapsed?'▸':'▾';
-  if(lbl)lbl.textContent=collapsed?'Expand':'Collapse';
+  safeCall(renderFixLog,'renderFixLog');
 }
 
 function reloadFromStorage(){
@@ -6191,7 +6194,6 @@ function reloadFromStorage(){
   stopRule=ld('stopRule',stopRule);
   stopHits=ld('stopHits',{});
   revLog=ld('revLog',[]);
-  projects=ld('projects',[]);
   bizSales=ld('bizSales',DEF_BIZ.sales);
   bizVisNon=ld('bizVisNon',DEF_BIZ.visNon);
   bizVis=ld('bizVis',DEF_BIZ.visibility);
@@ -6202,6 +6204,7 @@ function reloadFromStorage(){
   bizContent=ld('bizContent',DEF_BIZ.content);
   bizProduct=ld('bizProduct',DEF_BIZ.product);
   sysLog=ld('sysLog',[]);
+  fixLog=ld('fixLog',[]);
   smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
   selfCheck=ld('selfCheck',{});
   personalTodos=ld('personalTodos',[]);
