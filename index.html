@@ -927,6 +927,20 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 <div class="viewing-past" id="viewingPast">📅 Viewing past day — read only</div>
 
+<!-- DAY SCHEDULE / TIME BLOCKS -->
+<div class="card" id="dayScheduleCard" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--y)"></span>&#128336; Day Schedule</div>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Today's day type</div>
+  <div style="display:flex;gap:6px;margin-bottom:8px;" id="dayTypeButtons"></div>
+  <div style="display:flex;gap:6px;margin-bottom:8px;" id="dayBlockHoursButtons"></div>
+  <div class="choose-label" style="color:var(--t2);">End work day by</div>
+  <div style="display:flex;gap:6px;margin-bottom:10px;" id="dayEndButtons"></div>
+  <div id="dayScheduleBlocks"></div>
+  <div style="font-size:11px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);" id="dayScheduleTotal"></div>
+</div>
+
 <div class="section-divider">
   <div class="section-divider-line"></div>
   <div class="section-divider-label morning">🌅 Morning</div>
@@ -1085,22 +1099,14 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div id="hoursWeek" style="font-size:10px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);"></div>
   </div>
 
-<!-- BUSINESS BURST -->
-<div class="card" style="margin-bottom:10px;padding:10px 14px;">
-  <div id="burstStrip_b"></div>
-  <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--b);">
-    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Business today <span id="bizSplitPct2" style="color:var(--y);font-weight:700;">0%</span></div>
-    <div class="sec-track"><div class="sec-fill" id="bizSplitBar2" style="width:0%;background:var(--y)"></div></div>
-  </div>
-</div>
-
 <!-- BUSINESS GRID — 3 wide, smaller cards -->
 <div class="grid-3">
   <!-- UTS VISIBILITY -->
-  <div class="card">
+  <div class="card" id="cardUts">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--coral)"></span>UTS Visibility</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="utsTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--coral)" id="visPct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('visibility')">+</button>
       </div>
@@ -1113,10 +1119,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 
   <!-- CLIENT COMMS -->
-  <div class="card">
+  <div class="card" id="cardClient">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Client Comms</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="clientTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--teal)" id="clientPct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('client')">+</button>
       </div>
@@ -1127,10 +1134,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 
   <!-- Sales & Growth | Money / Business -->
   <!-- SALES / GROWTH -->
-  <div class="card">
+  <div class="card" id="cardSales">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--y)"></span>Sales &amp; Growth</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="salesTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--y)" id="salesPct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('sales')">+</button>
       </div>
@@ -1139,13 +1147,17 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div class="choose-label">Choose one &mdash; 3&times; a week</div>
     <div class="choose-note" id="salesWeekNote">0 of 3 days done this week</div>
     <div id="salesList"></div>
+    <div class="choose-label" style="margin-top:10px;">Send 5 sales messages &mdash; daily</div>
+    <div class="choose-note" id="salesTouchNote">0 of 5 sent today</div>
+    <div id="salesTouchList"></div>
   </div>
 
   <!-- MONEY -->
-  <div class="card">
+  <div class="card" id="cardMoney">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--green)"></span>Money / Business</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="moneyTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--green)" id="moneyPct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('money')">+</button>
       </div>
@@ -1156,10 +1168,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 
   <!-- Bottlenecks | Admin -->
   <!-- BOTTLENECKS -->
-  <div class="card">
+  <div class="card" id="cardBottle">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Bottlenecks / Systems</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="bottleTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--purple)" id="bottlePct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('bottle')">+</button>
       </div>
@@ -1174,10 +1187,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 
   <!-- ADMIN -->
-  <div class="card">
+  <div class="card" id="cardAdmin">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Admin Cleanup</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="adminTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--blue)" id="adminPct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('admin')">+</button>
       </div>
@@ -1189,10 +1203,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 
   <!-- Weekly Content + Weekly Product + Content Ideas -->
   <!-- CONTENT -->
-  <div class="card">
+  <div class="card" id="cardContent">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--pink)"></span>Weekly Content Build</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="contentTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--pink)" id="contentPct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('content')">+</button>
       </div>
@@ -1203,10 +1218,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 
   <!-- PRODUCT -->
-  <div class="card">
+  <div class="card" id="cardProduct">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Weekly Product Improvement</div>
       <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="productTimeBadge" style="color:var(--t2);font-weight:600;"></span>
         <span class="sec-pct" style="color:var(--orange)" id="productPct">0%</span>
         <button class="btn btn-ghost btn-sm" onclick="openAddBiz('product')">+</button>
       </div>
@@ -1230,6 +1246,78 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
   </div>
 
+</div>
+
+<!-- 30-DAY SCOREBOARD -->
+<div class="card" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--y)"></span>&#127942; 30-Day Scoreboard</div>
+  </div>
+  <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5;">
+    Proof of work for the OS month &mdash; no unnecessary rebuilding of the OS. This is proof that: you can generate revenue without waiting for panic &middot; finish projects without controlling every step &middot; maintain your body and environment during a busy week &middot; hold emotional uncertainty without compulsively analyzing or acting on it.
+  </div>
+
+  <div id="sbChallengeBox" style="margin-bottom:14px;"></div>
+
+  <div style="margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;">
+      <span id="sbCollectText">$0 of $20,000 collected</span><span class="sec-pct" style="color:var(--y)" id="sbCollectPct">0%</span>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="sbCollectBar" style="width:0%;background:var(--y)"></div></div>
+  </div>
+
+  <div style="margin-bottom:6px;">
+    <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;">
+      <span id="sbRecurText">$0 of $5,000 in new recurring revenue</span><span class="sec-pct" style="color:var(--green)" id="sbRecurPct">0%</span>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="sbRecurBar" style="width:0%;background:var(--green)"></div></div>
+    <div class="add-row" style="margin-top:6px;">
+      <button class="btn btn-ghost btn-sm" onclick="openAddRecurringRev()" style="width:100%;">+ Add recurring (e.g. Cindy &mdash; 2000/mo)</button>
+    </div>
+    <div id="sbRecurList" style="margin-top:6px;"></div>
+  </div>
+
+  <div class="task-row" style="border-top:1px solid var(--b);margin-top:10px;padding-top:10px;">
+    <button class="chk" id="sbOverdueChk" onclick="toggleOverdueDone()"></button>
+    <div class="task-info"><div class="task-name">All overdue projects assigned, scheduled, or delivered</div><div class="task-ts">Daily check</div></div>
+  </div>
+
+  <div style="padding:8px 0;border-bottom:1px solid var(--b);">
+    <div class="task-name" style="margin-bottom:5px;">One editor handling a complete repeatable workflow</div>
+    <textarea class="jta" id="sbEditorNote" placeholder="Where you're at with this..." style="min-height:50px;" oninput="saveEditorNote(this.value)"></textarea>
+  </div>
+
+  <div style="padding:8px 0;border-bottom:1px solid var(--b);">
+    <div class="task-name">Five sales touches each weekday</div>
+    <div class="choose-note" id="sbSalesTouchNote">0 of 5 sent today</div>
+    <div id="sbSalesTouchList"></div>
+  </div>
+
+  <div style="padding:8px 0;border-bottom:1px solid var(--b);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div class="task-name">Three workouts per week</div>
+      <span class="sec-pct" style="color:var(--teal)" id="sbWorkoutText">0 of 3 workouts this week</span>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="chk" id="sbWorkoutChk0" onclick="toggleWorkout(0)"></button>
+      <button class="chk" id="sbWorkoutChk1" onclick="toggleWorkout(1)"></button>
+      <button class="chk" id="sbWorkoutChk2" onclick="toggleWorkout(2)"></button>
+    </div>
+  </div>
+
+  <div style="padding:8px 0;">
+    <div class="task-name" style="margin-bottom:6px;">Major reduction in alcohol and weed &mdash; daily check</div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:4px 0;">
+      <span style="min-width:70px;font-weight:700;font-size:12px;">Alcohol</span>
+      <span style="font-size:11px;color:var(--t2);" id="sbalcoholText">0 of 30 days clean</span>
+      <button class="btn btn-ghost btn-sm" id="sbalcoholBtn" style="margin-left:auto;">Clean today?</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:4px 0;">
+      <span style="min-width:70px;font-weight:700;font-size:12px;">Weed</span>
+      <span style="font-size:11px;color:var(--t2);" id="sbweedText">0 of 30 days clean</span>
+      <button class="btn btn-ghost btn-sm" id="sbweedBtn" style="margin-left:auto;">Clean today?</button>
+    </div>
+  </div>
 </div>
 
 <div class="section-divider">
@@ -1566,7 +1654,6 @@ const DEF_GOALS=['Build a life and business I love','Stay healthy — eat well, 
 const DEF_BIZ={
   sales:[
     {id:'s1',name:'Pitch',dur:''},
-    {id:'s2',name:'Send 3–5 sales messages',dur:''},
     {id:'s3',name:'Follow up leads',dur:''},
     {id:'s4',name:'Make / push high-ticket offer',dur:''},
   ],
@@ -1834,6 +1921,17 @@ let revLog=ld('revLog',[]);
 let revFilter='week';
 let revChart=null,compChart=null,trendChart=null,trendTestChart=null;
 
+// 30-day scoreboard support data
+let salesTouchLog=ld('salesTouchLog',{});     // dateKey -> [ {done,who,note,ts} x5 ]
+let recurringRevLog=ld('recurringRevLog',[]); // [{id,name,amount,addedAt}]
+let workoutLog=ld('workoutLog',{});           // mondayKey -> [bool,bool,bool]
+let sbOverdueLog=ld('sbOverdueLog',{});       // dateKey -> bool (daily tracker)
+
+// day schedule / time blocks
+let dayType=ld('dayType',{});           // dateKey -> 'shoot'|'edit'|'admin'
+let dayBlockHours=ld('dayBlockHours',{}); // dateKey -> 4|6
+let dayEndTarget=ld('dayEndTarget',{});  // dateKey -> '21:30'|'22:30'
+
 // biz lists
 let bizSales=ld('bizSales',DEF_BIZ.sales);
 let bizVisNon=ld('bizVisNon',DEF_BIZ.visNon);
@@ -1950,12 +2048,15 @@ let _clockDay=null;
 let _clockWeek=null;
 let _laundryTick=0;
 let _burstTick=0;
+let _scheduleTick=0;
 function updateClock(){
   document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});
   // dryer reminder watch — cheap check every ~30s (persisted, survives reloads)
   if(++_laundryTick>=30){_laundryTick=0;try{checkLaundryReminders();}catch(e){}}
   // today-list task timers — cheap text-only update every second while running
   try{tickTodayTimers();}catch(e){}
+  // day-schedule live highlight — cheap re-render every ~20s
+  if(++_scheduleTick>=20){_scheduleTick=0;try{renderDaySchedule();}catch(e){}}
   // burst pacer — re-highlight the lists once a minute while a burst runs
   if(++_burstTick>=60){
     _burstTick=0;
@@ -2080,6 +2181,12 @@ function delMission(i){mission.splice(i,1);sv('mission',mission);renderMissionEd
 // Did you or didn't you — each line gets a Yes / No answer per day so he
 // actually thinks about whether he did the thing. No = held the line (good).
 // Legacy data: old taps stored `true` (= held) — migrated to 'n' at load.
+function migrateSalesList(){
+  if(Array.isArray(bizSales)&&bizSales.some(function(t){return t.id==='s2';})){
+    bizSales=bizSales.filter(function(t){return t.id!=='s2';});
+    sv('bizSales',bizSales);
+  }
+}
 function migrateStopHits(){
   var changed=false;
   Object.keys(stopHits).forEach(function(k){
@@ -2914,6 +3021,7 @@ function smokeChk(kind,dateKey){
   else smokeFree[kind][dateKey]=true;
   sv('smokeFree',smokeFree);
   renderSmokeTracker();
+  if(typeof renderScoreboard==='function')try{renderScoreboard();}catch(e){}
 }
 
 // -- PERSONAL TO-DO --------------------------------------------------------------
@@ -3744,6 +3852,7 @@ function renderAllBiz(){
   applyBar('salesBar','salesPct',Math.min(100,Math.round(salesDays/3*100)));
   var swn=document.getElementById('salesWeekNote');
   if(swn)swn.textContent=Math.min(salesDays,3)+' of 3 days done this week'+(salesDays>=3?' — done! ✓':'');
+  renderSalesTouches();
 
   // Visibility non-negotiable
   {var vnDm=ds.vn;var vnEl=document.getElementById('visNonList');vnEl.innerHTML=bizVisNon.map(function(t){
@@ -3871,6 +3980,399 @@ function openAddBiz(key){
     cfg.sv(tasks);renderAllBiz();renderOverall();
   });
 }
+
+// -- SALES TOUCHES: 5 daily sales messages, each with a who/what note ----------
+function getSalesTouchDay(k){
+  var arr=salesTouchLog[k]||[];
+  var out=[];
+  for(var i=0;i<5;i++)out.push(arr[i]||{done:false,who:'',note:''});
+  return out;
+}
+function setSalesTouchDay(k,arr){salesTouchLog[k]=arr;sv('salesTouchLog',salesTouchLog);}
+function toggleSalesTouch(idx){
+  var k=viewKey();
+  var arr=getSalesTouchDay(k).slice();
+  if(arr[idx].done){
+    arr[idx]={done:false,who:'',note:''};
+    setSalesTouchDay(k,arr);
+    renderSalesTouches();safeCall(renderScoreboard,'renderScoreboard');
+    return;
+  }
+  openModal('Sales message '+(idx+1)+' of 5','Who was it to?','What did you send? (optional)',false,function(who,note){
+    if(!who.trim())return true; // keep modal open until they name a recipient
+    var arr2=getSalesTouchDay(k).slice();
+    arr2[idx]={done:true,who:who.trim(),note:(note||'').trim(),ts:nowStr()};
+    setSalesTouchDay(k,arr2);
+    renderSalesTouches();safeCall(renderScoreboard,'renderScoreboard');
+  });
+}
+function editSalesTouch(idx){
+  var k=viewKey();
+  var cur=getSalesTouchDay(k)[idx];
+  if(!cur.done)return;
+  openModal('Edit sales message '+(idx+1),'Who was it to?','What did you send? (optional)',false,function(who,note){
+    if(!who.trim())return true;
+    var arr2=getSalesTouchDay(k).slice();
+    arr2[idx]={done:true,who:who.trim(),note:(note||'').trim(),ts:cur.ts||nowStr()};
+    setSalesTouchDay(k,arr2);
+    renderSalesTouches();
+  });
+  setTimeout(function(){
+    var i1=document.getElementById('mIn1'),i2=document.getElementById('mIn2');
+    if(i1)i1.value=cur.who||'';
+    if(i2)i2.value=cur.note||'';
+    document.getElementById('modalConfirm').textContent='Save';
+  },80);
+}
+function renderSalesTouches(){
+  var k=viewKey();
+  var arr=getSalesTouchDay(k);
+  var doneCount=arr.filter(function(t){return t.done;}).length;
+  var rowsHtml=arr.map(function(t,i){
+    return '<div class="task-row">'
+      +'<button class="chk '+(t.done?'done':'')+'" onclick="toggleSalesTouch('+i+')" title="'+(t.done?'Uncheck':'Mark sent — logs who/what')+'"></button>'
+      +'<div class="task-info" '+(t.done?'style="cursor:pointer;" onclick="editSalesTouch('+i+')"':'')+'>'
+      +'<div class="task-name '+(t.done?'done':'')+'">Message '+(i+1)+(t.who?' &rarr; '+escHtml(t.who):'')+'</div>'
+      +(t.note?'<div class="task-ts">'+escHtml(t.note)+'</div>':'')
+      +'</div></div>';
+  }).join('');
+  var noteTxt=doneCount+' of 5 sent'+(k===todayKey()?' today':' on '+fmtDateShort(k))+(doneCount>=5?' — done! ✓':'');
+  ['salesTouchList','sbSalesTouchList'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.innerHTML=rowsHtml;
+  });
+  ['salesTouchNote','sbSalesTouchNote'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.textContent=noteTxt;
+  });
+}
+window.toggleSalesTouch=toggleSalesTouch;window.editSalesTouch=editSalesTouch;
+
+// -- RECURRING REVENUE (feeds the 30-day scoreboard) ---------------------------
+function addRecurringRev(name,amt){
+  var v=parseFloat(amt);
+  if(!name||!name.trim()||!v)return;
+  recurringRevLog.push({id:'rr'+Date.now(),name:name.trim(),amount:v,addedAt:todayKey()});
+  sv('recurringRevLog',recurringRevLog);
+  safeCall(renderScoreboard,'renderScoreboard');
+}
+function delRecurringRev(id){
+  recurringRevLog=recurringRevLog.filter(function(x){return x.id!==id;});
+  sv('recurringRevLog',recurringRevLog);
+  safeCall(renderScoreboard,'renderScoreboard');
+}
+function openAddRecurringRev(){
+  openModal('Add Recurring Revenue','Who (e.g. Cindy)','Amount per month (e.g. 2000)',false,function(n,amt){
+    addRecurringRev(n,amt);
+  });
+}
+window.addRecurringRev=addRecurringRev;window.delRecurringRev=delRecurringRev;window.openAddRecurringRev=openAddRecurringRev;
+
+// -- WORKOUTS: 3 checkboxes, resets each week ----------------------------------
+function mondayKeyOf(d){
+  var dt=new Date(d);
+  var day=dt.getDay();
+  var diff=(day===0?-6:1-day);
+  dt.setDate(dt.getDate()+diff);
+  return dt.getFullYear()+'-'+p2(dt.getMonth()+1)+'-'+p2(dt.getDate());
+}
+function getWorkoutWeek(mk){
+  var arr=workoutLog[mk];
+  if(!arr||arr.length!==3)arr=[false,false,false];
+  return arr;
+}
+function toggleWorkout(idx){
+  var mk=mondayKeyOf(new Date());
+  var arr=getWorkoutWeek(mk).slice();
+  arr[idx]=!arr[idx];
+  workoutLog[mk]=arr;
+  sv('workoutLog',workoutLog);
+  safeCall(renderScoreboard,'renderScoreboard');
+}
+window.toggleWorkout=toggleWorkout;
+
+// -- DAY SCHEDULE / TIME BLOCKS -------------------------------------------------
+function setDayType(t){
+  var k=viewKey();
+  dayType[k]=t;
+  sv('dayType',dayType);
+  if(t==='admin'&&dayBlockHours[k]){delete dayBlockHours[k];sv('dayBlockHours',dayBlockHours);}
+  renderDaySchedule();
+}
+function setDayBlockHours(h){
+  var k=viewKey();
+  dayBlockHours[k]=h;
+  sv('dayBlockHours',dayBlockHours);
+  renderDaySchedule();
+}
+function setDayEnd(t){
+  var k=viewKey();
+  dayEndTarget[k]=t;
+  sv('dayEndTarget',dayEndTarget);
+  renderDaySchedule();
+}
+window.setDayType=setDayType;window.setDayBlockHours=setDayBlockHours;window.setDayEnd=setDayEnd;
+function minToClock(mins){
+  mins=((mins%1440)+1440)%1440;
+  var h=Math.floor(mins/60),m=mins%60;
+  var ap=h>=12?'PM':'AM';
+  var h12=h%12;if(h12===0)h12=12;
+  return h12+':'+p2(m)+' '+ap;
+}
+function nowMinutes(){var d=new Date();return d.getHours()*60+d.getMinutes();}
+const BIZ_SECTION_LIST=[
+  {key:'uts',label:'UTS Visibility',card:'cardUts',badge:'utsTimeBadge',color:'coral'},
+  {key:'client',label:'Client Comms',card:'cardClient',badge:'clientTimeBadge',color:'teal'},
+  {key:'sales',label:'Sales & Growth',card:'cardSales',badge:'salesTimeBadge',color:'y'},
+  {key:'money',label:'Money / Business',card:'cardMoney',badge:'moneyTimeBadge',color:'green'},
+  {key:'bottle',label:'Bottlenecks / Systems',card:'cardBottle',badge:'bottleTimeBadge',color:'purple'},
+  {key:'admin',label:'Admin Cleanup',card:'cardAdmin',badge:'adminTimeBadge',color:'blue'},
+  {key:'content',label:'Weekly Content Build',card:'cardContent',badge:'contentTimeBadge',color:'pink'},
+  {key:'product',label:'Weekly Product Improvement',card:'cardProduct',badge:'productTimeBadge',color:'orange'},
+];
+function computeDaySchedule(){
+  var k=viewKey();
+  var type=dayType[k]||null;
+  var blockH=dayBlockHours[k]||6; // Admin defaults to a standard 6h block ("just a regular day")
+  var endTarget=dayEndTarget[k]||'21:30';
+  var ep=endTarget.split(':').map(Number);
+  var endMin=ep[0]*60+ep[1];
+  var morningStart=6*60,morningEnd=morningStart+75;
+  var bizStart=morningEnd;
+  var bizTotalMin=blockH*60;
+  var nightEnd=endMin,nightStart=nightEnd-75;
+  var totalHours=(75+bizTotalMin+75)/60;
+
+  // Each business section (UTS, Client Comms, Sales, Money, Bottlenecks, Admin,
+  // Content, Product) gets its own slice of the business block — they don't get
+  // lumped together as one "shoot" chunk.
+  var n=BIZ_SECTION_LIST.length;
+  var per=Math.floor(bizTotalMin/n);
+  var rem=bizTotalMin-per*n;
+  var cursor=bizStart;
+  var bizBlocks=BIZ_SECTION_LIST.map(function(s,i){
+    var dur=per+(i<rem?1:0);
+    var b={key:s.key,name:s.label,card:s.card,badge:s.badge,start:cursor,end:cursor+dur};
+    cursor+=dur;
+    return b;
+  });
+
+  return{type:type,blockH:blockH,totalHours:totalHours,bizBlocks:bizBlocks,
+    blocks:[{name:'Morning Checklist',start:morningStart,end:morningEnd}]
+      .concat(bizBlocks)
+      .concat([{name:'Night Checklist',start:nightStart,end:nightEnd}])
+  };
+}
+function renderDaySchedule(){
+  var tb=document.getElementById('dayTypeButtons');
+  if(!tb)return;
+  var k=viewKey();
+  var type=dayType[k]||null;
+  var blockH=dayBlockHours[k]||6;
+  var endTarget=dayEndTarget[k]||'21:30';
+
+  tb.innerHTML=[['shoot','Shoot'],['edit','Edit'],['admin','Admin']].map(function(t){
+    return '<button class="btn '+(type===t[0]?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setDayType(\''+t[0]+'\')">'+t[1]+' Day</button>';
+  }).join('');
+
+  var hb=document.getElementById('dayBlockHoursButtons');
+  if(hb){
+    hb.innerHTML=(type==='shoot'||type==='edit')?[4,6].map(function(h){
+      return '<button class="btn '+(blockH===h?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setDayBlockHours('+h+')">'+h+' Hour Block</button>';
+    }).join(''):'';
+  }
+
+  var eb=document.getElementById('dayEndButtons');
+  if(eb){
+    eb.innerHTML=[['21:30','End by 9:30 PM'],['22:30','End by 10:30 PM']].map(function(t){
+      return '<button class="btn '+(endTarget===t[0]?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setDayEnd(\''+t[0]+'\')">'+t[1]+'</button>';
+    }).join('');
+  }
+
+  var el=document.getElementById('dayScheduleBlocks');
+  var tot=document.getElementById('dayScheduleTotal');
+  if(!type){
+    if(el)el.innerHTML='<div style="font-size:11px;color:var(--t3);padding:6px 0;">Pick a day type above to build today\'s time blocks.</div>';
+    if(tot)tot.textContent='';
+    // clear any stale badges/highlights on the business cards
+    BIZ_SECTION_LIST.forEach(function(s){
+      var badge=document.getElementById(s.badge);if(badge)badge.textContent='';
+      var card=document.getElementById(s.card);if(card){card.style.background='';card.style.border='';}
+    });
+    return;
+  }
+  var sched=computeDaySchedule();
+  var nm=nowMinutes();
+  var isToday=(k===todayKey());
+  if(el){
+    var typeLabel=type.charAt(0).toUpperCase()+type.slice(1);
+    el.innerHTML='<div style="font-size:10px;color:var(--t3);margin-bottom:6px;">Business time (' +typeLabel+' &middot; '+blockH+'h) split across each area below</div>'
+      +sched.blocks.map(function(b){
+        var active=isToday&&nm>=b.start&&nm<b.end;
+        return '<div style="padding:7px 9px;margin-bottom:6px;border-radius:8px;'
+          +(active?'background:rgba(242,201,76,.14);border:1px solid var(--y3);':'background:var(--bg3);border:1px solid var(--b);')+'">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+          +'<span style="font-weight:700;font-size:12px;'+(active?'color:var(--y);':'')+'">'+(active?'&#9889; ':'')+escHtml(b.name)+'</span>'
+          +(active?'<span style="font-size:9px;font-weight:700;color:var(--y);letter-spacing:.05em;">NOW</span>':'')
+          +'</div>'
+          +'<div style="font-size:11px;color:var(--t2);margin-top:1px;">'+minToClock(b.start)+' &ndash; '+minToClock(b.end)+'</div>'
+          +'</div>';
+      }).join('');
+  }
+  if(tot){
+    var over=sched.totalHours>12;
+    var hrsTxt=(Math.round(sched.totalHours*100)/100)+'';
+    tot.innerHTML='Total scheduled: <b style="'+(over?'color:var(--coral);':'color:var(--t);')+'">'+hrsTxt+'h of 12h max</b>'+(over?' &mdash; over the cap, trim a block':'');
+  }
+
+  // attach each section's own time + live highlight directly on its card
+  sched.bizBlocks.forEach(function(b){
+    var badge=document.getElementById(b.badge);
+    if(badge)badge.textContent=minToClock(b.start)+'–'+minToClock(b.end);
+    var card=document.getElementById(b.card);
+    if(card){
+      var active=isToday&&nm>=b.start&&nm<b.end;
+      if(active){card.style.background='rgba(242,201,76,.08)';card.style.border='1px solid var(--y3)';}
+      else{card.style.background='';card.style.border='';}
+    }
+  });
+}
+window.renderDaySchedule=renderDaySchedule;
+
+// -- 30-DAY SCOREBOARD -----------------------------------------------------------
+function dateKeyOffset(n){var d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+function last30Keys(){var out=[];for(var i=0;i<30;i++)out.push(dateKeyOffset(i));return out;}
+
+// Challenge: once started, the $20k/$5k goals count from that start date
+// forward (not a rolling window), for up to 30 days.
+function getChallengeStart(){return ld('sbChallengeStart',null);}
+function startChallenge(){
+  sv('sbChallengeStart',todayKey());
+  renderScoreboard();
+}
+function resetChallenge(){
+  sv('sbChallengeStart',null);
+  renderScoreboard();
+}
+window.startChallenge=startChallenge;window.resetChallenge=resetChallenge;
+function challengeDayNum(){ // 1-based, uncapped (so "Day 34 of 30" still reads sensibly if it runs long)
+  var start=getChallengeStart();
+  if(!start)return 0;
+  var sp=start.split('-').map(Number);
+  var sd=new Date(sp[0],sp[1]-1,sp[2]);
+  var tp=todayKey().split('-').map(Number);
+  var td=new Date(tp[0],tp[1]-1,tp[2]);
+  return Math.max(1,Math.round((td-sd)/86400000)+1);
+}
+function challengeKeys(){ // every date key from start through today
+  var start=getChallengeStart();
+  if(!start)return [];
+  var n=challengeDayNum();
+  var out=[];
+  var sp=start.split('-').map(Number);
+  var d=new Date(sp[0],sp[1]-1,sp[2]);
+  for(var i=0;i<n;i++){
+    out.push(d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()));
+    d.setDate(d.getDate()+1);
+  }
+  return out;
+}
+function scoreboardCollected(){
+  var set={};challengeKeys().forEach(function(k){set[k]=true;});
+  return revLog.filter(function(r){return set[r.date];}).reduce(function(s,r){return s+(parseFloat(r.amount)||0);},0);
+}
+function scoreboardRecurringTotal(){
+  var set={};challengeKeys().forEach(function(k){set[k]=true;});
+  return recurringRevLog.filter(function(r){return set[r.addedAt];}).reduce(function(s,r){return s+(parseFloat(r.amount)||0);},0);
+}
+function toggleOverdueDone(){
+  var k=viewKey();
+  sbOverdueLog[k]=!sbOverdueLog[k];
+  sv('sbOverdueLog',sbOverdueLog);
+  renderScoreboard();
+}
+window.toggleOverdueDone=toggleOverdueDone;
+function saveEditorNote(val){sv('sbEditorNote',val);}
+window.saveEditorNote=saveEditorNote;
+function renderScoreboard(){
+  if(!document.getElementById('sbCollectBar'))return;
+
+  var cb=document.getElementById('sbChallengeBox');
+  if(cb){
+    var start=getChallengeStart();
+    if(!start){
+      cb.innerHTML='<button class="btn btn-y btn-sm" onclick="startChallenge()" style="width:100%;">&#127942; Start 30-Day Challenge</button>';
+    }else{
+      var dn=challengeDayNum();
+      var pct=Math.min(100,Math.round(dn/30*100));
+      var daysLeft=Math.max(0,30-dn);
+      cb.innerHTML='<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;">'
+        +'<span>Day '+dn+' of 30'+(dn>=30?' — complete! ✓':' &middot; '+daysLeft+' day'+(daysLeft===1?'':'s')+' left')+'</span>'
+        +'<span class="sec-pct" style="color:var(--y)">'+pct+'%</span>'
+        +'</div>'
+        +'<div class="sec-track"><div class="sec-fill" style="width:'+pct+'%;background:var(--y)"></div></div>'
+        +'<div style="text-align:right;margin-top:4px;"><span class="task-del" style="font-size:10px;opacity:.6;" onclick="if(confirm(\'End this challenge and clear its progress?\'))resetChallenge()">Reset challenge</span></div>';
+    }
+  }
+
+  var collected=scoreboardCollected();
+  applyBar('sbCollectBar','sbCollectPct',Math.min(100,Math.round(collected/20000*100)));
+  var ct=document.getElementById('sbCollectText');
+  if(ct)ct.textContent='$'+Math.round(collected).toLocaleString()+' of $20,000 collected';
+
+  var recur=scoreboardRecurringTotal();
+  applyBar('sbRecurBar','sbRecurPct',Math.min(100,Math.round(recur/5000*100)));
+  var rt=document.getElementById('sbRecurText');
+  if(rt)rt.textContent='$'+Math.round(recur).toLocaleString()+' of $5,000 in new recurring revenue';
+  var rl=document.getElementById('sbRecurList');
+  if(rl){
+    if(!recurringRevLog.length){rl.innerHTML='<div style="font-size:11px;color:var(--t3);padding:3px 0;">No recurring revenue logged yet.</div>';}
+    else{
+      rl.innerHTML=recurringRevLog.slice().reverse().map(function(r){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--b);font-size:12px;">'
+          +'<span>'+escHtml(r.name)+'</span>'
+          +'<span style="color:var(--green);font-weight:700;white-space:nowrap;">$'+Math.round(r.amount).toLocaleString()+'/mo'
+          +'<span class="task-del" style="margin-left:8px;" onclick="delRecurringRev(\''+r.id+'\')">&#215;</span></span>'
+          +'</div>';
+      }).join('');
+    }
+  }
+
+  var od=!!sbOverdueLog[viewKey()];
+  var odBtn=document.getElementById('sbOverdueChk');
+  if(odBtn)odBtn.className='chk'+(od?' done':'');
+
+  var eta=document.getElementById('sbEditorNote');
+  if(eta&&document.activeElement!==eta)eta.value=ld('sbEditorNote','');
+
+  renderSalesTouches();
+
+  var mk=mondayKeyOf(new Date());
+  var wArr=getWorkoutWeek(mk);
+  var wDone=wArr.filter(Boolean).length;
+  for(var i=0;i<3;i++){
+    var wb=document.getElementById('sbWorkoutChk'+i);
+    if(wb)wb.className='chk'+(wArr[i]?' done':'');
+  }
+  var wt=document.getElementById('sbWorkoutText');
+  if(wt)wt.textContent=wDone+' of 3 workouts this week';
+
+  var keys30=last30Keys();var tk=todayKey();
+  ['alcohol','weed'].forEach(function(kind){
+    var map=smokeFree[kind]||{};
+    var cleanCount=keys30.filter(function(k){return !!map[k];}).length;
+    var txt=document.getElementById('sb'+kind+'Text');
+    if(txt)txt.textContent=cleanCount+' of 30 days clean';
+    var btn=document.getElementById('sb'+kind+'Btn');
+    if(btn){
+      var todayClean=!!map[tk];
+      btn.textContent=todayClean?'✓ Clean today':'Clean today?';
+      btn.className='btn btn-sm '+(todayClean?'btn-y':'btn-ghost');
+      btn.setAttribute('onclick',"smokeChk('"+kind+"','"+tk+"')");
+    }
+  });
+}
+window.renderScoreboard=renderScoreboard;
 
 // -- OVERALL ------------------------------------------------------------------─
 // The bars AND the graph now share one source of truth: computeDayPct, which
@@ -6260,6 +6762,8 @@ function renderAll(){
   safeCall(renderCalls,'renderCalls');
   safeCall(renderCorrelation,'renderCorrelation');
   safeCall(renderFixLog,'renderFixLog');
+  safeCall(renderScoreboard,'renderScoreboard');
+  safeCall(renderDaySchedule,'renderDaySchedule');
 }
 
 function reloadFromStorage(){
@@ -6294,7 +6798,15 @@ function reloadFromStorage(){
   pipeTouches=ld('pipeTouches',{});
   hoursLog=ld('hoursLog',{});
   clientTargets=ld('clientTargets',[]);
+  salesTouchLog=ld('salesTouchLog',{});
+  recurringRevLog=ld('recurringRevLog',[]);
+  workoutLog=ld('workoutLog',{});
+  sbOverdueLog=ld('sbOverdueLog',{});
+  dayType=ld('dayType',{});
+  dayBlockHours=ld('dayBlockHours',{});
+  dayEndTarget=ld('dayEndTarget',{});
   try{ensureTimedTasks();}catch(e){}
+  try{migrateSalesList();}catch(e){}
   try{migrateStopHits();}catch(e){}
   try{migratePersonalTodoDates();}catch(e){}
   loadJournalForDay();
@@ -6319,6 +6831,7 @@ function safeInit(){
     initDates();
     updateDayNav();
     ensureTimedTasks();
+    migrateSalesList();
     migrateStopHits();
     migratePersonalTodoDates();
     loadJournalForDay();
