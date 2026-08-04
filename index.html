@@ -40,7 +40,7 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>window.Chart||document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
 <script type="module">
@@ -633,6 +633,48 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .goal-pill.done{color:var(--t3);font-weight:700;border-color:var(--b2);}
 .goal-pill.done .g-txt{text-decoration:line-through;}
 .goal-pill.done .g-chk{background:var(--green);border-color:var(--green);}
+
+/* ═══════════ UTS REGIMEN — section titles + new modules ═══════════ */
+.section-divider{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:28px 0 12px;}
+.sec-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-soft);}
+.sec-headline{font-family:'Fraunces',serif;font-weight:600;font-size:28px;letter-spacing:-.012em;color:var(--gold);line-height:1;text-shadow:0 0 34px rgba(242,201,76,.20);}
+.sec-underline{width:100%;height:1px;margin-top:9px;background:linear-gradient(90deg,var(--gold-glow),transparent);}
+@media(max-width:600px){.sec-headline{font-size:22px;}}
+
+/* listening program */
+.lp-phase{border-top:1px solid var(--b);padding:11px 0 3px;}
+.lp-phase:first-child{border-top:0;}
+.lp-phase-hd{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+.lp-num{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:14px;color:var(--gold-soft);}
+.lp-name{font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--t);}
+.lp-aim{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.02em;}
+.lp-item{display:flex;align-items:flex-start;gap:9px;padding:5px 0;}
+.lp-body{flex:1;min-width:0;}
+.lp-title{font-size:13.5px;font-weight:600;color:var(--t);line-height:1.35;}
+.lp-by{color:var(--t3);font-weight:400;}
+.lp-tag{display:inline-block;font-family:var(--mono);font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--gold-soft);border:1px solid var(--b2);border-radius:99px;padding:1px 7px;margin-left:5px;vertical-align:middle;}
+.lp-done .lp-title{color:var(--t3);text-decoration:line-through;}
+
+/* pitch list */
+.pitch-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--b);}
+.pitch-row:first-child{border-top:0;}
+.pitch-body{flex:1;min-width:0;}
+.pitch-name{font-size:14.5px;font-weight:700;color:var(--t);}
+.pitch-star{color:var(--gold);text-shadow:0 0 10px var(--gold-glow);}
+.pitch-loc{font-family:var(--mono);font-size:10.5px;color:var(--t2);letter-spacing:.02em;margin-top:1px;}
+.pitch-hook{font-size:12px;color:var(--t2);margin-top:4px;line-height:1.45;}
+.pitch-contact{font-family:var(--mono);font-size:10.5px;color:var(--gold-soft);margin-top:5px;word-break:break-word;}
+.pitch-status{font-family:var(--display);font-weight:700;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:99px;cursor:pointer;white-space:nowrap;border:1px solid var(--b2);background:none;color:var(--t2);}
+.pitch-status.s1{color:var(--gold);border-color:var(--gold);background:rgba(242,201,76,.1);}
+.pitch-status.s2{color:#2b2103;background:linear-gradient(180deg,var(--gold-pale),var(--gold));border-color:var(--gold);}
+
+/* I Said — promises */
+.said-who{color:var(--gold);font-weight:700;}
+.said-due{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--t2);border:1px solid var(--b2);border-radius:99px;padding:2px 9px;}
+.said-due.soon{color:var(--gold);border-color:var(--gold);background:rgba(242,201,76,.1);}
+.said-due.over{color:var(--coral);border-color:var(--coral);background:rgba(240,85,107,.12);font-weight:700;}
+.said-due.done{color:var(--t3);border-color:var(--b);}
+
 /* -- TODAY'S PLAN -- */
 .plan-card{background:linear-gradient(135deg,var(--bg2),#0d1220);border:1px solid rgba(96,165,250,.4);border-left:4px solid var(--blue);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:14px;box-shadow:0 0 16px rgba(96,165,250,.07);}
 @media(max-width:700px){.plan-card{grid-template-columns:1fr;}}
@@ -941,9 +983,9 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 <div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label morning">🌅 Morning</div>
-  <div class="section-divider-line"></div>
+  <div class="sec-eyebrow">🌅 Start</div>
+  <div class="sec-headline">Win the Morning</div>
+  <div class="sec-underline"></div>
 </div>
 <div style="margin-bottom:10px;">
 <div class="card" id="cardMorning">
@@ -959,6 +1001,19 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div id="burstStrip_m" style="margin:7px 0 2px;padding:7px 9px;background:var(--bg3);border:1px solid var(--b);border-radius:8px;"></div>
   <div class="choose-label" style="color:var(--t2);">Complete in order, top to bottom</div>
   <div id="morningList"></div>
+</div>
+
+<div class="card" id="cardSaid" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>I Said &mdash; Promises to Keep</div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <span class="sec-pct" id="saidStat" style="color:var(--gold)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="addSaid()">+</button>
+    </div>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Everything you told someone you'd do. Goes red when it's late &mdash; clear it and stay the guy who follows through.</div>
+  <div id="saidList"></div>
+  <div id="saidEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing owed &mdash; you're square with everyone. &#10003;</div>
 </div>
 
 <!-- MORNING JOURNAL — same day's entry as the Journal card down in Evening;
@@ -980,12 +1035,17 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 </div>
 
+<div class="card" id="planTodayCard" style="margin-top:10px;border-left:4px solid var(--blue);">
+  <div class="plan-hd" style="color:var(--blue);">&#9728; Today's Plan
+    <button class="btn btn-ghost btn-sm" id="planEditBtn" onclick="editPlanToday()">&#9998;</button>
+  </div>
+  <div class="plan-today-text" id="planTodayText"></div>
+  <div id="planTodayEditWrap" style="display:none;">
+    <textarea class="plan-ta" id="planTodayTa"></textarea>
+    <button class="btn btn-y btn-sm" style="margin-top:5px;" onclick="savePlanToday()">Save</button>
+  </div>
 </div>
-<div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label plan">📋 Plan &amp; Calendar</div>
-  <div class="section-divider-line"></div>
-</div>
+
 <!-- ═══ ROW 0: NEXT 7 DAYS — rolling calendar starting today (Google + manual) ═══ -->
 <div class="card" id="calCard" style="margin-bottom:10px;">
   <div class="card-hd">
@@ -1004,27 +1064,27 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 </div>
 
-<!-- TODAY'S PLAN — written the night before -->
-<div class="plan-card">
-  <div>
-    <div class="plan-hd" style="color:var(--blue);">☀ Today's Plan
-      <button class="btn btn-ghost btn-sm" id="planEditBtn" onclick="editPlanToday()">✎</button>
-    </div>
-    <div class="plan-today-text" id="planTodayText"></div>
-    <div id="planTodayEditWrap" style="display:none;">
-      <textarea class="plan-ta" id="planTodayTa"></textarea>
-      <button class="btn btn-y btn-sm" style="margin-top:5px;" onclick="savePlanToday()">Save</button>
-    </div>
-  </div>
-  <div>
-    <div class="plan-hd" style="color:var(--purple);">🌙 Plan Tomorrow <span style="font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0;">write it tonight — it shows up top tomorrow</span></div>
-    <textarea class="plan-ta" id="planTomorrowTa" placeholder="Tomorrow you're editing the Cindy reel, shooting at 2pm, invoicing..."></textarea>
-    <div style="display:flex;gap:6px;margin-top:5px;align-items:center;">
-      <button class="btn btn-y btn-sm" onclick="savePlanTomorrow()">Save</button>
-      <span id="planSaved" style="font-size:11px;color:var(--green);display:none;">✓ Saved for tomorrow</span>
-    </div>
-  </div>
 </div>
+<div class="section-divider">
+  <div class="sec-eyebrow">◐ Train</div>
+  <div class="sec-headline">Train the Mind</div>
+  <div class="sec-underline"></div>
+</div>
+<div class="card" id="cardListen" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>Listening Program</div>
+    <span class="sec-pct" id="listenPct" style="color:var(--gold)">0/0</span>
+  </div>
+  <div class="sec-track"><div class="sec-fill" id="listenBar" style="width:0%;background:linear-gradient(90deg,var(--gold-pale),var(--gold))"></div></div>
+  <div class="choose-label" style="color:var(--t2);">Run the phases in parallel &mdash; check each off as you finish it. This is your morning block.</div>
+  <div id="listenList"></div>
+</div>
+<div class="section-divider">
+  <div class="sec-eyebrow">📋 Aim</div>
+  <div class="sec-headline">Set the Day</div>
+  <div class="sec-underline"></div>
+</div>
+
 
 <div style="margin-bottom:10px;">
 <!-- PERSONAL TO-DO — first thing in Personal. Life stuff, separate from the
@@ -1047,11 +1107,23 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 </div>
 
+
 </div>
 <div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label business">💼 Deep Work</div>
-  <div class="section-divider-line"></div>
+  <div class="sec-eyebrow">💼 Execute</div>
+  <div class="sec-headline">Build the Machine</div>
+  <div class="sec-underline"></div>
+</div>
+<div class="card" id="cardPitch" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>Pitch List &mdash; People to Email</div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <span class="sec-pct" id="pitchStat" style="color:var(--gold)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="addPitch()">+</button>
+    </div>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Tap a status to advance it: To pitch &rarr; Emailed &rarr; Replied. &#9733; = hit these first.</div>
+  <div id="pitchListEl"></div>
 </div>
 <!-- BIZ: To-Do | Today List — the work queue lives with the work -->
 <div class="grid-2">
@@ -1087,17 +1159,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div id="todayEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing planned yet. Pull from To-Do or add fresh.</div>
   </div>
 </div>
-
-<!-- HOURS BY BUCKET — wide + short, lives with the work queue -->
-  <div class="card" style="margin-bottom:10px;">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Hours by Bucket</div>
-      <span class="sec-pct" style="color:var(--blue)" id="hoursToday">0h today</span>
-    </div>
-    <div class="choose-label" style="color:var(--t2);">Tap +/&minus; in half-hour chunks &mdash; bars scale to an 8h day</div>
-    <div id="hoursList"></div>
-    <div id="hoursWeek" style="font-size:10px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);"></div>
-  </div>
 
 <!-- BUSINESS GRID — 3 wide, smaller cards -->
 <div class="grid-3">
@@ -1321,9 +1382,9 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 <div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label money">💵 Money &amp; Life Admin</div>
-  <div class="section-divider-line"></div>
+  <div class="sec-eyebrow">💵 Fuel</div>
+  <div class="sec-headline">Mind the Money</div>
+  <div class="sec-underline"></div>
 </div>
 <!-- ═══ ROW 2: Money — Revenue | Contractor Payments side by side ═══ -->
     <div class="card" style="margin-bottom:10px;">
@@ -1365,9 +1426,21 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     </div>
 
 <div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label evening">🌙 Evening</div>
-  <div class="section-divider-line"></div>
+  <div class="sec-eyebrow">🌙 Close</div>
+  <div class="sec-headline">Close the Loop</div>
+  <div class="sec-underline"></div>
+</div>
+<div class="card" id="cardSaid2" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>I Said &mdash; Promises to Keep</div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <span class="sec-pct" id="saidStat2" style="color:var(--gold)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="addSaid()">+</button>
+    </div>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Everything you told someone you'd do. Goes red when it's late &mdash; clear it and stay the guy who follows through.</div>
+  <div id="saidList2"></div>
+  <div id="saidEmpty2" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing owed &mdash; you're square with everyone. &#10003;</div>
 </div>
 <div style="margin-bottom:10px;">
 <div class="card" id="cardEvening">
@@ -1411,6 +1484,19 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 </div>
+<div class="card" id="planDayCard" style="margin-bottom:10px;border-left:4px solid var(--purple);">
+  <div class="card-hd">
+    <div class="plan-hd" style="color:var(--purple);">&#127769; Plan a Day</div>
+    <select class="inp" id="planDaySelect" onchange="onPlanDayChange()" style="width:auto;padding:5px 9px;font-size:12px;"></select>
+  </div>
+  <div style="font-size:10px;color:var(--t3);margin:2px 0 7px;">Defaults to tomorrow &mdash; write it tonight, it shows up top tomorrow. Forgot last night? Switch to Today and catch up.</div>
+  <textarea class="plan-ta" id="planPickTa" placeholder="What does this day need &mdash; shoots, edits, calls, the one priority..."></textarea>
+  <div style="display:flex;gap:6px;margin-top:5px;align-items:center;">
+    <button class="btn btn-y btn-sm" onclick="savePlanForDay()">Save</button>
+    <span id="planPickSaved" style="font-size:11px;color:var(--green);display:none;">&#10003; Saved</span>
+  </div>
+</div>
+
 <!-- CALL FAMILY — weekly call targets so work never swallows them again -->
 <div class="card" style="margin-bottom:10px;">
   <div class="card-hd">
@@ -1457,9 +1543,9 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 <div class="section-divider">
-  <div class="section-divider-line"></div>
-  <div class="section-divider-label recap">📊 Day Recap</div>
-  <div class="section-divider-line"></div>
+  <div class="sec-eyebrow">📊 Review</div>
+  <div class="sec-headline">The Scoreboard</div>
+  <div class="sec-underline"></div>
 </div>
 <!-- ═══ ROW 1: TRACKING HQ — full width so the graphs breathe ═══ -->
 <div class="card" style="margin-bottom:10px;">
@@ -6728,13 +6814,237 @@ window.addFix=addFix;window.fixToggleDone=fixToggleDone;window.fixToggleFlag=fix
 window.fixEdit=fixEdit;window.fixDel=fixDel;window.copyFixLog=copyFixLog;window.fixCopyOne=fixCopyOne;
 window.renderFixLog=renderFixLog;window.clearFixedOlderThan30=clearFixedOlderThan30;
 
+/* ═══════════ TRAIN THE MIND — listening program ═══════════ */
+const LISTEN_PROGRAM=[
+  {ph:'01',tag:'Foundation',aim:'Rewire the self-image',items:[
+    {id:'lp1',t:'Psycho-Cybernetics',by:'Maxwell Maltz',tag:'Start here'},
+    {id:'lp2',t:'Mindset',by:'Carol Dweck'}
+  ]},
+  {ph:'02',tag:'Armor',aim:'Optimism & resilience',items:[
+    {id:'lp3',t:'Learned Optimism',by:'Martin Seligman'},
+    {id:'lp4',t:'Meditations',by:'Marcus Aurelius'},
+    {id:'lp5',t:"Man's Search for Meaning",by:'Viktor Frankl'}
+  ]},
+  {ph:'03',tag:'Charge',aim:'Manifestation fuel',items:[
+    {id:'lp6',t:'The Power of Awareness',by:'Neville Goddard'},
+    {id:'lp7',t:'Think and Grow Rich',by:'Napoleon Hill'},
+    {id:'lp8',t:'The Science of Getting Rich',by:'Wallace Wattles'}
+  ]},
+  {ph:'04',tag:'Machine',aim:'Build the agency',items:[
+    {id:'lp9',t:'The E-Myth Revisited',by:'Michael Gerber',tag:'Non-negotiable'},
+    {id:'lp10',t:'The Futur',by:'Chris Do \u00b7 podcast',tag:'Ongoing'},
+    {id:'lp11',t:'$100M Offers \u2192 Leads',by:'Alex Hormozi'},
+    {id:'lp12',t:'Never Split the Difference',by:'Chris Voss'},
+    {id:'lp13',t:'Building a StoryBrand',by:'Donald Miller'}
+  ]}
+];
+let listenState=ld('listenState',{});
+function renderListen(){
+  var el=document.getElementById('listenList');if(!el)return;
+  var all=0,done=0;
+  el.innerHTML=LISTEN_PROGRAM.map(function(p){
+    var pd=0;
+    var rows=p.items.map(function(it){
+      all++;var d=!!listenState[it.id];if(d){done++;pd++;}
+      return '<div class="lp-item'+(d?' lp-done':'')+'">'
+        +'<button class="chk '+(d?'done':'')+'" onclick="toggleListen(\''+it.id+'\')" title="Mark listened"></button>'
+        +'<div class="lp-body"><div class="lp-title">'+escHtml(it.t)+' <span class="lp-by">\u00b7 '+escHtml(it.by)+'</span>'
+        +(it.tag?'<span class="lp-tag">'+escHtml(it.tag)+'</span>':'')+'</div></div></div>';
+    }).join('');
+    return '<div class="lp-phase"><div class="lp-phase-hd">'
+      +'<span class="lp-num">'+p.ph+'</span><span class="lp-name">'+escHtml(p.tag)+'</span>'
+      +'<span class="lp-aim">'+escHtml(p.aim)+' \u00b7 '+pd+'/'+p.items.length+'</span></div>'+rows+'</div>';
+  }).join('');
+  var badge=document.getElementById('listenPct');if(badge)badge.textContent=done+'/'+all;
+  var bar=document.getElementById('listenBar');if(bar)bar.style.width=(all?Math.round(done/all*100):0)+'%';
+}
+function toggleListen(id){
+  if(listenState[id])delete listenState[id];else listenState[id]=nowStr();
+  sv('listenState',listenState);renderListen();
+}
+window.toggleListen=toggleListen;window.renderListen=renderListen;
+
+/* ═══════════ PITCH LIST — people to email ═══════════ */
+const DEF_PITCH=[
+  {id:'p_maya',name:'The Maya',star:true,loc:'Long Beach \u00b7 Waterfront',hook:'Mid-rebrand right now = content-hungry. Waterfront footage sells itself. Pitch first.',contact:'562-435-7676 \u00b7 themayalongbeach.com',status:0},
+  {id:'p_cove',name:'The Cove Hotel',star:true,loc:'Long Beach',hook:'"White Lotus vibes," design-forward \u2014 the look is ahead of the content. A refresh reel. Pitch first.',contact:'562-426-7611 \u00b7 covelongbeach.com',status:0},
+  {id:'p_royal',name:'Hotel Royal',star:false,loc:'Long Beach \u00b7 Downtown',hook:'Historic boutique, rooms with individual personalities. Independent owner who gets content.',contact:'562-283-8755 \u00b7 hotelroyallb.com',status:0},
+  {id:'p_vurp',name:'The Vurpillat',star:false,loc:'Hermosa Beach \u00b7 The Strand',hook:'Beachfront boutique mid-renovation \u2014 document the new property. Second-ring target.',contact:'310-902-7829 \u00b7 thevurpillat.com',status:0},
+  {id:'p_petit',name:'Petit Ermitage',star:false,loc:'West Hollywood',hook:'Artsy rooftop, "place out of time." Aspirational tier \u2014 pitch once the reel proves you belong.',contact:'310-854-1114 \u00b7 petitermitage.com',status:0},
+  {id:'p_gold',name:'Gold Diggers',star:false,loc:'Hollywood',hook:'Content-native brand, every room curated, music venue attached. Warm audience. Reach tier.',contact:'323-546-0300 \u00b7 gold-diggers.com',status:0}
+];
+let pitchList=ld('pitchList',DEF_PITCH);
+var PITCH_STATUS=['To pitch','Emailed','Replied'];
+function renderPitch(){
+  var el=document.getElementById('pitchListEl');if(!el)return;
+  var toGo=pitchList.filter(function(p){return (p.status||0)===0;}).length;
+  var badge=document.getElementById('pitchStat');if(badge)badge.textContent=pitchList.length?(toGo+' to pitch \u00b7 '+pitchList.length+' total'):'';
+  if(!pitchList.length){el.innerHTML='<div style="font-size:11px;color:var(--t3);padding:6px 0;">Nobody on the list yet. Add your first target with +.</div>';return;}
+  var rows=pitchList.slice().sort(function(a,b){
+    if(!!b.star!==!!a.star)return (b.star?1:0)-(a.star?1:0);
+    return (a.status||0)-(b.status||0);
+  });
+  el.innerHTML=rows.map(function(p){
+    var st=p.status||0;
+    return '<div class="pitch-row"><div class="pitch-body">'
+      +'<div class="pitch-name">'+(p.star?'<span class="pitch-star">\u2605</span> ':'')+escHtml(p.name)+'</div>'
+      +'<div class="pitch-loc">'+escHtml(p.loc||'')+'</div>'
+      +(p.hook?'<div class="pitch-hook">'+escHtml(p.hook)+'</div>':'')
+      +(p.contact?'<div class="pitch-contact">'+escHtml(p.contact)+'</div>':'')
+      +'</div><div style="display:flex;flex-direction:column;gap:7px;align-items:flex-end;flex-shrink:0;">'
+      +'<button class="pitch-status s'+st+'" onclick="cyclePitch(\''+p.id+'\')" title="Tap to advance">'+PITCH_STATUS[st]+'</button>'
+      +'<button class="task-del" onclick="delPitch(\''+p.id+'\')" title="Remove">\u00d7</button>'
+      +'</div></div>';
+  }).join('');
+}
+function cyclePitch(id){
+  var p=pitchList.find(function(x){return x.id===id;});if(!p)return;
+  p.status=((p.status||0)+1)%3;if(p.status===1)p.emailedAt=nowStr();
+  sv('pitchList',pitchList);renderPitch();
+}
+function delPitch(id){pitchList=pitchList.filter(function(x){return x.id!==id;});sv('pitchList',pitchList);renderPitch();}
+function addPitch(){
+  var name=prompt('Who do you want to pitch? (name)');if(!name||!name.trim())return;
+  var loc=prompt('Location / type (optional)')||'';
+  var contact=prompt('Contact \u2014 phone, email, or site (optional)')||'';
+  pitchList.push({id:'p'+Date.now(),name:name.trim(),loc:loc.trim(),hook:'',contact:contact.trim(),status:0,star:false});
+  sv('pitchList',pitchList);renderPitch();
+}
+window.cyclePitch=cyclePitch;window.delPitch=delPitch;window.addPitch=addPitch;window.renderPitch=renderPitch;
+
+/* ═══════════ I SAID — promises to keep ═══════════ */
+let saidList=ld('saidList',[]);
+function resolveDue(txt){
+  if(!txt)return {label:'',key:''};
+  var t=txt.trim().toLowerCase(); var now=new Date(); now.setHours(0,0,0,0);
+  function fmt(d){var m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(day<10?'0':'')+day;}
+  function plus(n){var d=new Date(now);d.setDate(d.getDate()+n);return d;}
+  if(t==='today'||t==='tonight')return {label:txt.trim(),key:fmt(now)};
+  if(t==='tomorrow'||t==='tmrw'||t==='tmr')return {label:txt.trim(),key:fmt(plus(1))};
+  var full=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  var abbr={sun:0,mon:1,tue:2,tues:2,wed:3,weds:3,thu:4,thur:4,thurs:4,fri:5,sat:6};
+  var wd=null;
+  for(var i=0;i<full.length;i++){if(t===full[i]){wd=i;break;}}
+  if(wd===null&&abbr[t]!==undefined)wd=abbr[t];
+  if(wd!==null){var diff=(wd-now.getDay()+7)%7;return {label:txt.trim(),key:fmt(plus(diff))};}
+  if(/^\d{4}-\d{2}-\d{2}$/.test(t))return {label:txt.trim(),key:t};
+  var m=t.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if(m){var mo=+m[1]-1,dy=+m[2];var d=new Date(now.getFullYear(),mo,dy);if(d<now)d=new Date(now.getFullYear()+1,mo,dy);return {label:txt.trim(),key:fmt(d)};}
+  return {label:txt.trim(),key:''};
+}
+function saidDueChip(it){
+  if(it.doneAt)return '<span class="said-due done">\u2713 kept '+escHtml(it.doneAt)+'</span>';
+  if(!it.dueKey)return it.dueText?'<span class="said-due">'+escHtml(it.dueText)+'</span>':'';
+  var now=new Date();now.setHours(0,0,0,0);
+  var due=new Date(it.dueKey+'T00:00:00');
+  var diff=Math.round((due-now)/86400000); var cls='said-due',txt;
+  if(diff<0){cls+=' over';txt=(it.dueText||'due')+' \u00b7 '+(-diff)+'d late';}
+  else if(diff===0){cls+=' soon';txt=(it.dueText||'today')+' \u00b7 today';}
+  else if(diff===1){cls+=' soon';txt=(it.dueText||'tomorrow');}
+  else if(diff<=3){cls+=' soon';txt=(it.dueText||('in '+diff+'d'))+' \u00b7 '+diff+'d';}
+  else{txt=it.dueText||it.dueKey;}
+  return '<span class="'+cls+'">'+escHtml(txt)+'</span>';
+}
+function renderSaid(){
+  var el=document.getElementById('saidList');if(!el)return;
+  var emp=document.getElementById('saidEmpty');
+  var now=new Date();now.setHours(0,0,0,0);
+  var open=saidList.filter(function(x){return !x.doneAt;});
+  var over=open.filter(function(x){if(!x.dueKey)return false;return new Date(x.dueKey+'T00:00:00')<now;}).length;
+  var badge=document.getElementById('saidStat');
+  if(badge){
+    if(!open.length){badge.textContent=saidList.length?'all kept \u2713':'';badge.style.color='var(--green)';}
+    else{badge.textContent=open.length+' owed'+(over?' \u00b7 '+over+' late':'');badge.style.color=over?'var(--coral)':'var(--gold)';}
+  }
+  if(emp)emp.style.display=saidList.length?'none':'block';
+  var rows=saidList.slice().sort(function(a,b){
+    var ad=!!a.doneAt,bd=!!b.doneAt;
+    if(ad!==bd)return ad?1:-1;
+    if(ad&&bd)return String(b.doneAt).localeCompare(String(a.doneAt));
+    if(!!a.dueKey!==!!b.dueKey)return a.dueKey?-1:1;
+    if(a.dueKey&&b.dueKey)return a.dueKey.localeCompare(b.dueKey);
+    return 0;
+  });
+  el.innerHTML=rows.map(function(it){
+    var done=!!it.doneAt;
+    return '<div class="task-row said-row" style="'+(done?'opacity:.5;':'')+'">'
+      +'<button class="chk '+(done?'done':'')+'" onclick="toggleSaid(\''+it.id+'\')" title="Mark kept"></button>'
+      +'<div class="task-info" style="flex:1;min-width:0;">'
+        +'<div class="task-name '+(done?'done':'')+'"><span class="said-who">'+escHtml(it.who||'')+'</span>'+(it.who?' \u2014 ':'')+escHtml(it.what||'')+'</div>'
+        +'<div style="margin-top:3px;">'+saidDueChip(it)+'</div>'
+      +'</div>'
+      +'<button class="task-del" onclick="delSaid(\''+it.id+'\')" title="Remove">\u00d7</button>'
+    +'</div>';
+  }).join('');
+
+  var el2=document.getElementById('saidList2');if(el2)el2.innerHTML=el.innerHTML;
+  var b2=document.getElementById('saidStat2');if(b2&&badge){b2.textContent=badge.textContent;b2.style.color=badge.style.color;}
+  var e2=document.getElementById('saidEmpty2');if(e2&&emp)e2.style.display=emp.style.display;
+}
+function addSaid(){
+  var who=prompt('Who did you tell?  (e.g. Cory)');if(!who||!who.trim())return;
+  var what=prompt("What did you say you'd do?  (e.g. Call him)");if(!what||!what.trim())return;
+  var when=prompt('By when?  (e.g. Monday, tomorrow, 8/11 \u2014 leave blank for no date)')||'';
+  var r=resolveDue(when);
+  saidList.push({id:'sd'+Date.now(),who:who.trim(),what:what.trim(),dueText:r.label,dueKey:r.key,createdAt:todayKey()});
+  sv('saidList',saidList);renderSaid();
+}
+function toggleSaid(id){var it=saidList.find(function(x){return x.id===id;});if(!it)return;if(it.doneAt)delete it.doneAt;else it.doneAt=nowStr();sv('saidList',saidList);renderSaid();}
+function delSaid(id){saidList=saidList.filter(function(x){return x.id!==id;});sv('saidList',saidList);renderSaid();}
+window.addSaid=addSaid;window.toggleSaid=toggleSaid;window.delSaid=delSaid;window.renderSaid=renderSaid;
+
+/* ═══════════ PLAN A DAY — pick which day you're planning ═══════════ */
+function pad2x(n){return (n<10?'0':'')+n;}
+function planDayKeyOff(off){var d=new Date();d.setDate(d.getDate()+off);return d.getFullYear()+'-'+pad2x(d.getMonth()+1)+'-'+pad2x(d.getDate());}
+var planPickKey=planDayKeyOff(1);
+function buildPlanDayOptions(){
+  var sel=document.getElementById('planDaySelect');if(!sel)return;
+  var nm=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var out='';
+  for(var off=0;off<=7;off++){
+    var d=new Date();d.setDate(d.getDate()+off);
+    var key=d.getFullYear()+'-'+pad2x(d.getMonth()+1)+'-'+pad2x(d.getDate());
+    var lead=off===0?'Today':(off===1?'Tomorrow':nm[d.getDay()]);
+    out+='<option value="'+key+'"'+(key===planPickKey?' selected':'')+'>'+lead+' \u00b7 '+mo[d.getMonth()]+' '+d.getDate()+'</option>';
+  }
+  sel.innerHTML=out;
+}
+function onPlanDayChange(){
+  var sel=document.getElementById('planDaySelect');if(!sel)return;
+  planPickKey=sel.value;
+  var ta=document.getElementById('planPickTa');
+  if(ta)ta.value=(ld('dayPlans',{})[planPickKey])||'';
+}
+function savePlanForDay(){
+  var ta=document.getElementById('planPickTa');if(!ta)return;
+  var plans=ld('dayPlans',{});var v=ta.value.trim();
+  if(v)plans[planPickKey]=v;else delete plans[planPickKey];
+  sv('dayPlans',plans);
+  var msg=document.getElementById('planPickSaved');
+  if(msg){msg.style.display='inline';setTimeout(function(){msg.style.display='none';},2000);}
+  if(window.renderPlan)renderPlan();
+}
+function renderPlanDay(){
+  buildPlanDayOptions();
+  var ta=document.getElementById('planPickTa');
+  if(ta&&document.activeElement!==ta)ta.value=(ld('dayPlans',{})[planPickKey])||'';
+}
+window.onPlanDayChange=onPlanDayChange;window.savePlanForDay=savePlanForDay;window.renderPlanDay=renderPlanDay;
+
+
+
 function renderAll(){
   safeCall(function(){_pace=computePace();},'computePace'); // before the lists, so rows get their pace classes
   safeCall(renderBurst,'renderBurst');
   safeCall(renderMission,'renderMission');
   safeCall(renderSelfCheck,'renderSelfCheck');
   safeCall(renderPersonalTodo,'renderPersonalTodo');
+  safeCall(renderListen,'renderListen');
+  safeCall(renderPitch,'renderPitch');
+  safeCall(renderSaid,'renderSaid');
   safeCall(renderPlan,'renderPlan');
+  safeCall(renderPlanDay,'renderPlanDay');
   safeCall(function(){renderSection('morning');},'renderSection-morning');
   safeCall(function(){renderSection('evening');},'renderSection-evening');
   safeCall(renderScheduledFixed,'renderScheduledFixed');
@@ -6789,6 +7099,9 @@ function reloadFromStorage(){
   smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
   selfCheck=ld('selfCheck',{});
   personalTodos=ld('personalTodos',[]);
+  listenState=ld('listenState',{});
+  pitchList=ld('pitchList',DEF_PITCH);
+  saidList=ld('saidList',[]);
   pipeline=ld('pipeline',[]);
   pipeTouches=ld('pipeTouches',{});
   hoursLog=ld('hoursLog',{});
