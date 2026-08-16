@@ -354,7 +354,7 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 }
 
 /* CARD */
-.card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:11px 13px;}
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;}
 .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .card-title{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
@@ -396,6 +396,14 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .choose-note{font-size:9px;color:var(--t3);margin-bottom:4px;}
 .trend-rng{background:var(--bg3);border:1px solid var(--b2);color:var(--t2);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;}
 .trend-rng.active{background:var(--y2);border-color:var(--y3);color:var(--y);}
+.wk-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b);}
+.wk-row:last-child{border-bottom:none;}
+.wk-range{flex:0 0 92px;font-family:var(--mono);font-size:11px;color:var(--t2);letter-spacing:.02em;}
+.wk-days{color:var(--t3);margin-left:5px;font-size:9px;}
+.wk-bar{flex:1;height:6px;background:var(--bg4);border-radius:99px;overflow:hidden;min-width:40px;}
+.wk-fill{height:100%;border-radius:99px;transition:width .4s ease;}
+.wk-pct{flex:0 0 42px;text-align:right;font-family:var(--display);font-weight:700;font-size:13px;}
+.wk-diff{flex:0 0 36px;text-align:right;font-family:var(--mono);font-size:10px;}
 .smoke-row{padding:8px 0;}
 .smoke-row+.smoke-row{border-top:1px solid var(--b);}
 .smoke-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;flex-wrap:wrap;gap:4px;}
@@ -597,6 +605,9 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .mission-banner{background:linear-gradient(135deg,var(--bg2),#141204);border:1px solid var(--y3);border-left:3px solid var(--y);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
 .mission-label{font-size:11px;font-weight:800;color:var(--y);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;padding-top:3px;}
 .mission-items{display:flex;flex-wrap:wrap;gap:8px;flex:1;}
+.mission-banner.mb-compact,.goals-banner.mb-compact{padding:9px 12px;margin-bottom:8px;min-height:0;gap:10px;align-items:center;}
+.mb-compact .mission-items,.mb-compact .goals-items{font-size:11px;gap:5px;}
+.mb-compact .mission-label,.mb-compact .goals-label{margin-top:0;padding-top:0;}
 .mission-line{font-size:13px;color:var(--t);font-style:italic;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;padding:6px 12px;line-height:1.4;}
 /* KNOCK IT OFF — stop list */
 .stop-banner{background:linear-gradient(135deg,var(--bg2),#170a0a);border:1px solid rgba(255,107,107,.35);border-left:3px solid var(--coral);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
@@ -635,9 +646,9 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .goal-pill.done .g-chk{background:var(--green);border-color:var(--green);}
 
 /* ═══════════ UTS REGIMEN — section titles + new modules ═══════════ */
-.section-divider{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:28px 0 12px;}
+.section-divider{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:18px 0 10px;}
 .sec-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-soft);}
-.sec-headline{font-family:'Fraunces',serif;font-weight:600;font-size:28px;letter-spacing:-.012em;color:var(--gold);line-height:1;text-shadow:0 0 34px rgba(242,201,76,.20);}
+.sec-headline{font-family:'Fraunces',serif;font-weight:600;font-size:24px;letter-spacing:-.012em;color:var(--gold);line-height:1;text-shadow:0 0 28px rgba(242,201,76,.16);}
 .sec-underline{width:100%;height:1px;margin-top:9px;background:linear-gradient(90deg,var(--gold-glow),transparent);}
 @media(max-width:600px){.sec-headline{font-size:22px;}}
 
@@ -654,6 +665,22 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .lp-by{color:var(--t3);font-weight:400;}
 .lp-tag{display:inline-block;font-family:var(--mono);font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--gold-soft);border:1px solid var(--b2);border-radius:99px;padding:1px 7px;margin-left:5px;vertical-align:middle;}
 .lp-done .lp-title{color:var(--t3);text-decoration:line-through;}
+.lp-item .lp-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:15px;line-height:1;padding:0 2px;flex-shrink:0;margin-top:1px;transition:color .15s;}
+.lp-item .lp-del:hover{color:var(--coral);}
+.lp-actions{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;}
+.lp-play{font-family:var(--display);font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 11px;border-radius:99px;border:1px solid var(--gold);background:rgba(242,201,76,.10);color:var(--gold);cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:.15s;}
+.lp-play:hover{background:rgba(242,201,76,.18);}
+.lp-play.playing{background:linear-gradient(180deg,var(--gold-pale),var(--gold));color:#2b2103;border-color:var(--gold);}
+.lp-open{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--t2);border:1px solid var(--b2);border-radius:99px;padding:4px 10px;text-decoration:none;transition:.15s;}
+.lp-open:hover{color:var(--gold);border-color:var(--gold);}
+.lp-player{border:1px solid var(--b2);border-radius:10px;overflow:hidden;background:#000;margin-bottom:4px;}
+.lp-player iframe{display:block;width:100%;height:150px;border:0;}
+.lp-player-hd{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 5px;font-size:12px;color:var(--gold);font-weight:600;gap:8px;}
+.lp-player-hd span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lp-player-x{background:none;border:none;color:var(--t2);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.lp-player-x:hover{color:var(--coral);}
+.lp-add-form{margin-top:8px;padding:10px;border:1px solid var(--b2);border-radius:10px;background:var(--bg3);flex-direction:column;gap:7px;}
+.lp-add-form .inp{margin:0;width:100%;}
 
 /* pitch list */
 .pitch-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--b);}
@@ -774,23 +801,22 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
   --y:#f2c94c; --y2:rgba(242,201,76,.09); --y3:rgba(242,201,76,.3);
   --gold:#f2c94c; --gold-soft:#d8b654; --gold-pale:#fbe8a8;
   --gold-glow:rgba(242,201,76,.32);
-  --bg:#0a0b0d; --bg2:#15171b; --bg3:#1c1f25; --bg4:#22262d; --bg5:#2a2e36;
-  --b:#1f2228; --b2:#2a2d34; --b3:#33363f;
-  --t:#f2f0ea; --t2:#9195a0; --t3:#5c606a;
-  --green:#4ade80; --teal:#22d3b0; --coral:#f0556b;
+  --bg:#0b0d11; --bg2:#161a21; --bg3:#1c212a; --bg4:#232935; --bg5:#2c3340;
+  --b:#252b35; --b2:#333a47; --b3:#454e5e;
+  --t:#f3f5f8; --t2:#9aa3b2; --t3:#697282;
+  --green:#34d399; --teal:#22d3b0; --coral:#f87171;
   --biz:#f2c94c;
-  --r:13px;
+  --r:14px;
   --display:'Rajdhani',sans-serif; --bodyfont:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
 }
 body{
   font-family:var(--bodyfont);
   background:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(242,201,76,.09), transparent 60%),
-    radial-gradient(ellipse 900px 500px at 100% 0%, rgba(34,211,176,.05), transparent 60%),
-    radial-gradient(ellipse 700px 400px at 50% 100%, rgba(242,201,76,.04), transparent 65%),
+    radial-gradient(ellipse 1000px 520px at 20% -12%, rgba(242,201,76,.05), transparent 62%),
+    radial-gradient(ellipse 820px 460px at 100% -6%, rgba(88,101,242,.035), transparent 60%),
     var(--bg);
 }
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;mix-blend-mode:overlay;
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.02;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .dashboard{position:relative;z-index:1}
 ::selection{background:var(--gold-glow)}
@@ -799,7 +825,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* ── sticky glass topbar ── */
 .topbar{
   position:sticky;top:0;z-index:60;
-  background:rgba(10,11,13,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(14,16,20,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border:1px solid var(--b);border-bottom:1px solid var(--b2);border-radius:0 0 var(--r) var(--r);
 }
 .topbar-left svg{filter:drop-shadow(0 0 10px var(--gold-glow))}
@@ -816,15 +842,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 /* ── every card becomes a UTS gradient panel with the gold shimmer line ── */
 .card,.week-col,.target-type,.rev-stat,
 .mission-banner,.goals-banner,.stop-banner,.plan-card,.day-nav,.modal{
-  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  background:var(--bg2);
   border:1px solid var(--b);
-  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 14px 30px -18px rgba(0,0,0,.6);
-  transition:border-color .2s;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 10px 24px -18px rgba(0,0,0,.55);
+  transition:border-color .2s,box-shadow .2s;
 }
 .card{border-radius:var(--r);position:relative}
 .card::before,.mission-banner::before,.goals-banner::before,.plan-card::before{
   content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(242,201,76,.35),transparent);opacity:.55;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(242,201,76,.35),transparent);opacity:0;pointer-events:none;
 }
 .card:hover{border-color:var(--b3)}
 .mission-banner,.goals-banner,.plan-card,.stop-banner{position:relative;border-radius:var(--r)}
@@ -878,7 +904,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .tag-pill.client{box-shadow:0 0 8px rgba(242,201,76,.35)}
 
 /* ── buttons → UTS gold gradient / ghost ── */
-.btn{font-family:var(--display);font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:9px;transition:.15s}
+.btn{font-family:var(--display);font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:10px;transition:.15s}
 .btn-y,.modal-confirm{
   background:linear-gradient(180deg,var(--gold-pale),var(--gold));color:#2b2103;
   box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 6px 16px -6px rgba(242,201,76,.5);
@@ -886,19 +912,30 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .btn-y:hover{opacity:1;filter:brightness(1.06);transform:translateY(-1px);
   box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 10px 20px -6px rgba(242,201,76,.6)}
 .btn-ghost{background:none;border:1px solid var(--b2);color:var(--t2);font-weight:600}
-.btn-ghost:hover{color:var(--t);border-color:var(--t2)}
+.btn-ghost:hover{color:var(--gold);border-color:var(--gold)}
 .modal-cancel{font-family:var(--display);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
 #loginBtn{font-family:var(--display) !important;font-weight:700 !important;letter-spacing:.05em;text-transform:uppercase}
 
 /* ── progress bars → gold gradient fills ── */
-.sec-track,.prog-track,.hours-bar-wrap,.bal-bar{background:#20232a}
+.sec-track,.prog-track,.hours-bar-wrap,.bal-bar{background:#262c37}
 .sec-fill,.prog-fill{transition:width .5s cubic-bezier(.4,1.4,.5,1)}
 
 /* ── inputs ── */
 .inp,.jta,.plan-ta,select{
-  background:var(--bg4);border:1px solid var(--b2);border-radius:9px;color:var(--t);
+  background:var(--bg4);border:1px solid var(--b2);border-radius:10px;color:var(--t);
 }
 .inp:focus,.jta:focus,.plan-ta:focus{border-color:var(--gold)}
+/* ── Shoot/Office day modes ── */
+.shoot-only{display:none;}
+body.mode-shoot .shoot-only{display:block;}
+body.mode-shoot .office-only{display:none;}
+.sl-field{display:flex;flex-direction:column;gap:4px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--t2);}
+.sl-field>span{font-family:var(--display);font-weight:700;}
+.sl-field .inp,.sl-field .jta{margin:0;width:100%;font-size:13px;text-transform:none;letter-spacing:normal;color:var(--t);font-family:var(--bodyfont);font-weight:400;}
+.ms-tot{background:var(--bg3);border:1px solid var(--b);border-radius:10px;padding:8px 11px;}
+.ms-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--t2);font-family:var(--display);font-weight:700;}
+.ms-val{font-size:18px;font-weight:800;margin-top:2px;line-height:1.1;}
+.ms-sub{font-size:10px;color:var(--t3);margin-top:2px;}
 .inp::placeholder,.jta::placeholder,.plan-ta::placeholder{color:var(--t3)}
 
 /* ── rows & dividers ── */
@@ -946,20 +983,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 </div>
 
-<!-- WHY I DO THIS -->
-<div class="mission-banner">
-  <div class="mission-label">☀ Why I Do This</div>
-  <div class="mission-items" id="missionItems"></div>
-  <button class="goals-edit-btn" onclick="openMissionModal()">✎ Edit</button>
-</div>
-
-<!-- GOALS -->
-<div class="goals-banner">
-  <div class="goals-label">🎯 Goals</div>
-  <div class="goals-items" id="goalsItems"></div>
-  <button class="goals-edit-btn" onclick="openGoalModal()">✎ Edit</button>
-</div>
-
 <!-- DAY SCROLLER -->
 <div class="day-nav">
   <button class="day-nav-btn" id="dayPrev" onclick="changeDay(-1)">← Prev</button>
@@ -976,9 +999,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
   <div class="choose-label" style="color:var(--t2);">Today's day type</div>
   <div style="display:flex;gap:6px;margin-bottom:8px;" id="dayTypeButtons"></div>
-  <div style="display:flex;gap:6px;margin-bottom:8px;" id="dayBlockHoursButtons"></div>
-  <div class="choose-label" style="color:var(--t2);">End work day by</div>
-  <div style="display:flex;gap:6px;margin-bottom:10px;" id="dayEndButtons"></div>
   <div style="font-size:11px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--b);" id="dayScheduleTotal"></div>
 </div>
 
@@ -1065,20 +1085,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 </div>
-<div class="section-divider">
-  <div class="sec-eyebrow">◐ Train</div>
-  <div class="sec-headline">Train the Mind</div>
-  <div class="sec-underline"></div>
-</div>
-<div class="card" id="cardListen" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>Listening Program</div>
-    <span class="sec-pct" id="listenPct" style="color:var(--gold)">0/0</span>
-  </div>
-  <div class="sec-track"><div class="sec-fill" id="listenBar" style="width:0%;background:linear-gradient(90deg,var(--gold-pale),var(--gold))"></div></div>
-  <div class="choose-label" style="color:var(--t2);">Run the phases in parallel &mdash; check each off as you finish it. This is your morning block.</div>
-  <div id="listenList"></div>
-</div>
+<!-- Train the Mind list moved down to sit with the end-of-day checklist. -->
 <div class="section-divider">
   <div class="sec-eyebrow">📋 Aim</div>
   <div class="sec-headline">Set the Day</div>
@@ -1113,17 +1120,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div class="sec-eyebrow">💼 Execute</div>
   <div class="sec-headline">Build the Machine</div>
   <div class="sec-underline"></div>
-</div>
-<div class="card" id="cardPitch" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>Pitch List &mdash; People to Email</div>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <span class="sec-pct" id="pitchStat" style="color:var(--gold)"></span>
-      <button class="btn btn-ghost btn-sm" onclick="addPitch()">+</button>
-    </div>
-  </div>
-  <div class="choose-label" style="color:var(--t2);">Tap a status to advance it: To pitch &rarr; Emailed &rarr; Replied. &#9733; = hit these first.</div>
-  <div id="pitchListEl"></div>
 </div>
 <!-- BIZ: To-Do | Today List — the work queue lives with the work -->
 <div class="grid-2">
@@ -1211,6 +1207,17 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div class="choose-label" style="margin-top:10px;">Send 5 sales messages &mdash; daily</div>
     <div class="choose-note" id="salesTouchNote">0 of 5 sent today</div>
     <div id="salesTouchList"></div>
+    <div class="jh-toggle" onclick="togglePitch()" style="margin-top:10px;">
+      <span>&#128231; Pitch List <span id="pitchStat" style="color:var(--t3);font-weight:400;"></span></span>
+      <span id="pitchArrow">&#9656;</span>
+    </div>
+    <div id="pitchWrap" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;gap:8px;">
+        <span class="choose-label" style="color:var(--t2);margin:0;">To pitch &rarr; Emailed &rarr; Replied. &#9733; = hit first.</span>
+        <button class="btn btn-ghost btn-sm" onclick="addPitch()">+ Add</button>
+      </div>
+      <div id="pitchListEl"></div>
+    </div>
   </div>
 
   <!-- MONEY -->
@@ -1274,8 +1281,22 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       </div>
     </div>
     <div class="sec-track"><div class="sec-fill" id="contentBar" style="width:0%;background:var(--pink)"></div></div>
-    <div class="choose-label" style="color:var(--t2);">Resets weekly &mdash; tracked across the whole week, not daily</div>
+    <div class="choose-label" style="color:var(--t2);">&#8776;4 hr weekly block &middot; tracked across the whole week, not daily.</div>
+    <div id="contentBlockRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+    <div id="contentTimerRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:var(--bg2);"></div>
     <div id="contentList"></div>
+    <div class="jh-toggle" onclick="toggleContentIdeas()" style="margin-top:8px;">
+      <span>&#128161; Content Ideas <span id="ideaCount" style="color:var(--t3);font-weight:400;">0 fresh</span></span>
+      <span id="ideaArrow">&#9656;</span>
+    </div>
+    <div id="ideaWrap" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;gap:8px;">
+        <span class="choose-label" style="color:var(--t2);margin:0;">Idea bank &mdash; check off when filmed / posted.</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddIdea()">+ Add idea</button>
+      </div>
+      <div id="ideaList" style="max-height:260px;overflow-y:auto;"></div>
+      <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
+    </div>
   </div>
 
   <!-- PRODUCT -->
@@ -1293,27 +1314,15 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div id="productList"></div>
   </div>
 
-  <!-- CONTENT IDEAS -->
-  <div class="card">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--y)"></span>Content Ideas</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" style="color:var(--y)" id="ideaCount">0 fresh</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddIdea()">+</button>
-      </div>
-    </div>
-    <div class="choose-label" style="color:var(--t2);">Idea bank &mdash; check off when filmed / posted</div>
-    <div id="ideaList" style="max-height:260px;overflow-y:auto;"></div>
-    <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
-  </div>
-
 </div>
 
-<!-- 30-DAY SCOREBOARD -->
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd">
+<!-- 30-DAY SCOREBOARD — collapsible; relocated to the bottom at runtime (safeInit). -->
+<div class="card" id="cardScoreboard30" style="margin-bottom:10px;">
+  <div class="card-hd" style="cursor:pointer;" onclick="toggleSb30()">
     <div class="card-title"><span class="dot" style="background:var(--y)"></span>&#127942; 30-Day Scoreboard</div>
+    <span id="sb30Arrow" style="font-size:11px;color:var(--t3);">&#9656;</span>
   </div>
+  <div id="sb30Wrap" style="display:none;">
   <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5;">
     Proof of work for the OS month &mdash; no unnecessary rebuilding of the OS. This is proof that: you can generate revenue without waiting for panic &middot; finish projects without controlling every step &middot; maintain your body and environment during a busy week &middot; hold emotional uncertainty without compulsively analyzing or acting on it.
   </div>
@@ -1379,6 +1388,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       <button class="btn btn-ghost btn-sm" id="sbweedBtn" style="margin-left:auto;">Clean today?</button>
     </div>
   </div>
+  </div>
 </div>
 
 <div class="section-divider">
@@ -1425,6 +1435,41 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     </div>
     </div>
 
+<!-- SHOOT DAY blocks — only visible when today's day type is Shoot (body.mode-shoot).
+     Pass 2 will relocate these into the Shoot flow position; for now they surface
+     inline on shoot days and stay hidden on office/edit/admin days. -->
+<div class="section-divider shoot-only">
+  <div class="sec-eyebrow">🎬 Shoot</div>
+  <div class="sec-headline">The Shoot</div>
+  <div class="sec-underline"></div>
+</div>
+<div class="card shoot-only" id="cardShootLog" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--pink)"></span>🎬 Shoot Log</div>
+    <span class="sec-pct" id="shootLogMeta" style="color:var(--t3);"></span>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Log the shoot itself — this is the day's primary work block.</div>
+  <div id="shootLogGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+    <label class="sl-field"><span>Hours</span><input class="inp" id="slHours" type="text" inputmode="decimal" placeholder="e.g. 5" oninput="saveShootLog('hours',this.value)"></label>
+    <label class="sl-field"><span>Client / project</span><input class="inp" id="slClient" type="text" placeholder="Who / what" oninput="saveShootLog('client',this.value)"></label>
+    <label class="sl-field"><span>Revenue attached</span><input class="inp" id="slRevenue" type="text" inputmode="decimal" placeholder="$" oninput="saveShootLog('revenue',this.value)"></label>
+    <label class="sl-field"><span>Travel</span><input class="inp" id="slTravel" type="text" placeholder="Miles / time" oninput="saveShootLog('travel',this.value)"></label>
+    <label class="sl-field" style="grid-column:1 / -1;"><span>Energy</span>
+      <div style="display:flex;gap:6px;" id="slEnergyBtns"></div></label>
+    <label class="sl-field" style="grid-column:1 / -1;"><span>Issues / mistakes</span><textarea class="inp jta" id="slIssues" rows="2" placeholder="What went sideways" oninput="saveShootLog('issues',this.value)"></textarea></label>
+    <label class="sl-field" style="grid-column:1 / -1;"><span>What I learned</span><textarea class="inp jta" id="slLearned" rows="2" placeholder="Takeaway for next time" oninput="saveShootLog('learned',this.value)"></textarea></label>
+  </div>
+</div>
+<div class="card shoot-only" id="cardCloseout" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--teal)"></span>✅ Secure &amp; Handoff</div>
+    <span class="sec-pct" id="closeoutPct" style="color:var(--teal)">0/0</span>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">The non-negotiable closeout — the shoot isn't finished until this is.</div>
+  <div class="sec-track" style="margin-top:8px;"><div class="sec-fill" id="closeoutBar" style="width:0%;background:var(--teal)"></div></div>
+  <div id="closeoutList" style="margin-top:8px;"></div>
+</div>
+
 <div class="section-divider">
   <div class="sec-eyebrow">🌙 Close</div>
   <div class="sec-headline">Close the Loop</div>
@@ -1458,6 +1503,29 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 </div>
+
+<!-- MEALS / FUEL — end-of-day log (he logs most meals at night). Tracks protein
+     + calories per meal against a daily protein goal and calorie budget. -->
+<div class="card" id="cardMeals" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--teal)"></span>🍽 Meals &amp; Fuel</div>
+    <span class="sec-pct" id="mealsMeta" style="color:var(--t3);"></span>
+  </div>
+  <div id="mealsTotals" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;"></div>
+  <div id="mealsList"></div>
+  <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+    <input class="inp" id="mealInput" placeholder="What did you eat?" style="flex:1 1 100%;" onkeydown="if(event.key==='Enter')addMeal()">
+    <input class="inp" id="mealProtein" type="number" inputmode="numeric" placeholder="protein g" style="flex:1;min-width:80px;">
+    <input class="inp" id="mealCals" type="number" inputmode="numeric" placeholder="calories" style="flex:1;min-width:80px;">
+    <button class="btn btn-y btn-sm" onclick="addMeal()" style="flex:0 0 auto;">Log</button>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;margin-top:8px;font-size:10px;color:var(--t2);flex-wrap:wrap;">
+    <span style="font-family:var(--display);font-weight:700;letter-spacing:.05em;text-transform:uppercase;">Daily goals</span>
+    <label style="display:flex;align-items:center;gap:4px;">protein <input class="inp" id="goalProtein" type="number" style="width:56px;padding:4px 6px;margin:0;" onchange="saveMealGoals()"> g</label>
+    <label style="display:flex;align-items:center;gap:4px;">calorie budget <input class="inp" id="goalCals" type="number" placeholder="set" style="width:66px;padding:4px 6px;margin:0;" onchange="saveMealGoals()"></label>
+  </div>
+</div>
+
 <div style="margin-bottom:10px;">
 <div class="card">
   <div class="card-title" style="margin-bottom:6px;"><span class="dot" style="background:var(--pink)"></span>Evening Journal</div>
@@ -1484,6 +1552,45 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 </div>
+
+<!-- TRAIN THE MIND — how the day usually ends, so it sits last, below the Evening
+     Journal. Collapsed by default. Inner ids (listenPct/listenBar/listenList)
+     unchanged so renderListen() keeps driving it. -->
+<div class="card" id="cardListen" style="margin-bottom:10px;">
+  <div class="card-hd" style="cursor:pointer;" onclick="toggleListenCard()">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>&#9680; Train the Mind &mdash; Reading &amp; Listening</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span class="sec-pct" id="listenPct" style="color:var(--gold)">0/0</span>
+      <span id="listenArrow" style="font-size:11px;color:var(--t3);transition:transform .15s;display:inline-block;">&#9656;</span>
+    </div>
+  </div>
+  <div id="listenWrap" style="display:none;">
+    <div class="sec-track" style="margin-top:9px;"><div class="sec-fill" id="listenBar" style="width:0%;background:linear-gradient(90deg,var(--gold-pale),var(--gold))"></div></div>
+    <div class="choose-label" style="color:var(--t2);">Run the phases in parallel &mdash; check each off as you finish it. Add a YouTube link to play it right here.</div>
+    <div id="listenPlayer"></div>
+    <div id="listenList"></div>
+    <button class="btn btn-ghost btn-sm" onclick="toggleListenAdd()" style="margin-top:8px;">+ Add book / audiobook</button>
+    <div id="listenAddForm" class="lp-add-form" style="display:none;">
+      <input class="inp" id="laTitle" placeholder="Title (e.g. Atomic Habits)">
+      <input class="inp" id="laBy" placeholder="Author / narrator (optional)">
+      <input class="inp" id="laLink" placeholder="Paste a YouTube or audiobook link (optional)">
+      <select class="inp" id="laPhase"></select>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-y btn-sm" onclick="addListenItem()">Add to list</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleListenAdd()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BONUS ROUNDS — end-of-night level-up prompt: 30-Day + Kundalini spirit quest. -->
+<div class="card" id="cardBonus" style="margin-bottom:10px;border-left:4px solid var(--purple);">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>🎁 Bonus Rounds</div>
+  </div>
+  <div id="bonusPrompt"></div>
+</div>
+
 <div class="card" id="planDayCard" style="margin-bottom:10px;border-left:4px solid var(--purple);">
   <div class="card-hd">
     <div class="plan-hd" style="color:var(--purple);">&#127769; Plan a Day</div>
@@ -1542,6 +1649,26 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 
 </div>
 
+<!-- WHY / GOALS — condensed reflection zone; relocated under the 30-Day at runtime. -->
+<div id="reflectZone">
+<div class="section-divider">
+  <div class="sec-eyebrow">🌙 Reflect</div>
+  <div class="sec-headline">Why &amp; Where I'm Headed</div>
+  <div class="sec-underline"></div>
+</div>
+<div class="mission-banner mb-compact">
+  <div class="mission-label">☀ Why I Do This</div>
+  <div class="mission-items" id="missionItems"></div>
+  <button class="goals-edit-btn" onclick="openMissionModal()">✎ Edit</button>
+</div>
+<div class="goals-banner mb-compact">
+  <div class="goals-label">🎯 Goals</div>
+  <div class="goals-items" id="goalsItems"></div>
+  <button class="goals-edit-btn" onclick="openGoalModal()">✎ Edit</button>
+</div>
+</div>
+
+<div id="scoreboardZone">
 <div class="section-divider">
   <div class="sec-eyebrow">📊 Review</div>
   <div class="sec-headline">The Scoreboard</div>
@@ -1573,10 +1700,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 3px;">
       <div class="stat-lbl" id="trendLbl">Completion trend (all time)</div>
-      <div style="display:flex;gap:3px;">
+      <div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end;">
         <button class="trend-rng" id="rng14d" onclick="setTrendRange('14d')">14D</button>
         <button class="trend-rng" id="rngMonth" onclick="setTrendRange('month')">Month</button>
         <button class="trend-rng active" id="rngAll" onclick="setTrendRange('all')">All</button>
+        <button class="trend-rng" id="rngWeekly" onclick="setTrendRange('weekly')">Weekly</button>
       </div>
     </div>
     <div class="chart-wrap" style="height:110px;"><canvas id="trendChart"></canvas></div>
@@ -1594,6 +1722,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
         <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;" id="bestDayLbl">Best day</div>
       </div>
     </div>
+</div>
 </div>
 
 <!-- SYSTEM FIX LOG — very bottom -->
@@ -1677,8 +1806,12 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
         ✓ All journal entries, streaks, goals &amp; mission
       </div>
     </div>
-    <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Paste this prompt into Claude with your file:</div>
-    <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:6px;padding:10px;font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:12px;font-style:italic;" id="suggestedPrompt"></div>
+    <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Grab your analysis prompt to paste into Claude with the file:</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" style="flex:1;min-width:140px;" onclick="copyPrompt('weekly')">&#128203; Copy Weekly Prompt</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;min-width:140px;" onclick="copyPrompt('monthly')">&#128203; Copy Monthly Prompt</button>
+    </div>
+    <div id="promptCopyMsg" style="font-size:10px;color:var(--green);margin-bottom:12px;min-height:12px;"></div>
     <div style="font-size:10px;color:var(--t3);line-height:1.5;margin-bottom:12px;">
       <b style="color:var(--t2);">Raw JSON</b> dumps every stored value exactly as saved — ignores the range above. Use it as a backup, or when you want the AI to see the literal data with zero summarizing.
     </div>
@@ -1686,6 +1819,22 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       <button class="modal-btn modal-cancel" onclick="closeExportModal()">Cancel</button>
       <button class="modal-btn modal-cancel" onclick="doExportRaw()" title="Complete raw backup — all time, every key">&#123; &#125; Raw JSON</button>
       <button class="modal-btn modal-confirm" onclick="doExport()">⬇ Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEAL POPUP — pops when a meal-related checkbox is ticked, to log what he ate -->
+<div class="modal-ov" id="mealPopupOv">
+  <div class="modal">
+    <div class="modal-title">🍽 Log this meal</div>
+    <input class="inp" id="mpName" placeholder="What did you eat?">
+    <div style="display:flex;gap:6px;">
+      <input class="inp" id="mpProtein" type="number" inputmode="numeric" placeholder="protein g" style="flex:1;">
+      <input class="inp" id="mpCals" type="number" inputmode="numeric" placeholder="calories" style="flex:1;">
+    </div>
+    <div class="modal-row">
+      <button class="modal-btn modal-cancel" onclick="closeMealPopup()">Skip</button>
+      <button class="modal-btn modal-confirm" onclick="saveMealPopup()">Log meal</button>
     </div>
   </div>
 </div>
@@ -2018,6 +2167,8 @@ let sbOverdueLog=ld('sbOverdueLog',{});       // dateKey -> bool (daily tracker)
 let dayType=ld('dayType',{});           // dateKey -> 'shoot'|'edit'|'admin'
 let dayBlockHours=ld('dayBlockHours',{}); // dateKey -> 4|6
 let dayEndTarget=ld('dayEndTarget',{});  // dateKey -> '21:30'|'22:30'
+let shootLog=ld('shootLog',{});          // dateKey -> {hours,client,revenue,travel,energy,issues,learned}
+let closeout=ld('closeout',{});          // dateKey -> {itemId:true} post-shoot handoff checklist
 
 // biz lists
 let bizSales=ld('bizSales',DEF_BIZ.sales);
@@ -2854,11 +3005,12 @@ function togglePersonal(btn){
   var ds=getDS();
   var dm=sec==='morning'?ds.m:ds.e;
   dm[id]=!dm[id];
-  if(dm[id]){
+  var justChecked=dm[id];
+  var tasks=sec==='morning'?morning:evening;
+  var t=tasks.find(function(x){return x.id===id;});
+  if(justChecked){
     dm[id+'_ts']=nowStr();
     // timed check: stamp minutes late vs the task's target time
-    var tasks=sec==='morning'?morning:evening;
-    var t=tasks.find(function(x){return x.id===id;});
     var target=t?parseClock(t.dur):null;
     if(target!==null){
       var n=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));
@@ -2866,6 +3018,7 @@ function togglePersonal(btn){
     }
   }else{delete dm[id+'_ts'];delete dm[id+'_late'];}
   setDS(ds);renderAll();
+  if(justChecked&&t&&isMealTask(t.name))openMealPopup(t.name);
 }
 function delPersonal(btn){
   var row=btn.closest('.task-row');
@@ -4183,9 +4336,21 @@ function setDayType(t){
   var k=viewKey();
   dayType[k]=t;
   sv('dayType',dayType);
-  if(t==='admin'&&dayBlockHours[k]){delete dayBlockHours[k];sv('dayBlockHours',dayBlockHours);}
   renderDaySchedule();
+  applyDayMode();
+  safeCall(function(){renderSection('morning');},'renderSection-morning');
+  safeCall(renderShootLog,'renderShootLog');
+  safeCall(renderCloseout,'renderCloseout');
+  safeCall(renderOverall,'renderOverall');
 }
+// Shoot days flip the page into "shoot mode": shoot-only cards appear, and the
+// morning trims to essentials. Everything else (Edit/Admin/none) is office mode.
+function applyDayMode(){
+  var shoot=dayType[viewKey()]==='shoot';
+  document.body.classList.toggle('mode-shoot',shoot);
+  document.body.classList.toggle('mode-office',!shoot);
+}
+window.applyDayMode=applyDayMode;
 function setDayBlockHours(h){
   var k=viewKey();
   dayBlockHours[k]=h;
@@ -4199,6 +4364,53 @@ function setDayEnd(t){
   renderDaySchedule();
 }
 window.setDayType=setDayType;window.setDayBlockHours=setDayBlockHours;window.setDayEnd=setDayEnd;
+
+/* ═══════════ SHOOT DAY — Shoot Log + Secure & Handoff closeout ═══════════ */
+const CLOSEOUT_ITEMS=[
+  {id:'co1',t:'Media secured'},{id:'co2',t:'Backed up'},{id:'co3',t:'Gear accounted for'},
+  {id:'co4',t:'Batteries charging'},{id:'co5',t:'Editor handoff'},{id:'co6',t:'Expenses logged'},
+  {id:'co7',t:'Client follow-up sent'},{id:'co8',t:'Deliverable entered'}
+];
+const SHOOT_ENERGY=['Low','Steady','High'];
+function saveShootLog(field,val){
+  var k=viewKey();var e=shootLog[k]||(shootLog[k]={});
+  e[field]=val;sv('shootLog',shootLog);
+  var meta=document.getElementById('shootLogMeta');
+  if(meta){var p=[];if(e.hours)p.push(e.hours+'h');if(e.revenue)p.push('$'+e.revenue);meta.textContent=p.join(' \u00b7 ');}
+}
+function setShootEnergy(v){var k=viewKey();var e=shootLog[k]||(shootLog[k]={});e.energy=v;sv('shootLog',shootLog);renderShootLog();}
+function renderShootLog(){
+  var e=shootLog[viewKey()]||{};
+  var set=function(id,v){var el=document.getElementById(id);if(el&&el.value!==(v||''))el.value=v||'';};
+  set('slHours',e.hours);set('slClient',e.client);set('slRevenue',e.revenue);
+  set('slTravel',e.travel);set('slIssues',e.issues);set('slLearned',e.learned);
+  var eb=document.getElementById('slEnergyBtns');
+  if(eb)eb.innerHTML=SHOOT_ENERGY.map(function(v){
+    return '<button class="btn '+(e.energy===v?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setShootEnergy(\''+v+'\')">'+v+'</button>';
+  }).join('');
+  var meta=document.getElementById('shootLogMeta');
+  if(meta){var p=[];if(e.hours)p.push(e.hours+'h');if(e.revenue)p.push('$'+e.revenue);meta.textContent=p.join(' \u00b7 ');}
+}
+function toggleCloseout(id){
+  var k=viewKey();var e=closeout[k]||(closeout[k]={});
+  if(e[id])delete e[id];else e[id]=nowStr();
+  sv('closeout',closeout);renderCloseout();
+}
+function renderCloseout(){
+  var el=document.getElementById('closeoutList');if(!el)return;
+  var st=closeout[viewKey()]||{};var done=0;
+  el.innerHTML=CLOSEOUT_ITEMS.map(function(it){
+    var d=!!st[it.id];if(d)done++;
+    return '<div class="task-row" style="cursor:pointer;" onclick="toggleCloseout(\''+it.id+'\')">'
+      +'<button class="chk '+(d?'done':'')+'" onclick="event.stopPropagation();toggleCloseout(\''+it.id+'\')"></button>'
+      +'<div class="task-info"><div class="task-name '+(d?'done':'')+'">'+escHtml(it.t)+'</div></div></div>';
+  }).join('');
+  var all=CLOSEOUT_ITEMS.length;
+  var pct=document.getElementById('closeoutPct');if(pct)pct.textContent=done+'/'+all;
+  var bar=document.getElementById('closeoutBar');if(bar)bar.style.width=Math.round(done/all*100)+'%';
+}
+window.saveShootLog=saveShootLog;window.setShootEnergy=setShootEnergy;window.renderShootLog=renderShootLog;
+window.toggleCloseout=toggleCloseout;window.renderCloseout=renderCloseout;
 function minToClock(mins){
   mins=((mins%1440)+1440)%1440;
   var h=Math.floor(mins/60),m=mins%60;
@@ -4258,29 +4470,16 @@ function computeDaySchedule(){
 }
 function renderDaySchedule(){
   var tb=document.getElementById('dayTypeButtons');
+  applyDayMode();
   if(!tb)return;
   var k=viewKey();
   var type=dayType[k]||null;
+  var typeNorm=(type==='edit'||type==='admin')?'office':type; // legacy days fold into Office
   var blockH=dayBlockHours[k]||6;
-  var endTarget=dayEndTarget[k]||'21:30';
 
-  tb.innerHTML=[['shoot','Shoot'],['edit','Edit'],['admin','Admin']].map(function(t){
-    return '<button class="btn '+(type===t[0]?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setDayType(\''+t[0]+'\')">'+t[1]+' Day</button>';
+  tb.innerHTML=[['shoot','Shoot'],['office','Office']].map(function(t){
+    return '<button class="btn '+(typeNorm===t[0]?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setDayType(\''+t[0]+'\')">'+t[1]+' Day</button>';
   }).join('');
-
-  var hb=document.getElementById('dayBlockHoursButtons');
-  if(hb){
-    hb.innerHTML=(type==='shoot'||type==='edit')?[4,6].map(function(h){
-      return '<button class="btn '+(blockH===h?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setDayBlockHours('+h+')">'+h+' Hour Block</button>';
-    }).join(''):'';
-  }
-
-  var eb=document.getElementById('dayEndButtons');
-  if(eb){
-    eb.innerHTML=[['21:30','End by 9:30 PM'],['22:30','End by 10:30 PM']].map(function(t){
-      return '<button class="btn '+(endTarget===t[0]?'btn-y':'btn-ghost')+' btn-sm" style="flex:1;" onclick="setDayEnd(\''+t[0]+'\')">'+t[1]+'</button>';
-    }).join('');
-  }
 
   var tot=document.getElementById('dayScheduleTotal');
   if(!type){
@@ -4503,11 +4702,11 @@ function calcStreak(hist){
 let trendRange='all';
 function setTrendRange(r){
   trendRange=r;
-  ['rng14d','rngMonth','rngAll'].forEach(function(id){
+  ['rng14d','rngMonth','rngAll','rngWeekly'].forEach(function(id){
     var b=document.getElementById(id);
     if(b)b.classList.remove('active');
   });
-  var map={'14d':'rng14d','month':'rngMonth','all':'rngAll'};
+  var map={'14d':'rng14d','month':'rngMonth','all':'rngAll','weekly':'rngWeekly'};
   var btn=document.getElementById(map[r]);
   if(btn)btn.classList.add('active');
   renderTrendChart(buildLiveHist());
@@ -4531,7 +4730,54 @@ function trendDateKeys(hist){
   return keys;
 }
 
+function renderWeeklyTrendChart(hist){
+  var start=new Date(2026,6,10);            // same all-time floor as the "All" view
+  var s=new Date(start);s.setDate(s.getDate()-s.getDay()); // back up to that week's Sunday
+  var now=new Date();
+  var labels=[],vals=[],counts=[];
+  var cur=new Date(s);
+  while(cur<=now){
+    var sum=0,count=0;
+    for(var i=0;i<7;i++){
+      var d=new Date(cur);d.setDate(d.getDate()+i);
+      if(d>now)break;
+      if(d<start)continue;
+      var k=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+      if(hist[k]!==undefined){sum+=hist[k];count++;}
+    }
+    labels.push(cur.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+    vals.push(count?Math.round(sum/count):null);
+    counts.push(count);
+    cur.setDate(cur.getDate()+7);
+  }
+  var nWeeks=vals.filter(function(v){return v!==null;}).length;
+  var lbl=document.getElementById('trendLbl');
+  if(lbl)lbl.textContent='Weekly averages \u00b7 '+nWeeks+' week'+(nWeeks===1?'':'s')+' tracked';
+  if(typeof Chart==='undefined')return;
+  if(trendChart)trendChart.destroy();
+  var canvas=document.getElementById('trendChart');if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  trendChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:labels,datasets:[{
+      label:'Weekly avg',
+      data:vals,
+      backgroundColor:vals.map(function(v){return v===null?'rgba(242,201,76,.08)':v>=80?'#f2c94c':v>=50?'rgba(242,201,76,.6)':'rgba(242,201,76,.32)';}),
+      borderRadius:4,borderSkipped:false,maxBarThickness:26
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{
+          title:function(items){return 'Week of '+items[0].label;},
+          label:function(it){var i=it.dataIndex;return counts[i]?it.parsed.y+'% avg \u00b7 '+counts[i]+' day'+(counts[i]===1?'':'s'):'no data';}
+        }}},
+      scales:{x:{ticks:{color:'#7a7f8a',font:{size:8},maxTicksLimit:8,autoSkip:true},grid:{display:false}},
+              y:{ticks:{color:'#7a7f8a',font:{size:8},stepSize:25,callback:function(v){return v+'%';}},grid:{color:'rgba(255,255,255,.05)'},min:0,max:100}}}
+  });
+}
+
 function renderTrendChart(hist){
+  if(trendRange==='weekly'){renderWeeklyTrendChart(hist);renderWeeklyAverages(hist);renderBestDay(hist);return;}
   const journals=ld('journals',{});
   const histS=ld('histSplit',{});
   const dateKeys=trendDateKeys(hist);
@@ -5873,22 +6119,541 @@ function setExportRange(range, btn) {
   exportRange = range;
   document.querySelectorAll('#exportRangeRow .fpill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  updateSuggestedPrompt();
 }
 
-function updateSuggestedPrompt() {
-  const labels = {week:'this week', month:'this month', all:'all time'};
-  document.getElementById('suggestedPrompt').textContent =
-    'Here is my full life and business tracker data for ' + labels[exportRange] + '. ' +
-    'Analyze it and be blunt with me: (1) which habits and tasks am I actually completing vs quietly skipping, (2) what patterns show up across my journal entries and self-checks — what do I keep repeating, ' +
-    '(3) how do my hours by bucket, burst times and wake/shutdown times line up with my high vs low days, (4) what does my revenue correlate with, and does client work crowd out sales, ' +
-    '(5) what is sitting too long — personal to-dos, carried-over tasks, cold pipeline leads, open system fixes, (6) what do my system update notes and fix log tell you about where my time leaks. ' +
-    'Then give me the three specific changes that would move the needle most. Do not soften it.';
+const WEEKLY_PROMPT = `Analyze my full life + business tracker for this week and compare it with all previous weeks/data available.
+
+This analysis will later become part of my monthly analysis, so KEEP THE SAME METRICS, CATEGORIES AND STRUCTURE every week. I want to be able to compare Week 1 → Week 2 → Week 3 → Week 4 → Month.
+
+Do not just summarize my entries. Analyze the data and find the signal underneath the noise.
+
+Be direct and skeptical. Use numbers whenever supported. Do not flatter me, overreact to bad days, or mistake isolated high-output days for improvement.
+
+# 1. THE READ
+
+Give me the 5–10 most important conclusions about this week.
+
+Answer:
+- Was my trajectory ↑ improving, → stable, ↓ declining, or ↕ volatile?
+- Is my baseline/floor improving?
+- What meaningfully improved?
+- What declined?
+- What was the biggest bottleneck?
+- What pattern best explains this week?
+- Was I actually moving forward or mostly staying busy?
+
+# 2. SCOREBOARD
+
+Compare:
+This Week → Previous Week → Recent Average
+
+Use the same available metrics every time:
+
+Execution:
+- completion rate
+- meaningful work hours
+- deep-work/burst hours
+- high days
+- low/crash days
+- recovery speed
+
+Personal:
+- wake time
+- shutdown time
+- sleep consistency
+- exercise
+- nutrition/protein
+- cleaning/life maintenance
+- journaling/planning
+- substances/distractions
+
+Business:
+- client work hours
+- shoots
+- deliverables
+- sales touches
+- follow-ups
+- proposals
+- pipeline movement
+- marketing/content
+- revenue
+
+Show actual numbers and % changes whenever possible.
+Never invent missing data.
+
+# 3. WHAT I ACTUALLY DO VS. QUIETLY SKIP
+
+Separate recurring tasks/habits into:
+- Consistently completed
+- Inconsistent
+- Repeatedly skipped/avoided
+
+Compare what I claim matters with what my behavior demonstrates actually gets prioritized.
+
+Identify high-value tasks I avoid while successfully completing easier, urgent, interesting or client-facing work.
+
+# 4. HIGH DAYS VS. LOW DAYS
+
+Identify my highest and lowest performance days.
+
+Analyze what surrounded them:
+- wake time
+- previous shutdown
+- sleep
+- planning
+- workload
+- environment
+- exercise
+- nutrition
+- substances
+- social activity
+- emotional events
+- client demands
+- task switching
+
+Classify days where useful:
+Execution / Field-Shoot / Maintenance / Recovery / Avoidance / Crash / Mixed
+
+Do NOT call a shoot day or logistics-heavy day unproductive simply because fewer checkboxes were completed.
+
+Tell me what conditions predict high vs. low performance.
+
+# 5. TIME, BURSTS & ATTENTION
+
+Analyze:
+- hours by bucket
+- productive burst times
+- wake/shutdown times
+- task switching
+- deep work
+- client work
+- personal work
+- sales
+- unused capacity
+
+Tell me:
+- When do I actually perform best?
+- Where is my time really going?
+- Where am I losing time?
+- Does my intended schedule match my actual behavior?
+
+# 6. MONEY & REVENUE
+
+Analyze what appears to correlate with revenue.
+
+Compare:
+Sales → Follow-ups → Proposals → Client work → Delivery → Payment
+
+Distinguish current revenue work from future revenue creation.
+
+Explicitly answer:
+Is client fulfillment crowding out sales and future pipeline creation?
+
+Do not assume money RECEIVED this week was CREATED this week.
+Look backward for the behaviors that likely produced it.
+
+# 7. THE GRAVEYARD
+
+Find what is sitting too long:
+- personal to-dos
+- carried-over tasks
+- client tasks
+- cold leads
+- follow-ups
+- unfinished projects
+- system fixes
+- recurring problems
+
+Show age when possible.
+
+Determine WHY:
+Avoidance / No time / Forgotten / Poorly defined / Low priority / Waiting / System friction
+
+Flag items repeatedly carried forward.
+
+# 8. REPEATING LOOPS
+
+Analyze journal entries + tracker behavior together.
+
+Find sequences:
+Trigger → Behavior → Consequence
+
+Identify positive and destructive loops.
+
+Mark each:
+Strong / Probable / Possible
+
+Pay special attention to:
+- activation difficulty
+- task switching
+- hyperfocus
+- overload
+- sleep disruption
+- avoidance
+- revenue avoidance
+- financial pressure
+- substances
+- social distraction
+- environmental friction
+
+# 9. PATTERN INTERRUPTION & RECOVERY
+
+Identify where an old negative pattern started but I interrupted it.
+
+Compare:
+Old pattern → Current response
+
+Track:
+- crash frequency
+- crash severity
+- recognition speed
+- intervention speed
+- recovery speed
+- ability to still execute on mediocre days
+
+Tell me whether my resilience is actually improving.
+
+# 10. SYSTEM / FIX LOG
+
+Analyze system-update notes and fixes.
+
+Tell me:
+- what actually worked
+- what failed
+- what keeps recurring
+- where friction remains
+- what should be automated/delegated
+- whether system-building itself became avoidance
+
+If I repeatedly fix the same problem, call it out.
+
+# 11. BASELINE VS. PEAKS
+
+Explicitly answer:
+Is my FLOOR rising?
+
+Separate temporary high-output bursts from actual changes in normal behavior.
+
+Compare my average/typical day, worst days, consistency and recovery with previous weeks.
+
+# 12. WEEK-OVER-WEEK TRAJECTORY
+
+Compare this week with previous weeks.
+
+Show:
+↑ improving
+→ stable
+↓ declining
+↕ volatile
+
+for the major categories.
+
+Tell me which changes appear to be becoming real trends versus weekly noise.
+
+# 13. THREE MOVES
+
+Give exactly THREE changes with the highest expected downstream impact.
+
+For each:
+Change → behavior affected → expected result
+
+Make each measurable for next week.
+
+# 14. BOTTOM LINE
+
+Finish with:
+What this week proved about how I operate.
+
+Tell me what is genuinely getting better, what I am still repeating, and what I am potentially bullshitting myself about.
+
+Keep this concise enough that this weekly analysis can later be compared directly against the other weeks in the month.`;
+
+const MONTHLY_PROMPT = `Analyze my full life + business tracker for this month and compare it with all previous months/data available.
+
+IMPORTANT: Treat this month as the combination of its individual weeks.
+
+Use the SAME metrics, categories and analytical structure used in my weekly analyses so I can see:
+Week 1 → Week 2 → Week 3 → Week 4/5 → Full Month → Previous Month
+
+Do not just average everything together. Show how the month DEVELOPED.
+
+A weak Week 1 followed by three strong weeks means something different from three strong weeks followed by a collapse.
+
+Find the signal underneath the noise.
+
+Be direct and skeptical. Use numbers whenever supported.
+
+# 1. THE READ
+
+Give me the 5–10 most important conclusions about the month.
+
+Answer:
+- Was my trajectory ↑ improving, → stable, ↓ declining, or ↕ volatile?
+- Is my baseline/floor actually higher?
+- What meaningfully improved?
+- What declined?
+- What remained stubbornly unchanged?
+- What was the biggest bottleneck?
+- What pattern best explains the month?
+- Did I actually move forward or mostly stay busy?
+
+Explain how the individual weeks produced this result.
+
+# 2. SCOREBOARD
+
+Compare:
+Week 1 → Week 2 → Week 3 → Week 4/5 → Monthly Average → Previous Month
+
+Use the same available metrics:
+
+Execution:
+- completion rate
+- meaningful work hours
+- deep-work/burst hours
+- high days
+- low/crash days
+- recovery speed
+
+Personal:
+- wake time
+- shutdown time
+- sleep consistency
+- exercise
+- nutrition/protein
+- cleaning/life maintenance
+- journaling/planning
+- substances/distractions
+
+Business:
+- client work hours
+- shoots
+- deliverables
+- sales touches
+- follow-ups
+- proposals
+- pipeline movement
+- marketing/content
+- revenue
+
+Show numbers and % changes whenever possible.
+Never invent missing data.
+
+# 3. WHAT I ACTUALLY DO VS. QUIETLY SKIP
+
+Separate recurring tasks/habits into:
+- Consistently completed
+- Inconsistent
+- Repeatedly skipped/avoided
+
+Show whether each behavior improved, worsened or stayed unchanged across the individual weeks.
+
+Identify the difference between my stated priorities and revealed priorities.
+
+# 4. HIGH DAYS VS. LOW DAYS
+
+Analyze my strongest and weakest days across the month.
+
+Look for common conditions involving:
+- wake time
+- shutdown
+- sleep
+- planning
+- workload
+- environment
+- exercise
+- nutrition
+- substances
+- social activity
+- emotional events
+- client demands
+- task switching
+
+Classify days where useful:
+Execution / Field-Shoot / Maintenance / Recovery / Avoidance / Crash / Mixed
+
+Determine which conditions repeatedly predict high vs. low performance.
+
+# 5. TIME, BURSTS & ATTENTION
+
+Analyze:
+- hours by bucket
+- productive burst times
+- wake/shutdown times
+- task switching
+- deep work
+- client work
+- personal work
+- sales
+- unused capacity
+
+Compare these WEEK BY WEEK.
+
+Determine whether my schedule and attention allocation improved during the month.
+
+Identify where my time consistently leaks.
+
+# 6. MONEY & REVENUE
+
+Analyze:
+Sales → Follow-ups → Proposals → Client work → Delivery → Payment
+
+Compare these week by week.
+
+Determine which behaviors appear to precede revenue and, where possible, estimate the lag between revenue-producing activity and money received.
+
+Separate current revenue work from future revenue creation.
+
+Explicitly answer:
+Did client fulfillment crowd out sales and future pipeline creation?
+
+Identify weeks where this happened and what happened afterward.
+
+# 7. THE GRAVEYARD
+
+Find what remained unresolved across the month:
+- personal to-dos
+- carried-over tasks
+- client tasks
+- cold leads
+- follow-ups
+- unfinished projects
+- system fixes
+- recurring problems
+
+Identify things carried from:
+Week 1 → Week 2 → Week 3 → Week 4/5
+
+These deserve special attention.
+
+Determine WHY they survived.
+
+# 8. REPEATING LOOPS
+
+Analyze journal entries + tracker behavior.
+
+Find:
+Trigger → Behavior → Consequence
+
+Mark:
+Strong / Probable / Possible
+
+Show whether each pattern:
+Strengthened / Weakened / Stayed the same / Disappeared / Emerged
+
+Compare with previous months when data exists.
+
+# 9. PATTERN INTERRUPTION & RECOVERY
+
+Track across the month:
+- crash frequency
+- crash severity
+- recognition speed
+- intervention speed
+- recovery speed
+- low-day productivity
+
+Compare individual weeks.
+
+Determine whether I am becoming harder to knock off course.
+
+Show:
+Old pattern → Earlier-month response → Current response
+
+# 10. SYSTEM / FIX LOG
+
+Analyze every system update and fix.
+
+Tell me:
+- what worked
+- what failed
+- what repeatedly resurfaced
+- what became unnecessary
+- what needs automation/delegation
+- whether system-building replaced execution
+
+Pay particular attention to problems appearing in multiple weekly reviews.
+
+# 11. BASELINE VS. PEAKS
+
+Explicitly answer:
+Is my FLOOR actually rising?
+
+Compare:
+Week 1 → Week 2 → Week 3 → Week 4/5 → Previous Month
+
+Analyze:
+- typical day
+- best days
+- worst days
+- consistency
+- variance
+- crash frequency
+- recovery
+
+Determine whether improvement represents actual baseline change or temporary bursts.
+
+# 12. MONTHLY TRAJECTORY
+
+Show the week-by-week trajectory for every major category:
+↑ improving
+→ stable
+↓ declining
+↕ volatile
+
+Then give the overall monthly trajectory.
+
+Identify:
+- Trends that strengthened across multiple weeks
+- Problems that persisted across multiple weeks
+- Problems that appeared temporarily and resolved
+- Improvements that now look structural rather than temporary
+
+# 13. THREE MOVES
+
+Give exactly THREE changes with the highest expected downstream impact for next month.
+
+These should come from patterns demonstrated repeatedly across the weeks, not isolated events.
+
+For each:
+Change → behavior affected → expected result
+
+Make each measurable.
+
+# 14. BOTTOM LINE
+
+Finish with:
+What this month proved about how I operate.
+
+Tell me:
+- what genuinely changed
+- what didn't
+- what I repeatedly avoid
+- what systems are actually working
+- whether my baseline is rising
+- whether my business behavior is becoming more sustainable
+- what I am potentially bullshitting myself about
+
+Then answer:
+If this month's trajectory continues for another 90 days, where am I likely to end up?`;
+
+function copyPrompt(which){
+  var text=which==='monthly'?MONTHLY_PROMPT:WEEKLY_PROMPT;
+  var label=which==='monthly'?'Monthly':'Weekly';
+  var msg=document.getElementById('promptCopyMsg');
+  var done=function(){if(msg){msg.style.color='var(--green)';msg.textContent='\u2713 '+label+' prompt copied — paste it into Claude with your exported file.';}};
+  var fail=function(){if(msg){msg.style.color='var(--coral)';msg.textContent='Copy failed — try again.';}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done,function(){_promptClipFallback(text,done,fail);});
+  } else {_promptClipFallback(text,done,fail);}
 }
+function _promptClipFallback(text,done,fail){
+  try{var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);done();}
+  catch(e){fail();}
+}
+window.copyPrompt=copyPrompt;
 
 function openExportModal() {
   document.getElementById('exportOv').classList.add('open');
-  updateSuggestedPrompt();
   checkMonthEndReminder();
 }
 
@@ -5934,7 +6699,8 @@ function allTrackedDays(hist){
   var set={};
   Object.keys(hist||{}).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))set[k]=1;});
   [ld('journals',{}),ld('todayLists',{}),ld('hoursLog',{}),ld('stopHits',{}),
-   ld('selfCheck',{}),ld('dayPlans',{}),ld('burstTimes',{})].forEach(function(m){
+   ld('selfCheck',{}),ld('dayPlans',{}),ld('burstTimes',{}),
+   ld('shootLog',{}),ld('closeout',{}),ld('dayType',{}),ld('meals',{})].forEach(function(m){
     Object.keys(m||{}).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k))set[k]=1;});
   });
   var sm=ld('smokeFree',{});
@@ -6436,6 +7202,21 @@ function doExport() {
     push('  Product: ' + w.pDone.length + '/' + bizProduct.length + (w.pDone.length?'  -- '+w.pDone.map(function(t){return t.name;}).join(', '):''));
   });
   if(!weeklyBizSummary.length)push('  (no weeks in range)');
+  var cbMap=ld('contentBlock',{});
+  var cbWeeks=Object.keys(cbMap).sort();
+  push('');
+  push('4hr content block locked in (weeks): ' + (cbWeeks.length?cbWeeks.join(', '):'(none yet)'));
+  var csMap=ld('contentSessions',{});
+  var csWeeks=Object.keys(csMap).sort();
+  if(csWeeks.length){
+    push('');
+    push('Content block time actually logged:');
+    csWeeks.forEach(function(w){
+      var arr=csMap[w]||[];var tot=arr.reduce(function(s,x){return s+(x.min||0);},0);
+      push('  ' + w + ': ' + (Math.round(tot/6)/10) + 'h across ' + arr.length + ' session' + (arr.length===1?'':'s'));
+      arr.forEach(function(x){if(x.note)push('    - ' + x.date + '  ' + x.min + 'm: ' + x.note);});
+    });
+  }
 
   // ============================== SYSTEM UPDATE NOTES ==============================
   hdr('SYSTEM UPDATE NOTES (what he changed, every note)');
@@ -6479,6 +7260,63 @@ function doExport() {
   });
   if(!planDays.length)push('  (no plans written in range)');
 
+  // ============================== SHOOT DAYS ==============================
+  hdr('SHOOT DAYS (day type, shoot log, closeout)');
+  var shootDays=daysInRange.filter(function(k){return dayType[k]==='shoot';});
+  var officeDays=daysInRange.filter(function(k){return dayType[k]&&dayType[k]!=='shoot';});
+  push('Days marked in range: ' + (shootDays.length+officeDays.length) + ' (shoot ' + shootDays.length + ', office ' + officeDays.length + ')');
+  if(shootDays.length&&officeDays.length){
+    var avgPct=function(arr){return arr.length?Math.round(arr.reduce(function(s,k){return s+(hist[k]||0);},0)/arr.length):0;};
+    var revNum=function(v){return Number(String(v==null?'':v).replace(/[^0-9.]/g,''))||0;};
+    var avgRev=function(arr){var r=arr.filter(function(k){return shootLog[k]&&shootLog[k].revenue;});return r.length?expMoney(Math.round(r.reduce(function(s,k){return s+revNum(shootLog[k].revenue);},0)/r.length)):'n/a';};
+    push('Avg completion -- shoot ' + avgPct(shootDays) + '%  vs  office ' + avgPct(officeDays) + '%   |   avg shoot-day revenue: ' + avgRev(shootDays));
+  }
+  push('');
+  if(!shootDays.length){
+    push('  (no shoot days logged in range)');
+  } else {
+    shootDays.forEach(function(k){
+      var s=shootLog[k]||{}, co=closeout[k]||{};
+      var coDone=CLOSEOUT_ITEMS.filter(function(it){return co[it.id];}).length;
+      push('[' + k + ' -- day ' + (hist[k]||0) + '% overall]');
+      var bits=[];
+      if(s.hours)bits.push(s.hours+'h');
+      if(s.client)bits.push('client: '+s.client);
+      if(s.revenue)bits.push('revenue: '+s.revenue);
+      if(s.travel)bits.push('travel: '+s.travel);
+      if(s.energy)bits.push('energy: '+s.energy);
+      if(bits.length)push('  ' + bits.join('  |  '));
+      if(s.issues)push('  issues: ' + s.issues);
+      if(s.learned)push('  learned: ' + s.learned);
+      var missed=CLOSEOUT_ITEMS.filter(function(it){return !co[it.id];}).map(function(it){return it.t;});
+      push('  closeout: ' + coDone + '/' + CLOSEOUT_ITEMS.length + (missed.length?'  -- missed: '+missed.join(', '):'  (complete)'));
+      push('');
+    });
+  }
+  if(officeDays.length){
+    push('Office days in range: ' + officeDays.map(function(k){return k+' ('+(hist[k]||0)+'%)';}).join(', '));
+  }
+
+  // ============================== MEALS / FUEL ==============================
+  hdr('MEALS / FUEL LOG (what he ate each day + protein/calories)');
+  var mealMap=ld('meals',{});
+  var mg=ld('mealGoals',{protein:160,cals:0});
+  var mealDays=Object.keys(mealMap).filter(function(k){return dateInRange(k,start,end);}).sort();
+  push('Goals: ' + (mg.protein||160) + 'g protein/day' + (mg.cals?', ' + mg.cals + ' cal budget (aiming for a deficit)':', no calorie budget set'));
+  push('Days with meals logged: ' + mealDays.length);
+  push('');
+  mealDays.forEach(function(k){
+    var list=mealMap[k]||[];
+    var tp=list.reduce(function(s,m){return s+(Number(m.p)||0);},0);
+    var tc=list.reduce(function(s,m){return s+(Number(m.c)||0);},0);
+    push('[' + k + ' -- ' + list.length + ' logged | ' + tp + 'g protein, ' + tc + ' cal' + (mg.cals?' (budget '+mg.cals+')':'') + ']');
+    list.forEach(function(m){
+      var macro=[];if(m.p)macro.push(m.p+'g P');if(m.c)macro.push(m.c+' cal');
+      push('  - ' + (m.t?m.t+'  ':'') + m.txt + (macro.length?'  ('+macro.join(', ')+')':''));
+    });
+  });
+  if(!mealDays.length)push('  (no meals logged in range)');
+
   // ============================== JOURNAL ==============================
   hdr('JOURNAL ENTRIES');
   journalsInRange.forEach(function(k){
@@ -6494,10 +7332,6 @@ function doExport() {
     push('---');
   });
   if(!journalsInRange.length)push('  (no entries in range)');
-
-  // ============================== PROMPT ==============================
-  hdr('SUGGESTED AI PROMPT');
-  push(document.getElementById('suggestedPrompt').textContent);
 
   var out = lines.join('\n');
   var blob = new Blob([out], {type:'text/plain'});
@@ -6815,7 +7649,7 @@ window.fixEdit=fixEdit;window.fixDel=fixDel;window.copyFixLog=copyFixLog;window.
 window.renderFixLog=renderFixLog;window.clearFixedOlderThan30=clearFixedOlderThan30;
 
 /* ═══════════ TRAIN THE MIND — listening program ═══════════ */
-const LISTEN_PROGRAM=[
+const DEF_LISTEN=[
   {ph:'01',tag:'Foundation',aim:'Rewire the self-image',items:[
     {id:'lp1',t:'Psycho-Cybernetics',by:'Maxwell Maltz',tag:'Start here'},
     {id:'lp2',t:'Mindset',by:'Carol Dweck'}
@@ -6838,21 +7672,53 @@ const LISTEN_PROGRAM=[
     {id:'lp13',t:'Building a StoryBrand',by:'Donald Miller'}
   ]}
 ];
+let listenProgram=ld('listenProgram',DEF_LISTEN);
 let listenState=ld('listenState',{});
+let listenPlaying=null;
+
+/* Turn a YouTube link (video, short, youtu.be, or playlist) into an embeddable
+   autoplay URL. Returns null for anything that isn't a playable YouTube link. */
+function ytEmbed(url){
+  if(!url)return null;
+  var u=String(url).trim();
+  if(!/youtube\.com|youtu\.be/i.test(u))return null;
+  var list=u.match(/[?&]list=([\w-]+)/);
+  var vid=u.match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([\w-]{11})/);
+  var base='https://www.youtube.com/embed/';
+  if(vid){
+    var src=base+vid[1]+'?autoplay=1&rel=0';
+    if(list)src+='&list='+list[1];
+    return src;
+  }
+  if(list)return base+'videoseries?list='+list[1]+'&autoplay=1';
+  return null;
+}
 function renderListen(){
   var el=document.getElementById('listenList');if(!el)return;
   var all=0,done=0;
-  el.innerHTML=LISTEN_PROGRAM.map(function(p){
+  el.innerHTML=listenProgram.filter(function(p){return p.items&&p.items.length;}).map(function(p){
     var pd=0;
     var rows=p.items.map(function(it){
       all++;var d=!!listenState[it.id];if(d){done++;pd++;}
+      var embed=ytEmbed(it.link);
+      var actions='';
+      if(it.link){
+        if(embed){
+          actions+='<button class="lp-play'+(listenPlaying===it.id?' playing':'')+'" onclick="playListen(\''+it.id+'\')">'
+            +(listenPlaying===it.id?'\u23f9 Playing':'\u25b6 Play')+'</button>';
+        }
+        actions+='<a class="lp-open" href="'+escAttr(it.link)+'" target="_blank" rel="noopener">Open \u2197</a>';
+      }
       return '<div class="lp-item'+(d?' lp-done':'')+'">'
         +'<button class="chk '+(d?'done':'')+'" onclick="toggleListen(\''+it.id+'\')" title="Mark listened"></button>'
-        +'<div class="lp-body"><div class="lp-title">'+escHtml(it.t)+' <span class="lp-by">\u00b7 '+escHtml(it.by)+'</span>'
-        +(it.tag?'<span class="lp-tag">'+escHtml(it.tag)+'</span>':'')+'</div></div></div>';
+        +'<div class="lp-body"><div class="lp-title">'+escHtml(it.t)
+        +(it.by?' <span class="lp-by">\u00b7 '+escHtml(it.by)+'</span>':'')
+        +(it.tag?'<span class="lp-tag">'+escHtml(it.tag)+'</span>':'')+'</div>'
+        +(actions?'<div class="lp-actions">'+actions+'</div>':'')+'</div>'
+        +'<button class="lp-del" onclick="delListenItem(\''+it.id+'\')" title="Remove">\u00d7</button></div>';
     }).join('');
     return '<div class="lp-phase"><div class="lp-phase-hd">'
-      +'<span class="lp-num">'+p.ph+'</span><span class="lp-name">'+escHtml(p.tag)+'</span>'
+      +'<span class="lp-num">'+escHtml(p.ph)+'</span><span class="lp-name">'+escHtml(p.tag)+'</span>'
       +'<span class="lp-aim">'+escHtml(p.aim)+' \u00b7 '+pd+'/'+p.items.length+'</span></div>'+rows+'</div>';
   }).join('');
   var badge=document.getElementById('listenPct');if(badge)badge.textContent=done+'/'+all;
@@ -6862,7 +7728,274 @@ function toggleListen(id){
   if(listenState[id])delete listenState[id];else listenState[id]=nowStr();
   sv('listenState',listenState);renderListen();
 }
+/* Play a YouTube link inline. Non-YouTube links just open in a new tab. */
+function playListen(id){
+  var item=null;
+  listenProgram.forEach(function(p){(p.items||[]).forEach(function(it){if(it.id===id)item=it;});});
+  if(!item)return;
+  var player=document.getElementById('listenPlayer');if(!player)return;
+  if(listenPlaying===id){stopListen();return;}
+  var src=ytEmbed(item.link);
+  if(!src){if(item.link)window.open(item.link,'_blank');return;}
+  listenPlaying=id;
+  player.innerHTML='<div class="lp-player-hd"><span>\u25b6 '+escHtml(item.t)+'</span>'
+    +'<button class="lp-player-x" onclick="stopListen()">\u2715 Close</button></div>'
+    +'<div class="lp-player"><iframe src="'+src+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="'+escAttr(item.t)+'"></iframe></div>';
+  renderListen();
+}
+function stopListen(){
+  listenPlaying=null;
+  var p=document.getElementById('listenPlayer');if(p)p.innerHTML='';
+  renderListen();
+}
+function toggleListenAdd(){
+  var f=document.getElementById('listenAddForm');if(!f)return;
+  if(f.style.display!=='none'){f.style.display='none';return;}
+  var sel=document.getElementById('laPhase');
+  if(sel)sel.innerHTML=listenProgram.map(function(p){return '<option value="'+escAttr(p.ph)+'">'+escHtml(p.tag)+'</option>';}).join('');
+  ['laTitle','laBy','laLink'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
+  f.style.display='flex';
+  var t=document.getElementById('laTitle');if(t)t.focus();
+}
+function addListenItem(){
+  var t=((document.getElementById('laTitle')||{}).value||'').trim();
+  if(!t){var e=document.getElementById('laTitle');if(e)e.focus();return;}
+  var by=((document.getElementById('laBy')||{}).value||'').trim();
+  var link=((document.getElementById('laLink')||{}).value||'').trim();
+  var ph=(document.getElementById('laPhase')||{}).value||'';
+  var phase=listenProgram.find(function(p){return p.ph===ph;})||listenProgram[0];
+  if(!phase)return;
+  phase.items.push({id:'lp_'+Date.now().toString(36)+Math.floor(Math.random()*1e3),t:t,by:by,link:link});
+  sv('listenProgram',listenProgram);
+  var f=document.getElementById('listenAddForm');if(f)f.style.display='none';
+  renderListen();
+}
+function delListenItem(id){
+  if(!confirm('Remove this from your list?'))return;
+  listenProgram.forEach(function(p){p.items=(p.items||[]).filter(function(it){return it.id!==id;});});
+  if(listenState[id]){delete listenState[id];sv('listenState',listenState);}
+  if(listenPlaying===id)stopListen();
+  sv('listenProgram',listenProgram);renderListen();
+}
 window.toggleListen=toggleListen;window.renderListen=renderListen;
+window.playListen=playListen;window.stopListen=stopListen;
+window.toggleListenAdd=toggleListenAdd;window.addListenItem=addListenItem;window.delListenItem=delListenItem;
+function toggleListenCard(){
+  var wrap=document.getElementById('listenWrap');
+  var arrow=document.getElementById('listenArrow');
+  if(!wrap)return;
+  var open=wrap.style.display!=='none';
+  wrap.style.display=open?'none':'block';
+  if(arrow)arrow.innerHTML=open?'\u25b8':'\u25be';
+}
+window.toggleListenCard=toggleListenCard;
+
+function toggleSb30(){
+  var w=document.getElementById('sb30Wrap');var a=document.getElementById('sb30Arrow');
+  if(!w)return;
+  var open=w.style.display!=='none';
+  w.style.display=open?'none':'block';
+  if(a)a.innerHTML=open?'\u25b8':'\u25be';
+}
+window.toggleSb30=toggleSb30;
+
+function togglePitch(){
+  var w=document.getElementById('pitchWrap');var a=document.getElementById('pitchArrow');
+  if(!w)return;var open=w.style.display!=='none';
+  w.style.display=open?'none':'block';if(a)a.innerHTML=open?'\u25b8':'\u25be';
+}
+function toggleContentIdeas(){
+  var w=document.getElementById('ideaWrap');var a=document.getElementById('ideaArrow');
+  if(!w)return;var open=w.style.display!=='none';
+  w.style.display=open?'none':'block';if(a)a.innerHTML=open?'\u25b8':'\u25be';
+}
+window.togglePitch=togglePitch;window.toggleContentIdeas=toggleContentIdeas;
+
+/* Weekly 4hr content block — mark it each week so it actually happens; the row
+   resets every week (keyed by weekKey) and nags until it's locked in. */
+let contentBlock=ld('contentBlock',{});
+function toggleContentBlock(){
+  var wk=weekKey();
+  if(contentBlock[wk])delete contentBlock[wk];else contentBlock[wk]=nowStr();
+  sv('contentBlock',contentBlock);renderContentBlock();
+}
+function renderContentBlock(){
+  var el=document.getElementById('contentBlockRow');if(!el)return;
+  var done=contentBlock[weekKey()];
+  if(done){
+    el.style.borderColor='var(--green)';
+    el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'
+      +'<span style="font-size:12px;color:var(--green);font-weight:700;">&#10003; 4 hr content block done this week</span>'
+      +'<button class="btn btn-ghost btn-sm" onclick="toggleContentBlock()">Undo</button></div>'
+      +'<div style="font-size:10px;color:var(--t3);margin-top:2px;">locked in '+escHtml(done)+'</div>';
+  } else {
+    el.style.borderColor='var(--pink)';
+    el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'
+      +'<span style="font-size:12px;color:var(--pink);font-weight:700;">&#9200; 4 hr content block not done this week</span>'
+      +'<button class="btn btn-y btn-sm" onclick="toggleContentBlock()">Mark done</button></div>'
+      +'<div style="font-size:10px;color:var(--t2);margin-top:2px;">Lock in your weekly content block so it actually happens.</div>';
+  }
+}
+window.toggleContentBlock=toggleContentBlock;window.renderContentBlock=renderContentBlock;
+
+/* Content block timer — start/stop to time the actual work so he sees how long
+   content builds really take; each session logs its minutes + a note of what got done. */
+let contentSessions=ld('contentSessions',{}); // weekKey -> [{min,note,date,ts}]
+let contentTimerStart=ld('contentTimerStart',0); // 0, or start time in ms
+var _ctInt=null;
+function fmtMins(m){m=Math.round(m||0);if(m<60)return m+'m';var h=Math.floor(m/60),r=m%60;return h+'h'+(r?' '+r+'m':'');}
+function startContentTimer(){contentTimerStart=Date.now();sv('contentTimerStart',contentTimerStart);renderContentTimer();}
+function stopContentTimer(){
+  if(!contentTimerStart)return;
+  var min=Math.max(1,Math.round((Date.now()-contentTimerStart)/60000));
+  var note=((document.getElementById('contentTimerNote')||{}).value||'').trim();
+  var wk=weekKey();var arr=contentSessions[wk]||(contentSessions[wk]=[]);
+  arr.push({min:min,note:note,date:todayKey(),ts:nowStr()});
+  sv('contentSessions',contentSessions);
+  contentTimerStart=0;sv('contentTimerStart',contentTimerStart);
+  renderContentTimer();
+}
+function tickContentTimer(){
+  var el=document.getElementById('contentTimerClock');
+  if(!el||!contentTimerStart){if(_ctInt){clearInterval(_ctInt);_ctInt=null;}return;}
+  var s=Math.round((Date.now()-contentTimerStart)/1000);
+  el.textContent=Math.floor(s/60)+':'+(''+(s%60)).padStart(2,'0');
+}
+function renderContentTimer(){
+  var el=document.getElementById('contentTimerRow');if(!el)return;
+  var prevNote=(document.getElementById('contentTimerNote')||{}).value||'';
+  var arr=contentSessions[weekKey()]||[];
+  var totalMin=arr.reduce(function(s,x){return s+(x.min||0);},0);
+  var running=!!contentTimerStart;
+  var top=running
+    ? '<div style="display:flex;align-items:center;gap:8px;"><span style="font-family:var(--mono);font-size:18px;font-weight:800;color:var(--pink);" id="contentTimerClock">0:00</span><button class="btn btn-ghost btn-sm" onclick="stopContentTimer()">&#9632; Stop</button></div>'
+    : '<button class="btn btn-y btn-sm" onclick="startContentTimer()">&#9654; Start block timer</button>';
+  var sessions=arr.length?'<div style="margin-top:6px;border-top:1px solid var(--b);padding-top:5px;">'+arr.map(function(x){
+      return '<div style="font-size:10px;color:var(--t2);padding:2px 0;">'+escHtml(x.date)+' &middot; '+fmtMins(x.min)+(x.note?' &mdash; '+escHtml(x.note):'')+'</div>';
+    }).join('')+'</div>':'';
+  el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
+    +top
+    +'<span style="font-size:11px;color:var(--t3);">this week: '+fmtMins(totalMin)+' &middot; '+arr.length+' session'+(arr.length===1?'':'s')+'</span></div>'
+    +'<input class="inp" id="contentTimerNote" placeholder="What did you work on this block?" style="margin-top:6px;font-size:12px;">'
+    +sessions;
+  var ni=document.getElementById('contentTimerNote');if(ni&&prevNote)ni.value=prevNote;
+  if(running){if(!_ctInt)_ctInt=setInterval(tickContentTimer,1000);tickContentTimer();}
+  else if(_ctInt){clearInterval(_ctInt);_ctInt=null;}
+}
+window.startContentTimer=startContentTimer;window.stopContentTimer=stopContentTimer;window.renderContentTimer=renderContentTimer;
+
+/* Bonus rounds — end-of-night level-up prompt. Once the day's logged it asks if
+   he's got time; saying yes surfaces the 30-Day challenge + Kundalini spirit quest. */
+let bonusRounds=ld('bonusRounds',{}); // dateKey -> 'yes' | 'no'
+function setBonus(v){bonusRounds[viewKey()]=v;sv('bonusRounds',bonusRounds);renderBonus();}
+function openBonus30(){
+  var w=document.getElementById('sb30Wrap'),a=document.getElementById('sb30Arrow');
+  if(w){w.style.display='block';if(a)a.innerHTML='\u25be';}
+  var sb=document.getElementById('cardScoreboard30');
+  if(sb&&sb.scrollIntoView)sb.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderBonus(){
+  var el=document.getElementById('bonusPrompt');if(!el)return;
+  var v=bonusRounds[viewKey()];
+  if(v==='yes'){
+    el.innerHTML='<div style="font-size:12px;color:var(--t2);margin-bottom:8px;">Level up &mdash; get closer to what you need:</div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;">'
+      +'<button class="btn btn-y btn-sm" style="justify-content:flex-start;" onclick="openBonus30()">\uD83C\uDFC6 30-Day Challenge</button>'
+      +'<a class="btn btn-ghost btn-sm" style="justify-content:flex-start;text-decoration:none;" href="kundalini.html">\uD83C\uDF00 Kundalini Spirit Quest \u2192</a>'
+      +'</div>'
+      +'<button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="setBonus(\'no\')">Done for tonight</button>';
+  } else if(v==='no'){
+    el.innerHTML='<div style="font-size:12px;color:var(--t3);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Resting tonight.<button class="btn btn-ghost btn-sm" onclick="setBonus(\'yes\')">Actually, let\u2019s go</button></div>';
+  } else {
+    el.innerHTML='<div style="font-size:12px;color:var(--t2);margin-bottom:8px;">Day\u2019s logged. Got time for bonus rounds &mdash; level up tonight?</div>'
+      +'<div style="display:flex;gap:6px;"><button class="btn btn-y btn-sm" onclick="setBonus(\'yes\')">Yes, let\u2019s go</button><button class="btn btn-ghost btn-sm" onclick="setBonus(\'no\')">Not tonight</button></div>';
+  }
+}
+window.setBonus=setBonus;window.openBonus30=openBonus30;window.renderBonus=renderBonus;
+
+/* ── Meals / refuel log — what he eats each day, per date, with protein + calories
+   tracked against a daily protein goal (default 160g) and a calorie budget he sets. ── */
+let meals=ld('meals',{});
+let mealGoals=ld('mealGoals',{protein:160,cals:0});
+function saveMealGoals(){
+  var p=parseInt((document.getElementById('goalProtein')||{}).value,10);
+  var c=parseInt((document.getElementById('goalCals')||{}).value,10);
+  mealGoals.protein=isNaN(p)?160:p;
+  mealGoals.cals=isNaN(c)?0:c;
+  sv('mealGoals',mealGoals);renderMeals();
+}
+function renderMeals(){
+  var el=document.getElementById('mealsList');if(!el)return;
+  var list=meals[viewKey()]||[];
+  var tp=0,tc=0;
+  el.innerHTML=list.length?list.map(function(m,i){
+    tp+=Number(m.p)||0;tc+=Number(m.c)||0;
+    var macro=[];if(m.p)macro.push(m.p+'g P');if(m.c)macro.push(m.c+' cal');
+    var sub=macro.join(' \u00b7 ')+(macro.length&&m.t?'  \u00b7  ':'')+(m.t?escHtml(m.t):'');
+    return '<div class="task-row"><div class="task-info"><div class="task-name">'+escHtml(m.txt)+'</div>'
+      +(sub?'<div class="task-ts">'+sub+'</div>':'')+'</div>'
+      +'<button class="task-del" onclick="delMeal('+i+')">&#215;</button></div>';
+  }).join(''):'<div style="font-size:11px;color:var(--t3);padding:4px 0;">Nothing logged yet today.</div>';
+  var goalP=mealGoals.protein||160, goalC=mealGoals.cals||0;
+  var tot=document.getElementById('mealsTotals');
+  if(tot){
+    var pColor=tp>=goalP?'var(--green)':'var(--teal)';
+    var pSub=tp>=goalP?'goal hit \u2713':(goalP-tp)+'g to go';
+    var calBlock;
+    if(goalC){
+      var left=goalC-tc;
+      var cColor=tc<=goalC?'var(--green)':'var(--coral)';
+      calBlock='<div class="ms-tot"><div class="ms-lbl">Calories</div><div class="ms-val" style="color:'+cColor+'">'+tc+' / '+goalC+'</div><div class="ms-sub">'+(left>=0?left+' left (deficit)':Math.abs(left)+' over')+'</div></div>';
+    } else {
+      calBlock='<div class="ms-tot"><div class="ms-lbl">Calories</div><div class="ms-val">'+tc+'</div><div class="ms-sub">set a budget \u2192</div></div>';
+    }
+    tot.innerHTML='<div class="ms-tot"><div class="ms-lbl">Protein</div><div class="ms-val" style="color:'+pColor+'">'+tp+' / '+goalP+'g</div><div class="ms-sub">'+pSub+'</div></div>'+calBlock;
+  }
+  var meta=document.getElementById('mealsMeta');if(meta)meta.textContent=list.length?(tp+'g P \u00b7 '+tc+' cal'):'';
+  var gp=document.getElementById('goalProtein');if(gp&&gp.value==='')gp.value=goalP;
+  var gc=document.getElementById('goalCals');if(gc&&gc.value===''&&goalC)gc.value=goalC;
+}
+function addMeal(){
+  var inp=document.getElementById('mealInput');if(!inp)return;
+  var v=(inp.value||'').trim();if(!v)return;
+  var p=parseInt((document.getElementById('mealProtein')||{}).value,10);
+  var c=parseInt((document.getElementById('mealCals')||{}).value,10);
+  var k=viewKey();var list=meals[k]||(meals[k]=[]);
+  list.push({txt:v,p:isNaN(p)?0:p,c:isNaN(c)?0:c,t:nowStr()});
+  sv('meals',meals);
+  inp.value='';
+  var mp=document.getElementById('mealProtein');if(mp)mp.value='';
+  var mc=document.getElementById('mealCals');if(mc)mc.value='';
+  renderMeals();
+}
+function delMeal(i){
+  var k=viewKey();var list=meals[k]||[];
+  list.splice(i,1);if(!list.length)delete meals[k];
+  sv('meals',meals);renderMeals();
+}
+window.addMeal=addMeal;window.delMeal=delMeal;window.renderMeals=renderMeals;window.saveMealGoals=saveMealGoals;
+/* When a meal-related checkbox (morning/afternoon/night) is ticked, pop the meal
+   tracker so he logs what he ate right then. */
+function isMealTask(name){return /\b(breakfast|brunch|lunch|dinner|meal|snack|refuel|protein shake|shake|eat|eating|food)\b/i.test(name||'');}
+function openMealPopup(prefill){
+  var ov=document.getElementById('mealPopupOv');if(!ov)return;
+  var n=document.getElementById('mpName');if(n)n.value=prefill||'';
+  var p=document.getElementById('mpProtein');if(p)p.value='';
+  var c=document.getElementById('mpCals');if(c)c.value='';
+  ov.classList.add('open');
+  setTimeout(function(){if(n){n.focus();if(n.select)n.select();}},60);
+}
+function closeMealPopup(){var ov=document.getElementById('mealPopupOv');if(ov)ov.classList.remove('open');}
+function saveMealPopup(){
+  var name=((document.getElementById('mpName')||{}).value||'').trim();
+  if(!name){closeMealPopup();return;}
+  var p=parseInt((document.getElementById('mpProtein')||{}).value,10);
+  var c=parseInt((document.getElementById('mpCals')||{}).value,10);
+  var k=viewKey();var list=meals[k]||(meals[k]=[]);
+  list.push({txt:name,p:isNaN(p)?0:p,c:isNaN(c)?0:c,t:nowStr()});
+  sv('meals',meals);renderMeals();closeMealPopup();
+}
+window.isMealTask=isMealTask;window.openMealPopup=openMealPopup;window.closeMealPopup=closeMealPopup;window.saveMealPopup=saveMealPopup;
 
 /* ═══════════ PITCH LIST — people to email ═══════════ */
 const DEF_PITCH=[
@@ -7069,6 +8202,12 @@ function renderAll(){
   safeCall(renderFixLog,'renderFixLog');
   safeCall(renderScoreboard,'renderScoreboard');
   safeCall(renderDaySchedule,'renderDaySchedule');
+  safeCall(renderShootLog,'renderShootLog');
+  safeCall(renderCloseout,'renderCloseout');
+  safeCall(renderMeals,'renderMeals');
+  safeCall(renderContentBlock,'renderContentBlock');
+  safeCall(renderContentTimer,'renderContentTimer');
+  safeCall(renderBonus,'renderBonus');
 }
 
 function reloadFromStorage(){
@@ -7099,6 +8238,7 @@ function reloadFromStorage(){
   smokeFree=ld('smokeFree',{weed:{},tobacco:{}});
   selfCheck=ld('selfCheck',{});
   personalTodos=ld('personalTodos',[]);
+  listenProgram=ld('listenProgram',DEF_LISTEN);
   listenState=ld('listenState',{});
   pitchList=ld('pitchList',DEF_PITCH);
   saidList=ld('saidList',[]);
@@ -7113,6 +8253,14 @@ function reloadFromStorage(){
   dayType=ld('dayType',{});
   dayBlockHours=ld('dayBlockHours',{});
   dayEndTarget=ld('dayEndTarget',{});
+  shootLog=ld('shootLog',{});
+  closeout=ld('closeout',{});
+  meals=ld('meals',{});
+  mealGoals=ld('mealGoals',{protein:160,cals:0});
+  contentBlock=ld('contentBlock',{});
+  contentSessions=ld('contentSessions',{});
+  contentTimerStart=ld('contentTimerStart',0);
+  bonusRounds=ld('bonusRounds',{});
   try{ensureTimedTasks();}catch(e){}
   try{migrateSalesList();}catch(e){}
   try{migrateStopHits();}catch(e){}
@@ -7146,6 +8294,28 @@ function safeInit(){
     rolloverTodayList();
     renderAll();
     applyPersonalTodoState();
+    // Day Schedule (Shoot/Office) sits under the Morning checklist.
+    // Night stack under the Evening Journal: Scoreboard → Reflect → Bonus Rounds →
+    // 30-Day → Train the Mind (reading ends the day). Plan a Day sits under Wind-Down.
+    try{
+      var _mo=document.getElementById('cardMorning');
+      var _sched=document.getElementById('dayScheduleCard');
+      if(_mo&&_sched&&_mo.parentNode)_mo.parentNode.insertBefore(_sched,_mo.nextSibling);
+      var _cl=document.getElementById('cardListen');       // Train the Mind (anchor, stays last)
+      var _sz=document.getElementById('scoreboardZone');
+      var _rz=document.getElementById('reflectZone');
+      var _sb=document.getElementById('cardScoreboard30');
+      var _cb=document.getElementById('cardBonus');
+      var _pd=document.getElementById('planDayCard');
+      var _me=document.getElementById('cardMeals');
+      if(_pd&&_me&&_me.parentNode)_me.parentNode.insertBefore(_pd,_me);
+      if(_cl&&_cl.parentNode){
+        if(_sz)_cl.parentNode.insertBefore(_sz,_cl);
+        if(_rz)_cl.parentNode.insertBefore(_rz,_cl);
+        if(_cb)_cl.parentNode.insertBefore(_cb,_cl);
+        if(_sb)_cl.parentNode.insertBefore(_sb,_cl);
+      }
+    }catch(e){}
     checkMonthEnd();
   }catch(e){
     console.error('Init error (will retry):',e);
