@@ -1085,37 +1085,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 </div>
-<!-- Train the Mind list moved down to sit with the end-of-day checklist. -->
-<div class="section-divider">
-  <div class="sec-eyebrow">📋 Aim</div>
-  <div class="sec-headline">Set the Day</div>
-  <div class="sec-underline"></div>
-</div>
-
-
-<div style="margin-bottom:10px;">
-<!-- PERSONAL TO-DO — first thing in Personal. Life stuff, separate from the
-     business queue. Every item shows how long it's been sitting. Collapsed
-     by default so it doesn't eat space before you need it — tap the title
-     or the arrow to expand. -->
-<div class="card" style="margin-bottom:10px;">
-  <div class="card-hd" style="cursor:pointer;" onclick="togglePersonalTodo(event)">
-    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Personal To-Do</div>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <span class="sec-pct" style="color:var(--orange)" id="pTodoStat"></span>
-      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openAddPersonalTodo()">+</button>
-      <span id="pTodoArrow" style="font-size:11px;color:var(--t3);transition:transform .15s;display:inline-block;">&#9656;</span>
-    </div>
-  </div>
-  <div id="pTodoWrap" style="display:none;">
-    <div class="choose-label" style="color:var(--t2);">Oldest first &mdash; if it's been sitting a week, either do it or kill it</div>
-    <div id="pTodoList"></div>
-    <div id="pTodoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing here. Life admin goes in this one.</div>
-  </div>
-</div>
-
-
-</div>
 <div class="section-divider">
   <div class="sec-eyebrow">💼 Execute</div>
   <div class="sec-headline">Build the Machine</div>
@@ -1127,16 +1096,22 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div class="card">
     <div class="card-hd">
       <div class="card-title"><span class="dot" style="background:var(--blue)"></span>To-Do</div>
-      <button class="btn btn-ghost btn-sm" onclick="openAddTodo()">+</button>
+      <button class="btn btn-ghost btn-sm" onclick="addTodoDispatch()">+</button>
     </div>
     <div class="filter-row" style="margin-bottom:8px;">
       <div class="fpill active" id="todoViewActive" onclick="setTodoView('active',this)">To-Do</div>
+      <div class="fpill" id="todoViewPersonal" onclick="setTodoView('personal',this)">Personal</div>
       <div class="fpill" id="todoViewDone" onclick="setTodoView('done',this)">Completed</div>
     </div>
     <div id="todoList"></div>
     <div id="todoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing pending &#127881;</div>
     <div id="todoArchive"></div>
     <div id="todoArchiveEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing completed yet.</div>
+    <div id="pTodoWrap" style="display:none;">
+      <div class="choose-label" style="color:var(--t2);">Long-term life admin &mdash; oldest first. If it's sat a week, do it or kill it.</div>
+      <div id="pTodoList"></div>
+      <div id="pTodoEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing here. Life admin goes in this one.</div>
+    </div>
   </div>
 
   <!-- TODAY LIST -->
@@ -1391,6 +1366,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   </div>
 </div>
 
+<div id="moneyZone">
 <div class="section-divider">
   <div class="sec-eyebrow">💵 Fuel</div>
   <div class="sec-headline">Mind the Money</div>
@@ -1434,6 +1410,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     </div>
     </div>
     </div>
+</div>
 
 <!-- SHOOT DAY blocks — only visible when today's day type is Shoot (body.mode-shoot).
      Pass 2 will relocate these into the Shoot flow position; for now they surface
@@ -3091,8 +3068,11 @@ function setTodoView(view,btn){
   sv('todoView',view);
   document.getElementById('todoViewActive').classList.toggle('active',view==='active');
   document.getElementById('todoViewDone').classList.toggle('active',view==='done');
+  var pTab=document.getElementById('todoViewPersonal');if(pTab)pTab.classList.toggle('active',view==='personal');
   renderTodo();
 }
+function addTodoDispatch(){ if(todoView==='personal')openAddPersonalTodo(); else openAddTodo(); }
+window.addTodoDispatch=addTodoDispatch;
 
 function renderTodo(){
   var el=document.getElementById('todoList');
@@ -3104,6 +3084,16 @@ function renderTodo(){
 
   document.getElementById('todoViewActive').classList.toggle('active',todoView==='active');
   document.getElementById('todoViewDone').classList.toggle('active',todoView==='done');
+  var pTab=document.getElementById('todoViewPersonal');if(pTab)pTab.classList.toggle('active',todoView==='personal');
+  var pWrap=document.getElementById('pTodoWrap');
+
+  if(todoView==='personal'){
+    el.style.display='none';emp.style.display='none';archEl.style.display='none';archEmp.style.display='none';
+    if(pWrap)pWrap.style.display='block';
+    renderPersonalTodo();
+    return;
+  }
+  if(pWrap)pWrap.style.display='none';
 
   if(todoView==='active'){
     el.style.display='block';archEl.style.display='none';archEmp.style.display='none';
@@ -3327,7 +3317,7 @@ function renderPersonalTodo(){
     else sub='<div class="task-ts" style="color:'+col+';font-weight:'+wt+';">'
       +(!t.done&&age>=7?'&#9888; ':'')+pTodoAgeLabel(age)+'</div>';
     return '<div class="task-row" style="'+(t.done?'opacity:.45;':'')+'">'
-      +'<button class="chk '+(t.done?'done':'')+'" onclick="togglePersonalTodo(\''+t.id+'\')"></button>'
+      +'<button class="chk '+(t.done?'done':'')+'" onclick="togglePersonalItem(\''+t.id+'\')"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+escHtml(t.text)+'</div>'
       +sub
       +'</div>'
@@ -3346,7 +3336,7 @@ function renderPersonalTodo(){
     }
   }
 }
-function togglePersonalTodo(id){
+function togglePersonalItem(id){
   var t=personalTodos.find(function(x){return x.id===id;});
   if(!t)return;
   t.done=!t.done;
@@ -3354,6 +3344,7 @@ function togglePersonalTodo(id){
   sv('personalTodos',personalTodos);
   renderPersonalTodo();
 }
+window.togglePersonalItem=togglePersonalItem;
 function delPersonalTodo(id){
   personalTodos=personalTodos.filter(function(x){return x.id!==id;});
   sv('personalTodos',personalTodos);
@@ -8293,7 +8284,6 @@ function safeInit(){
     loadJournalForDay();
     rolloverTodayList();
     renderAll();
-    applyPersonalTodoState();
     // Day Schedule (Shoot/Office) sits under the Morning checklist.
     // Night stack under the Evening Journal: Scoreboard → Reflect → Bonus Rounds →
     // 30-Day → Train the Mind (reading ends the day). Plan a Day sits under Wind-Down.
@@ -8308,7 +8298,9 @@ function safeInit(){
       var _cb=document.getElementById('cardBonus');
       var _pd=document.getElementById('planDayCard');
       var _me=document.getElementById('cardMeals');
+      var _mz=document.getElementById('moneyZone');
       if(_pd&&_me&&_me.parentNode)_me.parentNode.insertBefore(_pd,_me);
+      if(_mz&&_me&&_me.parentNode)_me.parentNode.insertBefore(_mz,_me);
       if(_cl&&_cl.parentNode){
         if(_sz)_cl.parentNode.insertBefore(_sz,_cl);
         if(_rz)_cl.parentNode.insertBefore(_rz,_cl);
