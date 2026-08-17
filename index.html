@@ -355,6 +355,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 
 /* CARD */
 .card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;}
+.card.biz-untouched{border-color:var(--gold);box-shadow:0 0 0 1px rgba(242,201,76,.25),0 0 16px -6px rgba(242,201,76,.35);}
+.card.biz-untouched .card-title{color:var(--gold);}
 .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .card-title{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
@@ -1090,6 +1092,16 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div class="sec-headline">Build the Machine</div>
   <div class="sec-underline"></div>
 </div>
+<!-- DEEP WORK — office-day focus period; clock start/stop (+ times) and note what you worked on. Hidden on shoot days. -->
+<div class="card office-only" id="cardDeepWork" style="margin-bottom:10px;border-left:4px solid var(--gold);">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>🧠 Deep Work</div>
+    <span class="sec-pct" id="deepWorkMeta" style="color:var(--t3);"></span>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Your office-day focus period — clock it and note what you worked on.</div>
+  <div id="deepWorkRow" style="margin-top:8px;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+  <div id="deepWorkList" style="margin-top:8px;"></div>
+</div>
 <!-- BIZ: To-Do | Today List — the work queue lives with the work -->
 <div class="grid-2">
   <!-- TO-DO -->
@@ -1488,6 +1500,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div class="card-title"><span class="dot" style="background:var(--teal)"></span>🍽 Meals &amp; Fuel</div>
     <span class="sec-pct" id="mealsMeta" style="color:var(--t3);"></span>
   </div>
+  <div class="filter-row" style="margin-bottom:8px;">
+    <div class="fpill active" id="mealViewToday" onclick="setMealView('today',this)">Today</div>
+    <div class="fpill" id="mealViewHistory" onclick="setMealView('history',this)">History</div>
+  </div>
+  <div id="mealsTodayView">
   <div id="mealsTotals" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;"></div>
   <div id="mealsList"></div>
   <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
@@ -1500,6 +1517,11 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <span style="font-family:var(--display);font-weight:700;letter-spacing:.05em;text-transform:uppercase;">Daily goals</span>
     <label style="display:flex;align-items:center;gap:4px;">protein <input class="inp" id="goalProtein" type="number" style="width:56px;padding:4px 6px;margin:0;" onchange="saveMealGoals()"> g</label>
     <label style="display:flex;align-items:center;gap:4px;">calorie budget <input class="inp" id="goalCals" type="number" placeholder="set" style="width:66px;padding:4px 6px;margin:0;" onchange="saveMealGoals()"></label>
+  </div>
+  </div>
+  <div id="mealsHistoryView" style="display:none;">
+    <div id="mealsHistSummary" style="margin:8px 0;"></div>
+    <div id="mealsHistList"></div>
   </div>
 </div>
 
@@ -4129,6 +4151,22 @@ function renderAllBiz(){
   renderBizSection('product','productList','pr');
   const productDm=getWeeklyBizDm('product');
   applyBar('productBar','productPct',calcPct(bizProduct,productDm));
+  highlightUntouchedBiz();
+}
+
+// Light-highlight each business block that hasn't been touched yet (no checks in
+// its current window); it drops the glow once the first box is checked, so he can
+// see at a glance what he's already started.
+function highlightUntouchedBiz(){
+  var pairs=[['sales','cardSales'],['visibility','cardUts'],['client','cardClient'],['money','cardMoney'],
+             ['admin','cardAdmin'],['bottle','cardBottle'],['content','cardContent'],['product','cardProduct']];
+  pairs.forEach(function(p){
+    var cfg=BIZ_MAP[p[0]];var card=document.getElementById(p[1]);
+    if(!cfg||!card)return;
+    var dm=isWeeklyBiz(p[0])?getWeeklyBizDm(p[0]):getDS()[cfg.dm];
+    var any=cfg.list().some(function(t){return dm&&dm[t.id];});
+    card.classList.toggle('biz-untouched',!any);
+  });
 }
 
 function toggleBiz(key,id){
@@ -7875,6 +7913,54 @@ function renderContentTimer(){
 }
 window.startContentTimer=startContentTimer;window.stopContentTimer=stopContentTimer;window.renderContentTimer=renderContentTimer;
 
+/* Deep Work — office-day focus period. Start/stop clocks each session (start+end
+   clock times + minutes) and he notes what he worked on. Per date. */
+let deepWork=ld('deepWork',{});          // dateKey -> [{start,end,min,note}]
+let deepWorkStart=ld('deepWorkStart',0); // 0 or start time in ms
+var _dwInt=null;
+function fmtClock(ms){return new Date(ms).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Los_Angeles'});}
+function startDeepWork(){deepWorkStart=Date.now();sv('deepWorkStart',deepWorkStart);renderDeepWork();}
+function stopDeepWork(){
+  if(!deepWorkStart)return;
+  var min=Math.max(1,Math.round((Date.now()-deepWorkStart)/60000));
+  var note=((document.getElementById('deepWorkNote')||{}).value||'').trim();
+  var k=viewKey();var arr=deepWork[k]||(deepWork[k]=[]);
+  arr.push({start:fmtClock(deepWorkStart),end:fmtClock(Date.now()),min:min,note:note});
+  sv('deepWork',deepWork);
+  deepWorkStart=0;sv('deepWorkStart',deepWorkStart);
+  renderDeepWork();
+}
+function tickDeepWork(){
+  var el=document.getElementById('deepWorkClock');
+  if(!el||!deepWorkStart){if(_dwInt){clearInterval(_dwInt);_dwInt=null;}return;}
+  var s=Math.round((Date.now()-deepWorkStart)/1000);
+  el.textContent=Math.floor(s/60)+':'+(''+(s%60)).padStart(2,'0');
+}
+function renderDeepWork(){
+  var el=document.getElementById('deepWorkRow');if(!el)return;
+  var prevNote=(document.getElementById('deepWorkNote')||{}).value||'';
+  var arr=deepWork[viewKey()]||[];
+  var total=arr.reduce(function(s,x){return s+(x.min||0);},0);
+  var running=!!deepWorkStart;
+  var top=running
+    ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="font-family:var(--mono);font-size:18px;font-weight:800;color:var(--gold);" id="deepWorkClock">0:00</span><button class="btn btn-ghost btn-sm" onclick="stopDeepWork()">&#9632; Stop</button><span style="font-size:10px;color:var(--t3);">in since '+fmtClock(deepWorkStart)+'</span></div>'
+    : '<button class="btn btn-y btn-sm" onclick="startDeepWork()">&#9654; Start deep work</button>';
+  el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
+    +top
+    +'<span style="font-size:11px;color:var(--t3);">today: '+fmtMins(total)+' &middot; '+arr.length+' session'+(arr.length===1?'':'s')+'</span></div>'
+    +'<input class="inp" id="deepWorkNote" placeholder="What are you working on?" style="margin-top:6px;font-size:12px;">';
+  var ni=document.getElementById('deepWorkNote');if(ni&&prevNote)ni.value=prevNote;
+  var listEl=document.getElementById('deepWorkList');
+  if(listEl)listEl.innerHTML=arr.map(function(x){
+    return '<div style="font-size:10px;color:var(--t2);padding:3px 0;border-bottom:1px solid var(--b);">'
+      +escHtml(x.start)+'\u2013'+escHtml(x.end)+' &middot; '+fmtMins(x.min)+(x.note?' &mdash; '+escHtml(x.note):'')+'</div>';
+  }).join('');
+  var meta=document.getElementById('deepWorkMeta');if(meta)meta.textContent=arr.length?fmtMins(total)+' today':'';
+  if(running){if(!_dwInt)_dwInt=setInterval(tickDeepWork,1000);tickDeepWork();}
+  else if(_dwInt){clearInterval(_dwInt);_dwInt=null;}
+}
+window.startDeepWork=startDeepWork;window.stopDeepWork=stopDeepWork;window.renderDeepWork=renderDeepWork;
+
 /* Bonus rounds — end-of-night level-up prompt. Once the day's logged it asks if
    he's got time; saying yes surfaces the 30-Day challenge + Kundalini spirit quest. */
 let bonusRounds=ld('bonusRounds',{}); // dateKey -> 'yes' | 'no'
@@ -7908,6 +7994,54 @@ window.setBonus=setBonus;window.openBonus30=openBonus30;window.renderBonus=rende
    tracked against a daily protein goal (default 160g) and a calorie budget he sets. ── */
 let meals=ld('meals',{});
 let mealGoals=ld('mealGoals',{protein:160,cals:0});
+let mealView=ld('mealView','today');
+function setMealView(view,btn){
+  mealView=view;sv('mealView',view);
+  document.getElementById('mealViewToday').classList.toggle('active',view==='today');
+  document.getElementById('mealViewHistory').classList.toggle('active',view==='history');
+  document.getElementById('mealsTodayView').style.display=view==='today'?'block':'none';
+  document.getElementById('mealsHistoryView').style.display=view==='history'?'block':'none';
+  if(view==='history')renderMealHistory(); else renderMeals();
+}
+function fmtHistDate(k){
+  var p=k.split('-');if(p.length!==3)return k;
+  var d=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+parseInt(p[1])+'/'+parseInt(p[2]);
+}
+function renderMealHistory(){
+  var el=document.getElementById('mealsHistList');if(!el)return;
+  var goalP=mealGoals.protein||160, goalC=mealGoals.cals||0;
+  var keys=Object.keys(meals).filter(function(k){return (meals[k]||[]).length;}).sort().reverse().slice(0,21);
+  var hitP=0,sumP=0,sumC=0;
+  el.innerHTML=keys.map(function(k){
+    var list=meals[k]||[];
+    var tp=list.reduce(function(s,m){return s+(Number(m.p)||0);},0);
+    var tc=list.reduce(function(s,m){return s+(Number(m.c)||0);},0);
+    sumP+=tp;sumC+=tc;
+    var pHit=tp>=goalP;if(pHit)hitP++;
+    var cOk=goalC?tc<=goalC:null;
+    var pColor=pHit?'var(--green)':'var(--t2)';
+    var cColor=cOk===null?'var(--t2)':(cOk?'var(--green)':'var(--coral)');
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b);font-size:11px;">'
+      +'<span style="color:var(--t2);min-width:70px;">'+fmtHistDate(k)+'</span>'
+      +'<span style="color:'+pColor+';font-weight:600;">'+tp+'/'+goalP+'g P'+(pHit?' \u2713':'')+'</span>'
+      +'<span style="color:'+cColor+';">'+tc+(goalC?'/'+goalC:'')+' cal</span>'
+      +'<span style="color:var(--t3);">'+list.length+'\u00d7</span>'
+      +'</div>';
+  }).join('')||'<div style="font-size:11px;color:var(--t3);padding:6px 0;">No meals logged yet — log some and your day-to-day shows up here.</div>';
+  var sum=document.getElementById('mealsHistSummary');
+  if(sum){
+    if(keys.length){
+      var avgP=Math.round(sumP/keys.length), avgC=Math.round(sumC/keys.length);
+      sum.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">'
+        +'<div class="ms-tot"><div class="ms-lbl">Protein goal hit</div><div class="ms-val" style="color:var(--green)">'+hitP+'/'+keys.length+'</div><div class="ms-sub">days logged</div></div>'
+        +'<div class="ms-tot"><div class="ms-lbl">Avg protein</div><div class="ms-val" style="color:'+(avgP>=goalP?'var(--green)':'var(--t)')+'">'+avgP+'g</div><div class="ms-sub">of '+goalP+'g</div></div>'
+        +'<div class="ms-tot"><div class="ms-lbl">Avg calories</div><div class="ms-val">'+avgC+'</div><div class="ms-sub">'+(goalC?'of '+goalC:'per day')+'</div></div>'
+        +'</div>';
+    } else sum.innerHTML='';
+  }
+}
+window.setMealView=setMealView;window.renderMealHistory=renderMealHistory;
 function saveMealGoals(){
   var p=parseInt((document.getElementById('goalProtein')||{}).value,10);
   var c=parseInt((document.getElementById('goalCals')||{}).value,10);
@@ -7917,6 +8051,15 @@ function saveMealGoals(){
 }
 function renderMeals(){
   var el=document.getElementById('mealsList');if(!el)return;
+  var tv=document.getElementById('mealsTodayView'), hv=document.getElementById('mealsHistoryView');
+  if(tv&&hv){
+    tv.style.display=mealView==='today'?'block':'none';
+    hv.style.display=mealView==='history'?'block':'none';
+    var tt=document.getElementById('mealViewToday'),ht=document.getElementById('mealViewHistory');
+    if(tt)tt.classList.toggle('active',mealView==='today');
+    if(ht)ht.classList.toggle('active',mealView==='history');
+  }
+  renderMealHistory();
   var list=meals[viewKey()]||[];
   var tp=0,tc=0;
   el.innerHTML=list.length?list.map(function(m,i){
@@ -8198,6 +8341,7 @@ function renderAll(){
   safeCall(renderMeals,'renderMeals');
   safeCall(renderContentBlock,'renderContentBlock');
   safeCall(renderContentTimer,'renderContentTimer');
+  safeCall(renderDeepWork,'renderDeepWork');
   safeCall(renderBonus,'renderBonus');
 }
 
@@ -8248,9 +8392,12 @@ function reloadFromStorage(){
   closeout=ld('closeout',{});
   meals=ld('meals',{});
   mealGoals=ld('mealGoals',{protein:160,cals:0});
+  mealView=ld('mealView','today');
   contentBlock=ld('contentBlock',{});
   contentSessions=ld('contentSessions',{});
   contentTimerStart=ld('contentTimerStart',0);
+  deepWork=ld('deepWork',{});
+  deepWorkStart=ld('deepWorkStart',0);
   bonusRounds=ld('bonusRounds',{});
   try{ensureTimedTasks();}catch(e){}
   try{migrateSalesList();}catch(e){}
@@ -8302,10 +8449,10 @@ function safeInit(){
       if(_pd&&_me&&_me.parentNode)_me.parentNode.insertBefore(_pd,_me);
       if(_mz&&_me&&_me.parentNode)_me.parentNode.insertBefore(_mz,_me);
       if(_cl&&_cl.parentNode){
-        if(_sz)_cl.parentNode.insertBefore(_sz,_cl);
-        if(_rz)_cl.parentNode.insertBefore(_rz,_cl);
         if(_cb)_cl.parentNode.insertBefore(_cb,_cl);
         if(_sb)_cl.parentNode.insertBefore(_sb,_cl);
+        if(_sz)_cl.parentNode.insertBefore(_sz,_cl);
+        if(_rz)_cl.parentNode.insertBefore(_rz,_cl);
       }
     }catch(e){}
     checkMonthEnd();
