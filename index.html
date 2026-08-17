@@ -1092,16 +1092,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div class="sec-headline">Build the Machine</div>
   <div class="sec-underline"></div>
 </div>
-<!-- DEEP WORK — office-day focus period; clock start/stop (+ times) and note what you worked on. Hidden on shoot days. -->
-<div class="card office-only" id="cardDeepWork" style="margin-bottom:10px;border-left:4px solid var(--gold);">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>🧠 Deep Work</div>
-    <span class="sec-pct" id="deepWorkMeta" style="color:var(--t3);"></span>
-  </div>
-  <div class="choose-label" style="color:var(--t2);">Your office-day focus period — clock it and note what you worked on.</div>
-  <div id="deepWorkRow" style="margin-top:8px;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
-  <div id="deepWorkList" style="margin-top:8px;"></div>
-</div>
 <!-- BIZ: To-Do | Today List — the work queue lives with the work -->
 <div class="grid-2">
   <!-- TO-DO -->
@@ -1301,6 +1291,18 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div id="productList"></div>
   </div>
 
+</div>
+
+<!-- DEEP WORK — office-day focus period, sits under the business checklists. Clock
+     start/stop (+ times) and note what you worked on. Hidden on shoot days. -->
+<div class="card office-only" id="cardDeepWork" style="margin-bottom:10px;border-left:4px solid var(--gold);">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>🧠 Deep Work</div>
+    <span class="sec-pct" id="deepWorkMeta" style="color:var(--t3);"></span>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Your office-day focus period — clock it and note what you worked on.</div>
+  <div id="deepWorkRow" style="margin-top:8px;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+  <div id="deepWorkList" style="margin-top:8px;"></div>
 </div>
 
 <!-- 30-DAY SCOREBOARD — collapsible; relocated to the bottom at runtime (safeInit). -->
