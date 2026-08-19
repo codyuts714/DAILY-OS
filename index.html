@@ -357,6 +357,11 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;}
 .card.biz-untouched{border-color:var(--gold);box-shadow:0 0 0 1px rgba(242,201,76,.25),0 0 16px -6px rgba(242,201,76,.35);}
 .card.biz-untouched .card-title{color:var(--gold);}
+/* Weekly deep-work cards — full yellow border + soft glow (not a solid fill)
+   until opened for the first time that week. */
+.card.weekly-unopened{border-color:var(--y);box-shadow:0 0 0 1px var(--y),0 0 20px -4px rgba(242,201,76,.5);}
+.card.weekly-unopened .card-title{color:var(--y);}
+.weekly-card-arrow{cursor:pointer;color:var(--t3);font-size:11px;user-select:none;}
 .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .card-title{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
@@ -1211,89 +1216,9 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div id="moneyList"></div>
   </div>
 
-  <!-- Bottlenecks | Admin -->
-  <!-- BOTTLENECKS -->
-  <div class="card" id="cardBottle">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Bottlenecks / Systems</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" id="bottleTimeBadge" style="color:var(--t2);font-weight:600;"></span>
-        <span class="sec-pct" style="color:var(--purple)" id="bottlePct">0%</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('bottle')">+</button>
-      </div>
-    </div>
-    <div class="sec-track"><div class="sec-fill" id="bottleBar" style="width:0%;background:var(--purple)"></div></div>
-    <div class="choose-label">Choose one &mdash; 3&times; a week</div>
-    <div class="choose-note" id="bottleWeekNote">0 of 3 days done this week &middot; each check logs what you changed</div>
-    <div id="bottleList"></div>
-    <div class="choose-label" style="color:var(--t2);margin-top:10px;">Change log</div>
-    <div id="sysLogList" style="max-height:140px;overflow-y:auto;"></div>
-    <div id="sysLogEmpty" style="font-size:10px;color:var(--t3);padding:3px 0;">No changes logged yet.</div>
-  </div>
-
-  <!-- ADMIN -->
-  <div class="card" id="cardAdmin">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Admin Cleanup</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" id="adminTimeBadge" style="color:var(--t2);font-weight:600;"></span>
-        <span class="sec-pct" style="color:var(--blue)" id="adminPct">0%</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('admin')">+</button>
-      </div>
-    </div>
-    <div class="sec-track"><div class="sec-fill" id="adminBar" style="width:0%;background:var(--blue)"></div></div>
-    <div class="choose-label">Choose one daily</div>
-    <div id="adminList"></div>
-  </div>
-
-  <!-- Weekly Content + Weekly Product + Content Ideas -->
-  <!-- CONTENT -->
-  <div class="card" id="cardContent">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--pink)"></span>Weekly Content Build</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" id="contentTimeBadge" style="color:var(--t2);font-weight:600;"></span>
-        <span class="sec-pct" style="color:var(--pink)" id="contentPct">0%</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('content')">+</button>
-      </div>
-    </div>
-    <div class="sec-track"><div class="sec-fill" id="contentBar" style="width:0%;background:var(--pink)"></div></div>
-    <div class="choose-label" style="color:var(--t2);">&#8776;4 hr weekly block &middot; tracked across the whole week, not daily.</div>
-    <div id="contentBlockRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
-    <div id="contentTimerRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:var(--bg2);"></div>
-    <div id="contentList"></div>
-    <div class="jh-toggle" onclick="toggleContentIdeas()" style="margin-top:8px;">
-      <span>&#128161; Content Ideas <span id="ideaCount" style="color:var(--t3);font-weight:400;">0 fresh</span></span>
-      <span id="ideaArrow">&#9656;</span>
-    </div>
-    <div id="ideaWrap" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;gap:8px;">
-        <span class="choose-label" style="color:var(--t2);margin:0;">Idea bank &mdash; check off when filmed / posted.</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddIdea()">+ Add idea</button>
-      </div>
-      <div id="ideaList" style="max-height:260px;overflow-y:auto;"></div>
-      <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
-    </div>
-  </div>
-
-  <!-- PRODUCT -->
-  <div class="card" id="cardProduct">
-    <div class="card-hd">
-      <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Weekly Product Improvement</div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span class="sec-pct" id="productTimeBadge" style="color:var(--t2);font-weight:600;"></span>
-        <span class="sec-pct" style="color:var(--orange)" id="productPct">0%</span>
-        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('product')">+</button>
-      </div>
-    </div>
-    <div class="sec-track"><div class="sec-fill" id="productBar" style="width:0%;background:var(--orange)"></div></div>
-    <div class="choose-label" style="color:var(--t2);">Resets weekly &mdash; tracked across the whole week, not daily</div>
-    <div id="productList"></div>
-  </div>
-
 </div>
 
-<!-- DEEP WORK — office-day focus period, sits under the business checklists. Clock
+<!-- DEEP WORK — office-day focus period, sits above the weekly deep-work blocks. Clock
      start/stop (+ times) and note what you worked on. Hidden on shoot days. -->
 <div class="card office-only" id="cardDeepWork" style="margin-bottom:10px;border-left:4px solid var(--gold);">
   <div class="card-hd">
@@ -1303,6 +1228,141 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div class="choose-label" style="color:var(--t2);">Your office-day focus period — clock it and note what you worked on.</div>
   <div id="deepWorkRow" style="margin-top:8px;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
   <div id="deepWorkList" style="margin-top:8px;"></div>
+</div>
+
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <div class="section-divider-label business">&#128737; Weekly Deep-Work Blocks &mdash; not scored daily</div>
+  <div class="section-divider-line"></div>
+</div>
+<div class="grid-2">
+  <!-- Bottlenecks | Admin | Weekly Content + Weekly Product + Content Ideas -->
+  <!-- BOTTLENECKS -->
+  <div class="card" id="cardBottle">
+    <div class="card-hd">
+      <div class="card-title" style="cursor:pointer;" onclick="toggleWeeklyCard('bottle')"><span class="dot" style="background:var(--purple)"></span>Bottlenecks / Systems</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="bottleTimeBadge" style="color:var(--t2);font-weight:600;"></span>
+        <span class="sec-pct" style="color:var(--purple)" id="bottlePct">0%</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('bottle')">+</button>
+        <span class="weekly-card-arrow" id="bottleArrow" onclick="toggleWeeklyCard('bottle')">&#9656;</span>
+      </div>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="bottleBar" style="width:0%;background:var(--purple)"></div></div>
+    <div id="bottleBody" style="display:none;">
+      <div class="choose-label" style="color:var(--t2);">2 hr weekly block &middot; tracked across the whole week, not daily.</div>
+      <div id="bottleBlockRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+      <div id="bottleTimerRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:var(--bg2);"></div>
+      <div id="bottleList"></div>
+      <div class="choose-label" style="color:var(--t2);margin-top:10px;">Change log</div>
+      <div id="sysLogList" style="max-height:140px;overflow-y:auto;"></div>
+      <div id="sysLogEmpty" style="font-size:10px;color:var(--t3);padding:3px 0;">No changes logged yet.</div>
+
+      <!-- SYSTEM FIX LOG — moved here from the bottom of the page; this is the card
+           that opens up when it's time to work the bottlenecks/systems block. -->
+      <div class="choose-label" style="color:var(--t2);margin-top:14px;border-top:1px solid var(--b);padding-top:10px;">Bugs &amp; Fixes</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+        <span id="fixOpenBadge" style="font-size:10px;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.06em;"></span>
+        <button class="btn btn-ghost btn-sm" onclick="copyFixLog('all')" title="Copy every open item, grouped by system">&#128203; Copy open</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyFixLog('flag')" title="Copy only the flagged items">&#128681; Copy flagged</button>
+      </div>
+      <div style="font-size:10px;color:var(--t3);margin-bottom:8px;">Drop in anything that needs changed as you spot it. Copy the list into Claude with the index file, then check it off when it's fixed &mdash; the fix gets time-stamped.</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">
+        <div style="display:flex;gap:5px;" id="fixSysPicker">
+          <button class="fpill active" data-sys="Daily OS" onclick="setFixSys(this)">Daily OS</button>
+          <button class="fpill" data-sys="Studio Brain OS" onclick="setFixSys(this)">Studio Brain OS</button>
+          <button class="fpill" data-sys="Other" onclick="setFixSys(this)">Other</button>
+        </div>
+        <button class="fpill" id="fixFlagToggle" onclick="toggleFixFlagNew()" title="Flag this one as urgent">&#128681; Flag</button>
+      </div>
+      <div style="display:flex;gap:5px;align-items:flex-start;margin-bottom:10px;">
+        <input class="inp" id="fixIn" style="flex:1;margin-bottom:0;" placeholder="What needs changed? (e.g. Today List drops carried items after 2 days)" onkeydown="if(event.key==='Enter')addFix();">
+        <button class="btn btn-y btn-sm" onclick="addFix()">Add</button>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+        <button class="fpill active" data-f="open" onclick="setFixFilter(this)">Open</button>
+        <button class="fpill" data-f="fixed" onclick="setFixFilter(this)">Fixed</button>
+        <button class="fpill" data-f="all" onclick="setFixFilter(this)">All</button>
+        <span id="fixStats" style="font-size:10px;color:var(--t3);margin-left:4px;"></span>
+      </div>
+      <div id="fixList"></div>
+      <div id="fixEmpty" style="font-size:11px;color:var(--t3);padding:6px 0;display:none;">Nothing logged. Add the first thing you want changed.</div>
+      <div id="fixCopyNote" style="font-size:10px;color:var(--green);margin-top:6px;display:none;">&#10003; Copied &mdash; paste it into Claude with your index file.</div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="card" id="cardAdmin">
+    <div class="card-hd">
+      <div class="card-title" style="cursor:pointer;" onclick="toggleWeeklyCard('admin')"><span class="dot" style="background:var(--blue)"></span>Admin Cleanup</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="adminTimeBadge" style="color:var(--t2);font-weight:600;"></span>
+        <span class="sec-pct" style="color:var(--blue)" id="adminPct">0%</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('admin')">+</button>
+        <span class="weekly-card-arrow" id="adminArrow" onclick="toggleWeeklyCard('admin')">&#9656;</span>
+      </div>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="adminBar" style="width:0%;background:var(--blue)"></div></div>
+    <div id="adminBody" style="display:none;">
+      <div class="choose-label" style="color:var(--t2);">1 hr weekly block &middot; tracked across the whole week, not daily.</div>
+      <div id="adminBlockRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+      <div id="adminTimerRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:var(--bg2);"></div>
+      <div id="adminList"></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="card" id="cardContent">
+    <div class="card-hd">
+      <div class="card-title" style="cursor:pointer;" onclick="toggleWeeklyCard('content')"><span class="dot" style="background:var(--pink)"></span>Weekly Content Build</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="contentTimeBadge" style="color:var(--t2);font-weight:600;"></span>
+        <span class="sec-pct" style="color:var(--pink)" id="contentPct">0%</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('content')">+</button>
+        <span class="weekly-card-arrow" id="contentArrow" onclick="toggleWeeklyCard('content')">&#9656;</span>
+      </div>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="contentBar" style="width:0%;background:var(--pink)"></div></div>
+    <div id="contentBody" style="display:none;">
+      <div class="choose-label" style="color:var(--t2);">&#8776;4 hr weekly block &middot; tracked across the whole week, not daily.</div>
+      <div id="contentBlockRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+      <div id="contentTimerRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:var(--bg2);"></div>
+      <div id="contentList"></div>
+      <div class="jh-toggle" onclick="toggleContentIdeas()" style="margin-top:8px;">
+        <span>&#128161; Content Ideas <span id="ideaCount" style="color:var(--t3);font-weight:400;">0 fresh</span></span>
+        <span id="ideaArrow">&#9656;</span>
+      </div>
+      <div id="ideaWrap" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;gap:8px;">
+          <span class="choose-label" style="color:var(--t2);margin:0;">Idea bank &mdash; check off when filmed / posted.</span>
+          <button class="btn btn-ghost btn-sm" onclick="openAddIdea()">+ Add idea</button>
+        </div>
+        <div id="ideaList" style="max-height:260px;overflow-y:auto;"></div>
+        <div id="ideaEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">No ideas banked yet. Dump them here when inspiration hits.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT -->
+  <div class="card" id="cardProduct">
+    <div class="card-hd">
+      <div class="card-title" style="cursor:pointer;" onclick="toggleWeeklyCard('product')"><span class="dot" style="background:var(--orange)"></span>Weekly Product Improvement</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span class="sec-pct" id="productTimeBadge" style="color:var(--t2);font-weight:600;"></span>
+        <span class="sec-pct" style="color:var(--orange)" id="productPct">0%</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddBiz('product')">+</button>
+        <span class="weekly-card-arrow" id="productArrow" onclick="toggleWeeklyCard('product')">&#9656;</span>
+      </div>
+    </div>
+    <div class="sec-track"><div class="sec-fill" id="productBar" style="width:0%;background:var(--orange)"></div></div>
+    <div id="productBody" style="display:none;">
+      <div class="choose-label" style="color:var(--t2);">1 hr weekly block &middot; tracked across the whole week, not daily.</div>
+      <div id="productBlockRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+      <div id="productTimerRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:var(--bg2);"></div>
+      <div id="productList"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 30-DAY SCOREBOARD — collapsible; relocated to the bottom at runtime (safeInit). -->
@@ -1724,45 +1784,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       </div>
     </div>
 </div>
-</div>
-
-<!-- SYSTEM FIX LOG — very bottom -->
-<div class="card" id="fixLogCard" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--teal)"></span>System Fix Log</div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-      <span id="fixOpenBadge" style="font-size:10px;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.06em;"></span>
-      <button class="btn btn-ghost btn-sm" onclick="copyFixLog('all')" title="Copy every open item, grouped by system">&#128203; Copy open</button>
-      <button class="btn btn-ghost btn-sm" onclick="copyFixLog('flag')" title="Copy only the flagged items">&#128681; Copy flagged</button>
-    </div>
-  </div>
-  <div style="font-size:10px;color:var(--t3);margin-bottom:8px;">Drop in anything that needs changed as you spot it. Copy the list into Claude with the index file, then check it off when it's fixed &mdash; the fix gets time-stamped.</div>
-
-  <!-- ADD ROW -->
-  <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">
-    <div style="display:flex;gap:5px;" id="fixSysPicker">
-      <button class="fpill active" data-sys="Daily OS" onclick="setFixSys(this)">Daily OS</button>
-      <button class="fpill" data-sys="Studio Brain OS" onclick="setFixSys(this)">Studio Brain OS</button>
-      <button class="fpill" data-sys="Other" onclick="setFixSys(this)">Other</button>
-    </div>
-    <button class="fpill" id="fixFlagToggle" onclick="toggleFixFlagNew()" title="Flag this one as urgent">&#128681; Flag</button>
-  </div>
-  <div style="display:flex;gap:5px;align-items:flex-start;margin-bottom:10px;">
-    <input class="inp" id="fixIn" style="flex:1;margin-bottom:0;" placeholder="What needs changed? (e.g. Today List drops carried items after 2 days)" onkeydown="if(event.key==='Enter')addFix();">
-    <button class="btn btn-y btn-sm" onclick="addFix()">Add</button>
-  </div>
-
-  <!-- FILTERS -->
-  <div style="display:flex;gap:5px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
-    <button class="fpill active" data-f="open" onclick="setFixFilter(this)">Open</button>
-    <button class="fpill" data-f="fixed" onclick="setFixFilter(this)">Fixed</button>
-    <button class="fpill" data-f="all" onclick="setFixFilter(this)">All</button>
-    <span id="fixStats" style="font-size:10px;color:var(--t3);margin-left:4px;"></span>
-  </div>
-
-  <div id="fixList"></div>
-  <div id="fixEmpty" style="font-size:11px;color:var(--t3);padding:6px 0;display:none;">Nothing logged. Add the first thing you want changed.</div>
-  <div id="fixCopyNote" style="font-size:10px;color:var(--green);margin-top:6px;display:none;">&#10003; Copied &mdash; paste it into Claude with your index file.</div>
 </div>
 
 <!-- LAUNDRY TOAST -->
@@ -2225,12 +2246,11 @@ function computeDayPct(k){
   var pDone=morning.filter(function(t){return ds.m[t.id];}).length+evening.filter(function(t){return ds.e[t.id];}).length;
   var dayW=weekly.filter(function(x){return x.days.includes(dow);});
   pTotal+=dayW.length;pDone+=dayW.filter(function(x){return w[x.id];}).length;
-  // -- BUSINESS (daily portion; Sales/Bottlenecks are 3x/week, Content/Product weekly — excluded) --
+  // -- BUSINESS (daily portion; Sales/Bottlenecks/Admin are weekly, Content/Product weekly — all excluded) --
   var bTotal=0,bDone=0;
   bTotal+=bizVisNon.length;bDone+=bizVisNon.filter(function(t){return ds.vn[t.id];}).length;
   bDone+=bizVis.some(function(t){return ds.v[t.id];})?1:0;bTotal+=1;
   [{l:bizClient,dm:ds.c},{l:bizMoney,dm:ds.mo}].forEach(function(g){bTotal+=g.l.length;bDone+=g.l.filter(function(t){return g.dm[t.id];}).length;});
-  bDone+=bizAdmin.some(function(t){return ds.a[t.id];})?1:0;bTotal+=1;
   var pPct=pTotal?Math.round(pDone/pTotal*100):0;
   var bPct=bTotal?Math.round(bDone/bTotal*100):0;
   var done=pDone+bDone,total=pTotal+bTotal;
@@ -2643,7 +2663,6 @@ function buildBurstSeq(which){
     seq.push({k:'v:*',label:'Visibility — choose one',min:groupMin(bizVis,15)});
     bizClient.forEach(function(t){seq.push({k:'c:'+t.id,label:t.name,min:taskMin(t,10)});});
     bizMoney.forEach(function(t){seq.push({k:'mo:'+t.id,label:t.name,min:taskMin(t,5)});});
-    seq.push({k:'a:*',label:'Admin — choose one',min:groupMin(bizAdmin,15)});
   }else if(which==='e'){
     evening.forEach(function(t){seq.push({k:'e:'+t.id,label:t.name,min:taskMin(t,5)});});
   }
@@ -2694,7 +2713,6 @@ function burstDoneMap(){
     if(pre==='c')return !!ds.c[id];
     if(pre==='mo')return !!ds.mo[id];
     if(pre==='v')return bizVis.some(function(t){return ds.v[t.id];});
-    if(pre==='a')return bizAdmin.some(function(t){return ds.a[t.id];});
     return false;
   };
 }
@@ -4048,18 +4066,17 @@ const BIZ_MAP={
   product:{list:()=>bizProduct,sv:l=>{bizProduct=l;sv('bizProduct',l);},bar:'productBar',pct:'productPct',dm:'pr'},
 };
 
-var WEEKLY_BIZ_KEYS=['content','product'];
+var WEEKLY_BIZ_KEYS=['content','product','bottle','admin'];
+function getWeeklyBizDefaults(){return {content:{},product:{},bottle:{},admin:{}};}
 function isWeeklyBiz(key){return WEEKLY_BIZ_KEYS.includes(key);}
 function getWeeklyBizDm(key){
-  var wk=ld('wbiz_'+weekKey(),{content:{},product:{}});
-  if(!wk.content)wk.content={};
-  if(!wk.product)wk.product={};
+  var wk=ld('wbiz_'+weekKey(),getWeeklyBizDefaults());
+  WEEKLY_BIZ_KEYS.forEach(function(k){if(!wk[k])wk[k]={};});
   return wk[key];
 }
 function setWeeklyBizDm(key,dm){
-  var wk=ld('wbiz_'+weekKey(),{content:{},product:{}});
-  if(!wk.content)wk.content={};
-  if(!wk.product)wk.product={};
+  var wk=ld('wbiz_'+weekKey(),getWeeklyBizDefaults());
+  WEEKLY_BIZ_KEYS.forEach(function(k){if(!wk[k])wk[k]={};});
   wk[key]=dm;
   sv('wbiz_'+weekKey(),wk);
 }
@@ -4071,8 +4088,8 @@ function renderBizSection(key,elId,dmKey){
   var dm=weekly_?getWeeklyBizDm(key):getDS()[dmKey||cfg.dm];
   var el=document.getElementById(elId);
   // pacing only applies to the daily-burst sections
-  var paced=['visibility','client','money','admin'].includes(key);
-  var groupKey=key==='visibility'?'v:*':key==='admin'?'a:*':null;
+  var paced=['visibility','client','money'].includes(key);
+  var groupKey=key==='visibility'?'v:*':null;
   el.innerHTML=tasks.map(function(t){
     var done=!!dm[t.id];
     var pKey=groupKey||((cfg.dm)+':'+t.id);
@@ -4137,15 +4154,14 @@ function renderAllBiz(){
   // Others
   renderBizSection('client','clientList','c');applyBar('clientBar','clientPct',calcPct(bizClient,ds.c));
   renderBizSection('money','moneyList','mo');applyBar('moneyBar','moneyPct',calcPct(bizMoney,ds.mo));
-  // Admin — choose one daily
+  // Admin — weekly deep-work block, not scored daily
   renderBizSection('admin','adminList','a');
-  applyBar('adminBar','adminPct',bizAdmin.some(t=>ds.a[t.id])?100:0);
-  // Bottlenecks — choose one, 3× a week, with change log
+  const adminDm=getWeeklyBizDm('admin');
+  applyBar('adminBar','adminPct',calcPct(bizAdmin,adminDm));
+  // Bottlenecks — weekly deep-work block, with change log fed by the block timer
   renderBizSection('bottle','bottleList','bt');
-  const bottleDays=countBizDaysThisWeek('bt',bizBottle);
-  applyBar('bottleBar','bottlePct',Math.min(100,Math.round(bottleDays/3*100)));
-  var bwn=document.getElementById('bottleWeekNote');
-  if(bwn)bwn.textContent=Math.min(bottleDays,3)+' of 3 days done this week'+(bottleDays>=3?' — done! ✓':' · each check logs what you changed');
+  const bottleDm=getWeeklyBizDm('bottle');
+  applyBar('bottleBar','bottlePct',calcPct(bizBottle,bottleDm));
   renderSysLog();
   renderBizSection('content','contentList','co');
   const contentDm=getWeeklyBizDm('content');
@@ -4153,6 +4169,7 @@ function renderAllBiz(){
   renderBizSection('product','productList','pr');
   const productDm=getWeeklyBizDm('product');
   applyBar('productBar','productPct',calcPct(bizProduct,productDm));
+  safeCall(renderAllWeeklyTasks,'renderAllWeeklyTasks');
   highlightUntouchedBiz();
 }
 
@@ -4184,31 +4201,12 @@ function toggleBiz(key,id){
   dm[id]=!dm[id];
   if(dm[id])dm[id+'_ts']=nowStr();else delete dm[id+'_ts'];
   setDS(ds);renderAllBiz();renderOverall();
-  // Bottlenecks: capture a note about what got changed
-  if(key==='bottle'){
-    if(dm[id])openSysLogNote(id);
-    else removeSysLogNote(id);
-  }
 }
 
 // -- SYSTEMS CHANGE LOG ---------------------------------------------------------
+// Fed by the Bottlenecks/Systems weekly block timer (see stopWeeklyTimer) — every
+// stopped session with a note becomes a change-log entry.
 let sysLog=ld('sysLog',[]);
-function openSysLogNote(taskId){
-  var t=bizBottle.find(function(x){return x.id===taskId;});
-  var tname=t?t.name:'Systems work';
-  openModal('What did you change?','e.g. rebuilt the export preset, cleaned proposal template...','',false,function(n){
-    if(!n.trim())return;
-    sysLog.push({id:'sl'+Date.now(),date:viewKey(),taskId:taskId,task:tname,note:n.trim()});
-    sv('sysLog',sysLog);
-    renderSysLog();
-  });
-}
-function removeSysLogNote(taskId){
-  var k=viewKey();
-  var before=sysLog.length;
-  sysLog=sysLog.filter(function(e){return !(e.taskId===taskId&&e.date===k);});
-  if(sysLog.length!==before){sv('sysLog',sysLog);renderSysLog();}
-}
 function renderSysLog(){
   var el=document.getElementById('sysLogList');
   var emp=document.getElementById('sysLogEmpty');
@@ -4450,15 +4448,14 @@ function minToClock(mins){
   return h12+':'+p2(m)+' '+ap;
 }
 function nowMinutes(){var d=new Date();return d.getHours()*60+d.getMinutes();}
+// Bottlenecks, Admin, Content and Product are weekly deep-work blocks now — they
+// don't get a daily time slice in the day schedule anymore (their TimeBadge is
+// driven by renderWeeklyTimer instead, showing time logged this week).
 const BIZ_SECTION_LIST=[
   {key:'uts',label:'UTS Visibility',card:'cardUts',badge:'utsTimeBadge',color:'coral'},
   {key:'client',label:'Client Comms',card:'cardClient',badge:'clientTimeBadge',color:'teal'},
   {key:'sales',label:'Sales & Growth',card:'cardSales',badge:'salesTimeBadge',color:'y'},
   {key:'money',label:'Money / Business',card:'cardMoney',badge:'moneyTimeBadge',color:'green',fixedMin:15},
-  {key:'bottle',label:'Bottlenecks / Systems',card:'cardBottle',badge:'bottleTimeBadge',color:'purple'},
-  {key:'admin',label:'Admin Cleanup',card:'cardAdmin',badge:'adminTimeBadge',color:'blue'},
-  {key:'content',label:'Weekly Content Build',card:'cardContent',badge:'contentTimeBadge',color:'pink'},
-  {key:'product',label:'Weekly Product Improvement',card:'cardProduct',badge:'productTimeBadge',color:'orange'},
 ];
 function computeDaySchedule(){
   var k=viewKey();
@@ -6791,8 +6788,6 @@ function doExport() {
     {list:bizVis, dm_key:'v', sec:'Visibility (choose one)'},
     {list:bizClient, dm_key:'c', sec:'Client Comms'},
     {list:bizMoney, dm_key:'mo', sec:'Money'},
-    {list:bizAdmin, dm_key:'a', sec:'Admin (choose one)'},
-    {list:bizBottle, dm_key:'bt', sec:'Systems (3x/week)'},
   ];
   allTasks.forEach(function(g){
     g.list.forEach(function(t){
@@ -6823,13 +6818,15 @@ function doExport() {
     });
   });
 
-  // weekly business (Content + Product are tracked per week, not per day)
+  // weekly deep-work business (Content, Product, Bottlenecks, Admin are tracked per week, not per day)
   var weeklyBizSummary=[];
   weeksInRange.forEach(function(wkKey){
-    var wbiz=ld('wbiz_'+wkKey,{content:{},product:{}});
+    var wbiz=ld('wbiz_'+wkKey,{content:{},product:{},bottle:{},admin:{}});
     var cDone=bizContent.filter(function(t){return wbiz.content&&wbiz.content[t.id];});
     var pDone=bizProduct.filter(function(t){return wbiz.product&&wbiz.product[t.id];});
-    weeklyBizSummary.push({week:wkKey,cDone:cDone,pDone:pDone});
+    var btDone=bizBottle.filter(function(t){return wbiz.bottle&&wbiz.bottle[t.id];});
+    var adDone=bizAdmin.filter(function(t){return wbiz.admin&&wbiz.admin[t.id];});
+    weeklyBizSummary.push({week:wkKey,cDone:cDone,pDone:pDone,btDone:btDone,adDone:adDone});
   });
 
   // revenue + payouts
@@ -7225,29 +7222,38 @@ function doExport() {
   if(!used.length)push('  (none)');
 
   // ============================== WEEKLY BUSINESS ==============================
-  hdr('WEEKLY BUSINESS (Content + Product -- tracked per week)');
+  hdr('WEEKLY DEEP-WORK BLOCKS (Content, Product, Bottlenecks/Systems, Admin -- tracked per week, not scored daily)');
   weeklyBizSummary.forEach(function(w){
     push('');
     push('[' + w.week + ']');
     push('  Content: ' + w.cDone.length + '/' + bizContent.length + (w.cDone.length?'  -- '+w.cDone.map(function(t){return t.name;}).join(', '):''));
     push('  Product: ' + w.pDone.length + '/' + bizProduct.length + (w.pDone.length?'  -- '+w.pDone.map(function(t){return t.name;}).join(', '):''));
+    push('  Bottlenecks/Systems: ' + w.btDone.length + '/' + bizBottle.length + (w.btDone.length?'  -- '+w.btDone.map(function(t){return t.name;}).join(', '):''));
+    push('  Admin Cleanup: ' + w.adDone.length + '/' + bizAdmin.length + (w.adDone.length?'  -- '+w.adDone.map(function(t){return t.name;}).join(', '):''));
   });
   if(!weeklyBizSummary.length)push('  (no weeks in range)');
-  var cbMap=ld('contentBlock',{});
-  var cbWeeks=Object.keys(cbMap).sort();
-  push('');
-  push('4hr content block locked in (weeks): ' + (cbWeeks.length?cbWeeks.join(', '):'(none yet)'));
-  var csMap=ld('contentSessions',{});
-  var csWeeks=Object.keys(csMap).sort();
-  if(csWeeks.length){
+  var WEEKLY_EXPORT_TASKS=[
+    {key:'content',label:'Content',target:'4hr'},
+    {key:'product',label:'Product',target:'1hr'},
+    {key:'bottle',label:'Bottlenecks/Systems',target:'2hr'},
+    {key:'admin',label:'Admin Cleanup',target:'1hr'},
+  ];
+  WEEKLY_EXPORT_TASKS.forEach(function(wt){
+    var cbMap=ld(wt.key+'Block',{});
+    var cbWeeks=Object.keys(cbMap).sort();
     push('');
-    push('Content block time actually logged:');
-    csWeeks.forEach(function(w){
-      var arr=csMap[w]||[];var tot=arr.reduce(function(s,x){return s+(x.min||0);},0);
-      push('  ' + w + ': ' + (Math.round(tot/6)/10) + 'h across ' + arr.length + ' session' + (arr.length===1?'':'s'));
-      arr.forEach(function(x){if(x.note)push('    - ' + x.date + '  ' + x.min + 'm: ' + x.note);});
-    });
-  }
+    push(wt.target+' '+wt.label+' block locked in (weeks): ' + (cbWeeks.length?cbWeeks.join(', '):'(none yet)'));
+    var csMap=ld(wt.key+'Sessions',{});
+    var csWeeks=Object.keys(csMap).sort();
+    if(csWeeks.length){
+      push(wt.label+' block time actually logged:');
+      csWeeks.forEach(function(w){
+        var arr=csMap[w]||[];var tot=arr.reduce(function(s,x){return s+(x.min||0);},0);
+        push('  ' + w + ': ' + (Math.round(tot/6)/10) + 'h across ' + arr.length + ' session' + (arr.length===1?'':'s'));
+        arr.forEach(function(x){if(x.note)push('    - ' + x.date + '  ' + x.min + 'm: ' + x.note);});
+      });
+    }
+  });
 
   // ============================== SYSTEM UPDATE NOTES ==============================
   hdr('SYSTEM UPDATE NOTES (what he changed, every note)');
@@ -7842,78 +7848,120 @@ function toggleContentIdeas(){
 }
 window.togglePitch=togglePitch;window.toggleContentIdeas=toggleContentIdeas;
 
-/* Weekly 4hr content block — mark it each week so it actually happens; the row
-   resets every week (keyed by weekKey) and nags until it's locked in. */
-let contentBlock=ld('contentBlock',{});
-function toggleContentBlock(){
-  var wk=weekKey();
-  if(contentBlock[wk])delete contentBlock[wk];else contentBlock[wk]=nowStr();
-  sv('contentBlock',contentBlock);renderContentBlock();
+/* Weekly deep-work blocks — Content, Product, Bottlenecks/Systems and Admin
+   Cleanup all follow the same shape: mark the block done each week (resets on
+   weekKey), plus a start/stop timer that logs sessions with a note of what got
+   done. Bottlenecks additionally feeds each session note into the systems
+   change log instead of a plain session list. None of this counts toward the
+   daily score — these are scored/tracked per week only. */
+const WEEKLY_TASK_CONFIG={
+  content:{label:'Weekly Content Build',target:'≈ 4 hr weekly block',color:'pink',blockRow:'contentBlockRow',timerRow:'contentTimerRow',badge:'contentTimeBadge',ph:'What did you work on this block?',card:'cardContent',body:'contentBody',arrow:'contentArrow'},
+  product:{label:'Weekly Product Improvement',target:'1 hr weekly block',color:'orange',blockRow:'productBlockRow',timerRow:'productTimerRow',badge:'productTimeBadge',ph:'What did you improve?',card:'cardProduct',body:'productBody',arrow:'productArrow'},
+  bottle:{label:'Bottlenecks / Systems',target:'2 hr weekly block',color:'purple',blockRow:'bottleBlockRow',timerRow:'bottleTimerRow',badge:'bottleTimeBadge',ph:'What did you change?',changeLog:true,card:'cardBottle',body:'bottleBody',arrow:'bottleArrow'},
+  admin:{label:'Admin Cleanup',target:'1 hr weekly block',color:'blue',blockRow:'adminBlockRow',timerRow:'adminTimerRow',badge:'adminTimeBadge',ph:'What did you clean up?',card:'cardAdmin',body:'adminBody',arrow:'adminArrow'},
+};
+// Each card starts collapsed and highlighted gold until opened for the first
+// time that week — clicking the header opens it (and clears the highlight for
+// the week) so he knows at a glance which weekly blocks he hasn't touched yet.
+let weeklyCardState=ld('weeklyCardState',{});
+function toggleWeeklyCard(key){
+  var st=weeklyCardState[key]||(weeklyCardState[key]={expanded:false,openedWeek:null});
+  st.expanded=!st.expanded;
+  if(st.expanded)st.openedWeek=weekKey();
+  sv('weeklyCardState',weeklyCardState);
+  renderWeeklyCardCollapse(key);
 }
-function renderContentBlock(){
-  var el=document.getElementById('contentBlockRow');if(!el)return;
-  var done=contentBlock[weekKey()];
+function renderWeeklyCardCollapse(key){
+  var cfg=WEEKLY_TASK_CONFIG[key];
+  var st=weeklyCardState[key]||{};
+  var body=document.getElementById(cfg.body);
+  var arrow=document.getElementById(cfg.arrow);
+  var card=document.getElementById(cfg.card);
+  if(body)body.style.display=st.expanded?'block':'none';
+  if(arrow)arrow.innerHTML=st.expanded?'▾':'▸';
+  if(card)card.classList.toggle('weekly-unopened',st.openedWeek!==weekKey());
+}
+window.toggleWeeklyCard=toggleWeeklyCard;window.renderWeeklyCardCollapse=renderWeeklyCardCollapse;
+let weeklyBlock={content:ld('contentBlock',{}),product:ld('productBlock',{}),bottle:ld('bottleBlock',{}),admin:ld('adminBlock',{})};
+let weeklySessions={content:ld('contentSessions',{}),product:ld('productSessions',{}),bottle:ld('bottleSessions',{}),admin:ld('adminSessions',{})};
+let weeklyTimerStart={content:ld('contentTimerStart',0),product:ld('productTimerStart',0),bottle:ld('bottleTimerStart',0),admin:ld('adminTimerStart',0)};
+function fmtMins(m){m=Math.round(m||0);if(m<60)return m+'m';var h=Math.floor(m/60),r=m%60;return h+'h'+(r?' '+r+'m':'');}
+
+function toggleWeeklyBlock(key){
+  var wk=weekKey();
+  if(weeklyBlock[key][wk])delete weeklyBlock[key][wk];else weeklyBlock[key][wk]=nowStr();
+  sv(key+'Block',weeklyBlock[key]);renderWeeklyBlock(key);
+}
+function renderWeeklyBlock(key){
+  var cfg=WEEKLY_TASK_CONFIG[key];var el=document.getElementById(cfg.blockRow);if(!el)return;
+  var done=weeklyBlock[key][weekKey()];
   if(done){
     el.style.borderColor='var(--green)';
     el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'
-      +'<span style="font-size:12px;color:var(--green);font-weight:700;">&#10003; 4 hr content block done this week</span>'
-      +'<button class="btn btn-ghost btn-sm" onclick="toggleContentBlock()">Undo</button></div>'
+      +'<span style="font-size:12px;color:var(--green);font-weight:700;">&#10003; '+cfg.target+' done this week</span>'
+      +'<button class="btn btn-ghost btn-sm" onclick="toggleWeeklyBlock(\''+key+'\')">Undo</button></div>'
       +'<div style="font-size:10px;color:var(--t3);margin-top:2px;">locked in '+escHtml(done)+'</div>';
   } else {
-    el.style.borderColor='var(--pink)';
+    el.style.borderColor='var(--'+cfg.color+')';
     el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'
-      +'<span style="font-size:12px;color:var(--pink);font-weight:700;">&#9200; 4 hr content block not done this week</span>'
-      +'<button class="btn btn-y btn-sm" onclick="toggleContentBlock()">Mark done</button></div>'
-      +'<div style="font-size:10px;color:var(--t2);margin-top:2px;">Lock in your weekly content block so it actually happens.</div>';
+      +'<span style="font-size:12px;color:var(--'+cfg.color+');font-weight:700;">&#9200; '+cfg.target+' not done this week</span>'
+      +'<button class="btn btn-y btn-sm" onclick="toggleWeeklyBlock(\''+key+'\')">Mark done</button></div>'
+      +'<div style="font-size:10px;color:var(--t2);margin-top:2px;">Lock in your weekly block so it actually happens.</div>';
   }
 }
-window.toggleContentBlock=toggleContentBlock;window.renderContentBlock=renderContentBlock;
+window.toggleWeeklyBlock=toggleWeeklyBlock;window.renderWeeklyBlock=renderWeeklyBlock;
 
-/* Content block timer — start/stop to time the actual work so he sees how long
-   content builds really take; each session logs its minutes + a note of what got done. */
-let contentSessions=ld('contentSessions',{}); // weekKey -> [{min,note,date,ts}]
-let contentTimerStart=ld('contentTimerStart',0); // 0, or start time in ms
-var _ctInt=null;
-function fmtMins(m){m=Math.round(m||0);if(m<60)return m+'m';var h=Math.floor(m/60),r=m%60;return h+'h'+(r?' '+r+'m':'');}
-function startContentTimer(){contentTimerStart=Date.now();sv('contentTimerStart',contentTimerStart);renderContentTimer();}
-function stopContentTimer(){
-  if(!contentTimerStart)return;
-  var min=Math.max(1,Math.round((Date.now()-contentTimerStart)/60000));
-  var note=((document.getElementById('contentTimerNote')||{}).value||'').trim();
-  var wk=weekKey();var arr=contentSessions[wk]||(contentSessions[wk]=[]);
+var _weeklyTimerInt={};
+function startWeeklyTimer(key){weeklyTimerStart[key]=Date.now();sv(key+'TimerStart',weeklyTimerStart[key]);renderWeeklyTimer(key);}
+function stopWeeklyTimer(key){
+  var start=weeklyTimerStart[key];if(!start)return;
+  var min=Math.max(1,Math.round((Date.now()-start)/60000));
+  var note=((document.getElementById('weeklyTimerNote_'+key)||{}).value||'').trim();
+  var wk=weekKey();var arr=weeklySessions[key][wk]||(weeklySessions[key][wk]=[]);
   arr.push({min:min,note:note,date:todayKey(),ts:nowStr()});
-  sv('contentSessions',contentSessions);
-  contentTimerStart=0;sv('contentTimerStart',contentTimerStart);
-  renderContentTimer();
+  sv(key+'Sessions',weeklySessions[key]);
+  weeklyTimerStart[key]=0;sv(key+'TimerStart',0);
+  var cfg=WEEKLY_TASK_CONFIG[key];
+  if(cfg.changeLog&&note){
+    sysLog.push({id:'sl'+Date.now(),date:todayKey(),taskId:null,task:cfg.label,note:note});
+    sv('sysLog',sysLog);renderSysLog();
+  }
+  renderWeeklyTimer(key);
 }
-function tickContentTimer(){
-  var el=document.getElementById('contentTimerClock');
-  if(!el||!contentTimerStart){if(_ctInt){clearInterval(_ctInt);_ctInt=null;}return;}
-  var s=Math.round((Date.now()-contentTimerStart)/1000);
+function tickWeeklyTimer(key){
+  var el=document.getElementById('weeklyTimerClock_'+key);
+  var start=weeklyTimerStart[key];
+  if(!el||!start){if(_weeklyTimerInt[key]){clearInterval(_weeklyTimerInt[key]);_weeklyTimerInt[key]=null;}return;}
+  var s=Math.round((Date.now()-start)/1000);
   el.textContent=Math.floor(s/60)+':'+(''+(s%60)).padStart(2,'0');
 }
-function renderContentTimer(){
-  var el=document.getElementById('contentTimerRow');if(!el)return;
-  var prevNote=(document.getElementById('contentTimerNote')||{}).value||'';
-  var arr=contentSessions[weekKey()]||[];
+function renderWeeklyTimer(key){
+  var cfg=WEEKLY_TASK_CONFIG[key];
+  var el=document.getElementById(cfg.timerRow);if(!el)return;
+  var noteId='weeklyTimerNote_'+key,clockId='weeklyTimerClock_'+key;
+  var prevNote=(document.getElementById(noteId)||{}).value||'';
+  var arr=weeklySessions[key][weekKey()]||[];
   var totalMin=arr.reduce(function(s,x){return s+(x.min||0);},0);
-  var running=!!contentTimerStart;
+  var running=!!weeklyTimerStart[key];
   var top=running
-    ? '<div style="display:flex;align-items:center;gap:8px;"><span style="font-family:var(--mono);font-size:18px;font-weight:800;color:var(--pink);" id="contentTimerClock">0:00</span><button class="btn btn-ghost btn-sm" onclick="stopContentTimer()">&#9632; Stop</button></div>'
-    : '<button class="btn btn-y btn-sm" onclick="startContentTimer()">&#9654; Start block timer</button>';
-  var sessions=arr.length?'<div style="margin-top:6px;border-top:1px solid var(--b);padding-top:5px;">'+arr.map(function(x){
+    ? '<div style="display:flex;align-items:center;gap:8px;"><span style="font-family:var(--mono);font-size:18px;font-weight:800;color:var(--'+cfg.color+');" id="'+clockId+'">0:00</span><button class="btn btn-ghost btn-sm" onclick="stopWeeklyTimer(\''+key+'\')">&#9632; Stop</button></div>'
+    : '<button class="btn btn-y btn-sm" onclick="startWeeklyTimer(\''+key+'\')">&#9654; Start block timer</button>';
+  var sessions=(!cfg.changeLog&&arr.length)?('<div style="margin-top:6px;border-top:1px solid var(--b);padding-top:5px;">'+arr.map(function(x){
       return '<div style="font-size:10px;color:var(--t2);padding:2px 0;">'+escHtml(x.date)+' &middot; '+fmtMins(x.min)+(x.note?' &mdash; '+escHtml(x.note):'')+'</div>';
-    }).join('')+'</div>':'';
+    }).join('')+'</div>'):'';
   el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
     +top
     +'<span style="font-size:11px;color:var(--t3);">this week: '+fmtMins(totalMin)+' &middot; '+arr.length+' session'+(arr.length===1?'':'s')+'</span></div>'
-    +'<input class="inp" id="contentTimerNote" placeholder="What did you work on this block?" style="margin-top:6px;font-size:12px;">'
+    +'<input class="inp" id="'+noteId+'" placeholder="'+cfg.ph+'" style="margin-top:6px;font-size:12px;">'
     +sessions;
-  var ni=document.getElementById('contentTimerNote');if(ni&&prevNote)ni.value=prevNote;
-  if(running){if(!_ctInt)_ctInt=setInterval(tickContentTimer,1000);tickContentTimer();}
-  else if(_ctInt){clearInterval(_ctInt);_ctInt=null;}
+  var ni=document.getElementById(noteId);if(ni&&prevNote)ni.value=prevNote;
+  var badge=document.getElementById(cfg.badge);if(badge)badge.textContent=totalMin?fmtMins(totalMin)+' this wk':'';
+  if(running){if(!_weeklyTimerInt[key])_weeklyTimerInt[key]=setInterval(function(){tickWeeklyTimer(key);},1000);tickWeeklyTimer(key);}
+  else if(_weeklyTimerInt[key]){clearInterval(_weeklyTimerInt[key]);_weeklyTimerInt[key]=null;}
 }
-window.startContentTimer=startContentTimer;window.stopContentTimer=stopContentTimer;window.renderContentTimer=renderContentTimer;
+window.startWeeklyTimer=startWeeklyTimer;window.stopWeeklyTimer=stopWeeklyTimer;window.renderWeeklyTimer=renderWeeklyTimer;
+function renderAllWeeklyTasks(){Object.keys(WEEKLY_TASK_CONFIG).forEach(function(k){renderWeeklyBlock(k);renderWeeklyTimer(k);renderWeeklyCardCollapse(k);});}
+window.renderAllWeeklyTasks=renderAllWeeklyTasks;
 
 /* Deep Work — office-day focus period. Start/stop clocks each session (start+end
    clock times + minutes) and he notes what he worked on. Per date. */
@@ -8341,8 +8389,7 @@ function renderAll(){
   safeCall(renderShootLog,'renderShootLog');
   safeCall(renderCloseout,'renderCloseout');
   safeCall(renderMeals,'renderMeals');
-  safeCall(renderContentBlock,'renderContentBlock');
-  safeCall(renderContentTimer,'renderContentTimer');
+  safeCall(renderAllWeeklyTasks,'renderAllWeeklyTasks');
   safeCall(renderDeepWork,'renderDeepWork');
   safeCall(renderBonus,'renderBonus');
 }
@@ -8395,9 +8442,10 @@ function reloadFromStorage(){
   meals=ld('meals',{});
   mealGoals=ld('mealGoals',{protein:160,cals:0});
   mealView=ld('mealView','today');
-  contentBlock=ld('contentBlock',{});
-  contentSessions=ld('contentSessions',{});
-  contentTimerStart=ld('contentTimerStart',0);
+  weeklyBlock={content:ld('contentBlock',{}),product:ld('productBlock',{}),bottle:ld('bottleBlock',{}),admin:ld('adminBlock',{})};
+  weeklySessions={content:ld('contentSessions',{}),product:ld('productSessions',{}),bottle:ld('bottleSessions',{}),admin:ld('adminSessions',{})};
+  weeklyTimerStart={content:ld('contentTimerStart',0),product:ld('productTimerStart',0),bottle:ld('bottleTimerStart',0),admin:ld('adminTimerStart',0)};
+  weeklyCardState=ld('weeklyCardState',{});
   deepWork=ld('deepWork',{});
   deepWorkStart=ld('deepWorkStart',0);
   bonusRounds=ld('bonusRounds',{});
