@@ -362,6 +362,10 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .card.weekly-unopened{border-color:var(--y);box-shadow:0 0 0 1px var(--y),0 0 20px -4px rgba(242,201,76,.5);}
 .card.weekly-unopened .card-title{color:var(--y);}
 .weekly-card-arrow{cursor:pointer;color:var(--t3);font-size:11px;user-select:none;}
+.wdw-chip{cursor:pointer;border:1px solid var(--b2);border-radius:8px;padding:6px 10px;display:flex;flex-direction:column;gap:2px;min-width:110px;flex:1;background:var(--bg2);}
+.wdw-chip:hover{border-color:var(--b3);}
+.wdw-chip-lbl{font-size:10px;color:var(--t2);font-weight:700;}
+.wdw-chip-val{font-size:11px;font-weight:700;}
 .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .card-title{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
@@ -1030,19 +1034,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div id="morningList"></div>
 </div>
 
-<div class="card" id="cardSaid" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>I Said &mdash; Promises to Keep</div>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <span class="sec-pct" id="saidStat" style="color:var(--gold)"></span>
-      <button class="btn btn-ghost btn-sm" onclick="addSaid()">+</button>
-    </div>
-  </div>
-  <div class="choose-label" style="color:var(--t2);">Everything you told someone you'd do. Goes red when it's late &mdash; clear it and stay the guy who follows through.</div>
-  <div id="saidList"></div>
-  <div id="saidEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing owed &mdash; you're square with everyone. &#10003;</div>
-</div>
-
 <!-- MORNING JOURNAL — same day's entry as the Journal card down in Evening;
      write here in the AM, add to it down there at night. Either Save syncs both. -->
 <div class="card" style="margin-top:10px;">
@@ -1230,11 +1221,28 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div id="deepWorkList" style="margin-top:8px;"></div>
 </div>
 
+<!-- I SAID — only one instance now, lives right under the daily Deep Work tracker. -->
+<div class="card" id="cardSaid" style="margin-bottom:10px;">
+  <div class="card-hd">
+    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>I Said &mdash; Promises to Keep</div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <span class="sec-pct" id="saidStat" style="color:var(--gold)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="addSaid()">+</button>
+    </div>
+  </div>
+  <div class="choose-label" style="color:var(--t2);">Everything you told someone you'd do. Goes red when it's late &mdash; clear it and stay the guy who follows through.</div>
+  <div id="saidList"></div>
+  <div id="saidEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing owed &mdash; you're square with everyone. &#10003;</div>
+</div>
+
 <div class="section-divider">
   <div class="section-divider-line"></div>
   <div class="section-divider-label business">&#128737; Weekly Deep-Work Blocks &mdash; not scored daily</div>
   <div class="section-divider-line"></div>
 </div>
+<!-- Always-visible status strip — shows what's done/logged even while every card
+     below is collapsed, plus how many days are left to fit the rest in. -->
+<div class="card" id="weeklyDeepWorkSummary" style="margin-bottom:10px;"></div>
 <div class="grid-2">
   <!-- Bottlenecks | Admin | Weekly Content + Weekly Product + Content Ideas -->
   <!-- BOTTLENECKS -->
@@ -1362,6 +1370,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       <div id="productList"></div>
     </div>
   </div>
+
 
 </div>
 
@@ -1526,18 +1535,6 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div class="sec-headline">Close the Loop</div>
   <div class="sec-underline"></div>
 </div>
-<div class="card" id="cardSaid2" style="margin-bottom:10px;">
-  <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--gold)"></span>I Said &mdash; Promises to Keep</div>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <span class="sec-pct" id="saidStat2" style="color:var(--gold)"></span>
-      <button class="btn btn-ghost btn-sm" onclick="addSaid()">+</button>
-    </div>
-  </div>
-  <div class="choose-label" style="color:var(--t2);">Everything you told someone you'd do. Goes red when it's late &mdash; clear it and stay the guy who follows through.</div>
-  <div id="saidList2"></div>
-  <div id="saidEmpty2" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing owed &mdash; you're square with everyone. &#10003;</div>
-</div>
 <div style="margin-bottom:10px;">
 <div class="card" id="cardEvening">
   <div class="card-hd">
@@ -1666,7 +1663,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 </div>
 
 <!-- CALL FAMILY — weekly call targets so work never swallows them again -->
-<div class="card" style="margin-bottom:10px;">
+<div class="card" id="cardCallFamily" style="margin-bottom:10px;">
   <div class="card-hd">
     <div class="card-title"><span class="dot" style="background:var(--pink)"></span>&#128222; Call Family</div>
     <div style="display:flex;gap:6px;align-items:center;">
@@ -1678,10 +1675,16 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div id="callList"></div>
 </div>
 
+<!-- LIFE MAINTENANCE — Laundry, Grocery, Car Cleaning: recurring upkeep, grouped
+     together and kept separate from the daily/weekly business trackers. -->
 <div style="margin-bottom:10px;">
 <div class="card">
   <div class="card-hd">
-    <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Laundry</div>
+    <div class="card-title"><span class="dot" style="background:var(--teal)"></span>&#129529; Life Maintenance</div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:2px 0 6px;gap:6px;">
+    <div class="card-title" style="font-size:12px;margin:0;"><span class="dot" style="background:var(--teal)"></span>Laundry</div>
     <div style="display:flex;gap:6px;align-items:center;">
       <span class="sec-pct" style="color:var(--teal)" id="laundryCount">0 of 3 loads</span>
       <button class="btn btn-ghost btn-sm" onclick="laundryAddLoad()" title="Doing an extra load this week">+ Load</button>
@@ -1691,11 +1694,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div id="laundryList"></div>
 
   <!-- GROCERY RESTOCK -->
-  <div style="display:flex;align-items:center;gap:8px;margin:12px 0 6px;">
-    <div style="flex:1;height:1px;background:var(--b2);"></div>
-    <div class="choose-label" style="margin:0;color:var(--t2);">&#128722; Grocery Restock</div>
-    <div style="flex:1;height:1px;background:var(--b2);"></div>
-  </div>
+  <div class="card-title" style="font-size:12px;margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--b2);"><span class="dot" style="background:var(--y)"></span>&#128722; Grocery Restock</div>
   <div style="font-size:10px;color:var(--t3);margin-bottom:6px;">Ran out of something? Drop it here so it's waiting for you on grocery day.</div>
   <div style="display:flex;gap:6px;margin-bottom:6px;">
     <input class="inp" id="groceryInput" placeholder="e.g. paper towels, eggs..." style="margin:0;flex:1;" onkeydown="if(event.key==='Enter')addGrocery()">
@@ -1706,6 +1705,13 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
   <div style="margin-top:4px;">
     <button class="btn btn-ghost btn-sm" id="groceryClearBtn" onclick="clearGotGrocery()" style="display:none;">Clear picked up</button>
   </div>
+
+  <!-- CAR CLEANING -->
+  <div class="card-title" style="font-size:12px;margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--b2);"><span class="dot" style="background:var(--purple)"></span>&#128663; Car Cleaning</div>
+  <div style="font-size:10px;color:var(--t3);margin-bottom:6px;">1&times; weekly minimum &mdash; log every time you clean it so trends show up over time.</div>
+  <div id="carCleanRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
+  <div class="choose-label" style="color:var(--t2);margin-top:10px;">History</div>
+  <div id="carCleanList" style="max-height:160px;overflow-y:auto;"></div>
 </div>
 
 </div>
@@ -7855,10 +7861,10 @@ window.togglePitch=togglePitch;window.toggleContentIdeas=toggleContentIdeas;
    change log instead of a plain session list. None of this counts toward the
    daily score — these are scored/tracked per week only. */
 const WEEKLY_TASK_CONFIG={
-  content:{label:'Weekly Content Build',target:'≈ 4 hr weekly block',color:'pink',blockRow:'contentBlockRow',timerRow:'contentTimerRow',badge:'contentTimeBadge',ph:'What did you work on this block?',card:'cardContent',body:'contentBody',arrow:'contentArrow'},
-  product:{label:'Weekly Product Improvement',target:'1 hr weekly block',color:'orange',blockRow:'productBlockRow',timerRow:'productTimerRow',badge:'productTimeBadge',ph:'What did you improve?',card:'cardProduct',body:'productBody',arrow:'productArrow'},
-  bottle:{label:'Bottlenecks / Systems',target:'2 hr weekly block',color:'purple',blockRow:'bottleBlockRow',timerRow:'bottleTimerRow',badge:'bottleTimeBadge',ph:'What did you change?',changeLog:true,card:'cardBottle',body:'bottleBody',arrow:'bottleArrow'},
-  admin:{label:'Admin Cleanup',target:'1 hr weekly block',color:'blue',blockRow:'adminBlockRow',timerRow:'adminTimerRow',badge:'adminTimeBadge',ph:'What did you clean up?',card:'cardAdmin',body:'adminBody',arrow:'adminArrow'},
+  content:{label:'Weekly Content Build',target:'≈ 4 hr weekly block',targetMin:240,color:'pink',blockRow:'contentBlockRow',timerRow:'contentTimerRow',badge:'contentTimeBadge',ph:'What did you work on this block?',card:'cardContent',body:'contentBody',arrow:'contentArrow'},
+  product:{label:'Weekly Product Improvement',target:'1 hr weekly block',targetMin:60,color:'orange',blockRow:'productBlockRow',timerRow:'productTimerRow',badge:'productTimeBadge',ph:'What did you improve?',card:'cardProduct',body:'productBody',arrow:'productArrow'},
+  bottle:{label:'Bottlenecks / Systems',target:'2 hr weekly block',targetMin:120,color:'purple',blockRow:'bottleBlockRow',timerRow:'bottleTimerRow',badge:'bottleTimeBadge',ph:'What did you change?',changeLog:true,card:'cardBottle',body:'bottleBody',arrow:'bottleArrow'},
+  admin:{label:'Admin Cleanup',target:'1 hr weekly block',targetMin:60,color:'blue',blockRow:'adminBlockRow',timerRow:'adminTimerRow',badge:'adminTimeBadge',ph:'What did you clean up?',card:'cardAdmin',body:'adminBody',arrow:'adminArrow'},
 };
 // Each card starts collapsed and highlighted gold until opened for the first
 // time that week — clicking the header opens it (and clears the highlight for
@@ -7891,6 +7897,7 @@ function toggleWeeklyBlock(key){
   var wk=weekKey();
   if(weeklyBlock[key][wk])delete weeklyBlock[key][wk];else weeklyBlock[key][wk]=nowStr();
   sv(key+'Block',weeklyBlock[key]);renderWeeklyBlock(key);
+  safeCall(renderWeeklyDeepWorkSummary,'renderWeeklyDeepWorkSummary');
 }
 function renderWeeklyBlock(key){
   var cfg=WEEKLY_TASK_CONFIG[key];var el=document.getElementById(cfg.blockRow);if(!el)return;
@@ -7927,6 +7934,7 @@ function stopWeeklyTimer(key){
     sv('sysLog',sysLog);renderSysLog();
   }
   renderWeeklyTimer(key);
+  safeCall(renderWeeklyDeepWorkSummary,'renderWeeklyDeepWorkSummary');
 }
 function tickWeeklyTimer(key){
   var el=document.getElementById('weeklyTimerClock_'+key);
@@ -7960,7 +7968,113 @@ function renderWeeklyTimer(key){
   else if(_weeklyTimerInt[key]){clearInterval(_weeklyTimerInt[key]);_weeklyTimerInt[key]=null;}
 }
 window.startWeeklyTimer=startWeeklyTimer;window.stopWeeklyTimer=stopWeeklyTimer;window.renderWeeklyTimer=renderWeeklyTimer;
-function renderAllWeeklyTasks(){Object.keys(WEEKLY_TASK_CONFIG).forEach(function(k){renderWeeklyBlock(k);renderWeeklyTimer(k);renderWeeklyCardCollapse(k);});}
+
+/* Car Cleaning — lives with Laundry/Grocery under Life Maintenance now, not the
+   weekly deep-work blocks. No timer, just log the moment you clean it. "Done
+   this week" is derived from whether any log entry falls in the current week;
+   the full log (every date+time, all-time) is what surfaces trends later —
+   never trimmed or reset. */
+let carCleanLog=ld('carCleanLog',[]); // [{date, ts}] oldest first
+function logCarClean(){
+  carCleanLog.push({date:todayKey(),ts:nowStr()});
+  sv('carCleanLog',carCleanLog);
+  renderCarClean();
+}
+function undoLastCarClean(){
+  if(!carCleanLog.length)return;
+  carCleanLog.pop();
+  sv('carCleanLog',carCleanLog);
+  renderCarClean();
+}
+function carCleanedThisWeek(){
+  var wk=weekKey();
+  return carCleanLog.some(function(e){return weekKeyFor(e.date)===wk;});
+}
+function renderCarClean(){
+  var row=document.getElementById('carCleanRow');
+  var done=carCleanedThisWeek();
+  var last=carCleanLog[carCleanLog.length-1];
+  if(row){
+    row.style.borderColor=done?'var(--green)':'var(--teal)';
+    row.innerHTML=done
+      ? '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'
+          +'<span style="font-size:12px;color:var(--green);font-weight:700;">&#10003; Cleaned this week</span>'
+          +'<button class="btn btn-ghost btn-sm" onclick="undoLastCarClean()">Undo last</button></div>'
+          +(last?'<div style="font-size:10px;color:var(--t3);margin-top:2px;">last: '+escHtml(last.date)+' &middot; '+escHtml(last.ts)+'</div>':'')
+      : '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">'
+          +'<span style="font-size:12px;color:var(--teal);font-weight:700;">&#9200; Not cleaned this week</span>'
+          +'<button class="btn btn-y btn-sm" onclick="logCarClean()">Log clean now</button></div>'
+          +(last?'<div style="font-size:10px;color:var(--t3);margin-top:2px;">last: '+escHtml(last.date)+' &middot; '+escHtml(last.ts)+'</div>':'');
+  }
+  var listEl=document.getElementById('carCleanList');
+  if(listEl){
+    var hist=carCleanLog.slice().reverse().slice(0,20);
+    listEl.innerHTML=hist.length?hist.map(function(e){
+      return '<div style="font-size:10px;color:var(--t2);padding:2px 0;border-bottom:1px solid var(--b);">'+escHtml(e.date)+' &middot; '+escHtml(e.ts)+'</div>';
+    }).join(''):'<div style="font-size:11px;color:var(--t3);padding:4px 0;">No cleanings logged yet.</div>';
+  }
+  var pctEl=document.getElementById('carPct');if(pctEl)pctEl.textContent=done?'100%':'0%';
+  var barEl=document.getElementById('carBar');if(barEl)barEl.style.width=done?'100%':'0%';
+}
+window.logCarClean=logCarClean;window.undoLastCarClean=undoLastCarClean;window.renderCarClean=renderCarClean;window.carCleanedThisWeek=carCleanedThisWeek;
+
+// Week ends Sunday 11pm (matches weekKey's flip) — used for the "days left" readout.
+function weekEndDate(){
+  var d=new Date();
+  var daysUntilSun=(7-d.getDay())%7;
+  var end=new Date(d.getFullYear(),d.getMonth(),d.getDate()+daysUntilSun,23,0,0);
+  if(end<=d)end.setDate(end.getDate()+7);
+  return end;
+}
+function daysLeftInWeek(){return Math.max(0,Math.ceil((weekEndDate()-new Date())/86400000));}
+
+/* Always-visible status strip for the weekly deep-work blocks — lives above the
+   (collapsed) cards so he knows what's done, how much logged time is left
+   against the week's target hours, and how many days remain to fit it in,
+   without opening a single card. */
+function jumpToWeeklyCard(key){
+  if(!weeklyCardState[key]||!weeklyCardState[key].expanded)toggleWeeklyCard(key);
+  var cfg=WEEKLY_TASK_CONFIG[key];
+  var card=document.getElementById(cfg.card);
+  if(card&&card.scrollIntoView)card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+window.jumpToWeeklyCard=jumpToWeeklyCard;
+function renderWeeklyDeepWorkSummary(){
+  var el=document.getElementById('weeklyDeepWorkSummary');if(!el)return;
+  var timeKeys=['bottle','admin','content','product'];
+  var totalTargetMin=0,remainMin=0,doneCount=0;
+  var chips=timeKeys.map(function(k){
+    var cfg=WEEKLY_TASK_CONFIG[k];
+    var done=!!weeklyBlock[k][weekKey()];
+    var arr=weeklySessions[k][weekKey()]||[];
+    var loggedMin=arr.reduce(function(s,x){return s+(x.min||0);},0);
+    totalTargetMin+=cfg.targetMin;
+    remainMin+=done?0:Math.max(0,cfg.targetMin-loggedMin);
+    if(done)doneCount++;
+    var statusTxt=done?'&#10003; done':(loggedMin?fmtMins(loggedMin)+' logged':'not started');
+    var statusColor=done?'var(--green)':(loggedMin?'var(--'+cfg.color+')':'var(--t3)');
+    return '<div class="wdw-chip" onclick="jumpToWeeklyCard(\''+k+'\')">'
+      +'<span class="wdw-chip-lbl">'+cfg.label.replace('Weekly ','')+'</span>'
+      +'<span class="wdw-chip-val" style="color:'+statusColor+';">'+statusTxt+'</span>'
+      +'</div>';
+  }).join('');
+  var daysLeft=daysLeftInWeek();
+  el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">'
+    +'<span style="font-size:11px;color:var(--t2);">'+doneCount+'/4 deep-work blocks done this week &middot; <b style="color:var(--t);">'+fmtMins(remainMin)+'</b> of '+fmtMins(totalTargetMin)+' left</span>'
+    +'<span style="font-size:11px;font-weight:700;color:'+(daysLeft<=1?'var(--coral)':daysLeft<=2?'var(--y)':'var(--t2)')+';">'+daysLeft+' day'+(daysLeft===1?'':'s')+' left this week</span>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'+chips+'</div>';
+}
+window.renderWeeklyDeepWorkSummary=renderWeeklyDeepWorkSummary;
+
+function renderAllWeeklyTasks(){
+  Object.keys(WEEKLY_TASK_CONFIG).forEach(function(k){
+    var cfg=WEEKLY_TASK_CONFIG[k];
+    if(cfg.blockRow){renderWeeklyBlock(k);renderWeeklyTimer(k);}
+    renderWeeklyCardCollapse(k);
+  });
+  renderWeeklyDeepWorkSummary();
+}
 window.renderAllWeeklyTasks=renderAllWeeklyTasks;
 
 /* Deep Work — office-day focus period. Start/stop clocks each session (start+end
@@ -8293,10 +8407,6 @@ function renderSaid(){
       +'<button class="task-del" onclick="delSaid(\''+it.id+'\')" title="Remove">\u00d7</button>'
     +'</div>';
   }).join('');
-
-  var el2=document.getElementById('saidList2');if(el2)el2.innerHTML=el.innerHTML;
-  var b2=document.getElementById('saidStat2');if(b2&&badge){b2.textContent=badge.textContent;b2.style.color=badge.style.color;}
-  var e2=document.getElementById('saidEmpty2');if(e2&&emp)e2.style.display=emp.style.display;
 }
 function addSaid(){
   var who=prompt('Who did you tell?  (e.g. Cory)');if(!who||!who.trim())return;
@@ -8381,6 +8491,7 @@ function renderAll(){
   safeCall(renderTargets,'renderTargets');
   safeCall(renderLaundry,'renderLaundry');
   safeCall(renderGrocery,'renderGrocery');
+  safeCall(renderCarClean,'renderCarClean');
   safeCall(renderCalls,'renderCalls');
   safeCall(renderCorrelation,'renderCorrelation');
   safeCall(renderFixLog,'renderFixLog');
@@ -8446,6 +8557,7 @@ function reloadFromStorage(){
   weeklySessions={content:ld('contentSessions',{}),product:ld('productSessions',{}),bottle:ld('bottleSessions',{}),admin:ld('adminSessions',{})};
   weeklyTimerStart={content:ld('contentTimerStart',0),product:ld('productTimerStart',0),bottle:ld('bottleTimerStart',0),admin:ld('adminTimerStart',0)};
   weeklyCardState=ld('weeklyCardState',{});
+  carCleanLog=ld('carCleanLog',[]);
   deepWork=ld('deepWork',{});
   deepWorkStart=ld('deepWorkStart',0);
   bonusRounds=ld('bonusRounds',{});
@@ -8481,9 +8593,10 @@ function safeInit(){
     loadJournalForDay();
     rolloverTodayList();
     renderAll();
-    // Day Schedule (Shoot/Office) sits under the Morning checklist.
-    // Night stack under the Evening Journal: Scoreboard → Reflect → Bonus Rounds →
-    // 30-Day → Train the Mind (reading ends the day). Plan a Day sits under Wind-Down.
+    // Day Schedule (Shoot/Office) sits under the Morning checklist. Meals moves
+    // to sit right above Call Family (Plan a Day still sits right above Meals).
+    // Night stack under the Evening Journal: Bonus Rounds → 30-Day → Mind the
+    // Money → Scoreboard → Reflect → Train the Mind (reading ends the day).
     try{
       var _mo=document.getElementById('cardMorning');
       var _sched=document.getElementById('dayScheduleCard');
@@ -8496,11 +8609,13 @@ function safeInit(){
       var _pd=document.getElementById('planDayCard');
       var _me=document.getElementById('cardMeals');
       var _mz=document.getElementById('moneyZone');
+      var _cf=document.getElementById('cardCallFamily');
+      if(_me&&_cf&&_cf.parentNode)_cf.parentNode.insertBefore(_me,_cf);
       if(_pd&&_me&&_me.parentNode)_me.parentNode.insertBefore(_pd,_me);
-      if(_mz&&_me&&_me.parentNode)_me.parentNode.insertBefore(_mz,_me);
       if(_cl&&_cl.parentNode){
         if(_cb)_cl.parentNode.insertBefore(_cb,_cl);
         if(_sb)_cl.parentNode.insertBefore(_sb,_cl);
+        if(_mz)_cl.parentNode.insertBefore(_mz,_cl);
         if(_sz)_cl.parentNode.insertBefore(_sz,_cl);
         if(_rz)_cl.parentNode.insertBefore(_rz,_cl);
       }
