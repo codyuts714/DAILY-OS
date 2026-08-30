@@ -805,6 +805,49 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .week-chk.done{background:var(--y);border-color:var(--y);}
 .week-chk.done::after{content:'';position:absolute;top:1px;left:3px;width:4px;height:6px;border:1.5px solid #000;border-top:none;border-left:none;transform:rotate(45deg);}
 .week-drag-hint{font-size:9px;color:var(--t3);text-align:center;margin-top:6px;letter-spacing:.03em;}
+/* -- Ready to Post ------------------------------------------------------ */
+.rtp-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.rtp-stat{flex:1;min-width:130px;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;padding:6px 9px;}
+.rtp-stat-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);font-weight:700;}
+.rtp-stat-val{font-size:11px;color:var(--t2);font-weight:600;margin-top:3px;line-height:1.5;}
+.rtp-stat-val b{color:var(--y);font-size:16px;font-weight:800;}
+.rtp-stat-val .rtp-sub{color:var(--t3);font-size:10px;}
+.rtp-cadence{font-size:10px;color:var(--t3);margin-top:4px;}
+.rtp-cadence b{color:var(--green);font-weight:800;}
+.rtp-plats{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
+.rtp-plat{font-size:9px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap;}
+.rtp-plat:hover{border-color:var(--t2);color:var(--t);}
+.rtp-plat.on{background:rgba(0,214,143,.15);border-color:var(--green);color:var(--green);}
+.rtp-link{font-size:10px;color:var(--blue);text-decoration:none;word-break:break-all;}
+.rtp-link:hover{text-decoration:underline;}
+.rtp-count-badge{font-size:9px;color:var(--t3);font-weight:600;margin-left:6px;}
+.rtp-row{flex-direction:column;align-items:stretch;gap:0;}
+.rtp-row .rtp-row-top{display:flex;align-items:flex-start;gap:8px;width:100%;}
+/* tags */
+.rtp-tags{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:5px;}
+.rtp-tag{font-size:9px;font-weight:800;letter-spacing:.02em;padding:2px 8px;border-radius:20px;border:1px solid;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.rtp-tag-x{cursor:pointer;opacity:.6;font-weight:900;}
+.rtp-tag-x:hover{opacity:1;}
+.rtp-tagbtn{font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;border:1px dashed var(--b3);background:none;color:var(--t2);cursor:pointer;}
+.rtp-tagbtn:hover{border-color:var(--y);color:var(--y);}
+.rtp-tag-editor{margin-top:6px;padding:8px;border:1px solid var(--b2);border-radius:8px;background:var(--bg2);}
+.rtp-tag-editor .rtp-te-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);font-weight:700;margin-bottom:5px;}
+.rtp-tag-pick{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.rtp-tag-opt{font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;border:1px solid var(--b2);background:var(--bg3);color:var(--t2);cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.rtp-tag-opt .opt-del{opacity:.5;font-weight:900;padding:0 1px;}
+.rtp-tag-opt .opt-del:hover{opacity:1;color:var(--coral);}
+.rtp-tag-new{display:flex;gap:5px;align-items:center;}
+.rtp-tag-new input{flex:1;min-width:0;background:var(--bg3);border:1px solid var(--b2);border-radius:6px;color:var(--t);font-size:11px;padding:4px 8px;font-family:inherit;}
+.rtp-tag-new input:focus{outline:none;border-color:var(--y);}
+/* projects view */
+.rtp-proj-group{margin:8px 0;border:1px solid var(--b2);border-radius:10px;overflow:hidden;}
+.rtp-proj-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;cursor:pointer;background:var(--bg3);}
+.rtp-proj-hd:hover{background:var(--bg4);}
+.rtp-proj-name{font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:7px;color:var(--t);}
+.rtp-proj-swatch{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.rtp-proj-meta{font-size:9px;color:var(--t3);font-weight:700;white-space:nowrap;}
+.rtp-proj-body{padding:2px 9px 8px;}
+.rtp-proj-empty{font-size:10px;color:var(--t3);padding:8px 2px;}
 </style>
 <style id="uts-skin">
 /* ═══════════════ UTS PORTAL SKIN — visual layer only ═══════════════ */
@@ -1336,6 +1379,33 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
       <div id="contentBlockRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);"></div>
       <div id="contentTimerRow" style="margin:8px 0;padding:8px 10px;border:1px solid var(--b);border-radius:8px;background:var(--bg2);"></div>
       <div id="contentList"></div>
+      <!-- READY TO POST -->
+      <div id="rtpWrap" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--b2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="card-title" style="font-size:13px;margin:0;"><span class="dot" style="background:var(--y)"></span>Ready to Post<span id="rtpQueueCount" class="rtp-count-badge">0 queued</span></span>
+          <button class="btn btn-ghost btn-sm" onclick="openAddRTP()">+ Add file</button>
+        </div>
+        <div style="font-size:9px;color:var(--t3);margin:-4px 0 8px;">Ticking a platform here auto-checks your daily &ldquo;Post on UTS &mdash; multiple platforms&rdquo; box &mdash; no need to log it twice.</div>
+        <div id="rtpStats" class="rtp-stats"></div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <div class="fpill active" id="rtpTabQueue" onclick="setRtpView('queue')">Queue</div>
+          <div class="fpill" id="rtpTabProjects" onclick="setRtpView('projects')">Projects</div>
+        </div>
+        <div id="rtpQueueView">
+          <div id="rtpList"></div>
+          <div id="rtpEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing queued. Drop an edited file here after marketing edits so it's ready to fire out — tick each platform as you post it.</div>
+          <div class="jh-toggle" onclick="toggleRtpArchive()" style="margin-top:8px;">
+            <span>&#128230; Post Archive <span id="rtpArchCount" style="color:var(--t3);font-weight:400;">0 done</span></span>
+            <span id="rtpArchArrow">&#9656;</span>
+          </div>
+          <div id="rtpArchWrap" style="display:none;">
+            <div class="choose-label" style="color:var(--t2);margin:4px 0;">Posted on all 5 platforms &mdash; pull a file back anytime. Untick a platform to send it back to the queue.</div>
+            <div id="rtpArchList" style="max-height:320px;overflow-y:auto;"></div>
+            <div id="rtpArchEmpty" style="font-size:11px;color:var(--t3);padding:5px 0;display:none;">Nothing fully posted yet.</div>
+          </div>
+        </div>
+        <div id="rtpProjects" style="display:none;"></div>
+      </div>
       <div class="jh-toggle" onclick="toggleContentIdeas()" style="margin-top:8px;">
         <span>&#128161; Content Ideas <span id="ideaCount" style="color:var(--t3);font-weight:400;">0 fresh</span></span>
         <span id="ideaArrow">&#9656;</span>
@@ -3913,6 +3983,303 @@ function openAddIdea(){
     renderIdeas();
   });
 }
+
+// -- READY TO POST -------------------------------------------------------------
+// Queue of edited files ready to go out. Ticking a platform = one post, stamped
+// with the day it happened. Once all 5 platforms are ticked the file drops into
+// the Post Archive (still reachable, untick a platform to pull it back). Counts
+// adds + posts by day / week / month / year so cadence is visible at a glance.
+const RTP_PLATS=[
+  {k:'ig',l:'IG'},
+  {k:'tiktok',l:'TikTok'},
+  {k:'youtube',l:'YouTube'},
+  {k:'linkedin',l:'LinkedIn'},
+  {k:'facebook',l:'Facebook'}
+];
+let readyToPost=ld('readyToPost',[]);
+// Projects / series tags. Seeded with his first four; he can type new ones to
+// save on the fly. Posts group under these in the Projects tab.
+const DEF_RTP_TAGS=['Sab Zada Shorts','Client Spotlights','Mini Vlogs','Which Shot is AI?'];
+let rtpTags=ld('rtpTags',DEF_RTP_TAGS.slice());
+let rtpView='queue';          // 'queue' | 'projects' — UI state, not persisted
+let rtpTagEditId=null;        // id of the row whose tag editor is open
+let rtpProjClosed={};         // tag -> true when that project group is collapsed
+const RTP_TAG_COLORS=['#f2c94c','#ec4899','#5b8dee','#00d68f','#a855f7','#f97316','#14b8a6','#ff6b6b'];
+function rtpTagColor(name){var h=0;for(var i=0;i<name.length;i++)h=(h*31+name.charCodeAt(i))>>>0;return RTP_TAG_COLORS[h%RTP_TAG_COLORS.length];}
+
+function rtpAllPosted(it){return RTP_PLATS.every(function(p){return it.posted&&it.posted[p.k];});}
+function rtpEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// last-7-day date keys (incl today)
+function rtpLast7(){
+  var out={},d=new Date();
+  for(var i=0;i<7;i++){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()-i);out[x.getFullYear()+'-'+p2(x.getMonth()+1)+'-'+p2(x.getDate())]=1;}
+  return out;
+}
+function rtpBuckets(){
+  var today=todayKey(),wk=weekKey(),mo=today.slice(0,7),yr=today.slice(0,4),last7=rtpLast7();
+  var b={addT:0,addW:0,addM:0,addY:0,postT:0,postW:0,postM:0,postY:0,postTotal:0},postDays={};
+  readyToPost.forEach(function(it){
+    var ad=it.addedAt;
+    if(ad){
+      if(ad===today)b.addT++;
+      if(weekKeyFor(ad)===wk)b.addW++;
+      if(ad.slice(0,7)===mo)b.addM++;
+      if(ad.slice(0,4)===yr)b.addY++;
+    }
+    RTP_PLATS.forEach(function(p){
+      var pd=it.postedAt&&it.postedAt[p.k];
+      if(!pd)return;
+      b.postTotal++;
+      if(pd===today)b.postT++;
+      if(weekKeyFor(pd)===wk)b.postW++;
+      if(pd.slice(0,7)===mo)b.postM++;
+      if(pd.slice(0,4)===yr)b.postY++;
+      if(last7[pd])postDays[pd]=1;
+    });
+  });
+  b.cadence7=Object.keys(postDays).length;
+  return b;
+}
+// Mirror posting into the daily tracker: ticking any platform here auto-checks
+// the daily "Post on UTS daily — multiple platforms" box (v3) for TODAY, so a
+// post is never logged twice. If every platform-post for today gets undone and
+// we were the one who checked the box, we clear it again. Manual checks are left
+// alone (we only clear boxes we set ourselves, flagged with an _auto marker).
+function rtpDailyPostTask(){
+  if(typeof bizVis==='undefined'||!bizVis)return null;
+  var t=bizVis.find(function(x){return x.id==='v3';});
+  if(t)return t;
+  return bizVis.find(function(x){var n=(x.name||'').toLowerCase();return n.indexOf('post')!==-1&&(n.indexOf('platform')!==-1||n.indexOf('multiple')!==-1||n.indexOf('uts daily')!==-1);})||null;
+}
+function rtpPostedTodayCount(){
+  var tk=todayKey(),n=0;
+  readyToPost.forEach(function(it){RTP_PLATS.forEach(function(p){if(it.postedAt&&it.postedAt[p.k]===tk)n++;});});
+  return n;
+}
+function rtpSyncDailyPost(){
+  var task=rtpDailyPostTask();
+  if(!task)return;
+  var tk=todayKey(),id=task.id;
+  var ds=ld('ds_'+tk,{m:{},e:{},t:{},s:{},vn:{},v:{},c:{},mo:{},a:{},bt:{},co:{},pr:{}});
+  if(!ds.v)ds.v={};
+  var posted=rtpPostedTodayCount()>0;
+  if(posted){
+    if(!ds.v[id]){ds.v[id]=true;ds.v[id+'_ts']='via Ready to Post';ds.v[id+'_auto']=true;}
+  }else if(ds.v[id]&&ds.v[id+'_auto']){
+    delete ds.v[id];delete ds.v[id+'_ts'];delete ds.v[id+'_auto'];
+  }
+  sv('ds_'+tk,ds); // sv() no-ops when unchanged, so no needless cloud writes
+}
+function rtpPlatChips(it){
+  return '<div class="rtp-plats">'+RTP_PLATS.map(function(p){
+    var on=it.posted&&it.posted[p.k];
+    var when=(on&&it.postedAt&&it.postedAt[p.k])?fmtDate(it.postedAt[p.k]):'';
+    return '<span class="rtp-plat'+(on?' on':'')+'" onclick="rtpTogglePlat(\''+it.id+'\',\''+p.k+'\')" title="'+(on?'Posted '+when+' — click to undo':'Mark posted on '+p.l)+'">'+(on?'\u2713 ':'')+p.l+'</span>';
+  }).join('')+'</div>';
+}
+function rtpTagsBar(it){
+  var tags=it.tags||[];
+  var chips=tags.map(function(t,idx){
+    var c=rtpTagColor(t);
+    return '<span class="rtp-tag" style="border-color:'+c+';color:'+c+';background:'+c+'22;">'+rtpEsc(t)
+      +'<span class="rtp-tag-x" onclick="rtpUntag(\''+it.id+'\','+idx+')" title="Remove tag">\u00d7</span></span>';
+  }).join('');
+  chips+='<button class="rtp-tagbtn" onclick="rtpOpenTagEditor(\''+it.id+'\')">'+(tags.length?'+ tag':'\uD83C\uDFF7 tag')+'</button>';
+  var editor='';
+  if(rtpTagEditId===it.id){
+    var opts=rtpTags.map(function(t,ti){
+      var on=tags.indexOf(t)!==-1,c=rtpTagColor(t);
+      var style=on?('background:'+c+';border-color:'+c+';color:#0a0a0a;'):('color:'+c+';border-color:'+c+'66;');
+      return '<span class="rtp-tag-opt" style="'+style+'" onclick="rtpToggleTag(\''+it.id+'\','+ti+')">'+(on?'\u2713 ':'')+rtpEsc(t)
+        +'<span class="opt-del" onclick="event.stopPropagation();rtpDeleteTag('+ti+')" title="Delete this project everywhere">\u00d7</span></span>';
+    }).join('');
+    editor='<div class="rtp-tag-editor">'
+      +'<div class="rtp-te-lbl">Tap to tag this file &middot; the &times; on a chip deletes that project</div>'
+      +'<div class="rtp-tag-pick">'+(opts||'<span style="font-size:10px;color:var(--t3);">no projects yet</span>')+'</div>'
+      +'<div class="rtp-tag-new">'
+      +'<input id="rtpNewTag_'+it.id+'" placeholder="+ New project name…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();rtpAddNewTag(\''+it.id+'\');}">'
+      +'<button class="btn btn-ghost btn-sm" onclick="rtpAddNewTag(\''+it.id+'\')">Save</button>'
+      +'<button class="btn btn-ghost btn-sm" onclick="rtpOpenTagEditor(\''+it.id+'\')">Done</button>'
+      +'</div></div>';
+  }
+  return '<div class="rtp-tags">'+chips+'</div>'+editor;
+}
+function rtpRow(it,archived){
+  var posted=RTP_PLATS.filter(function(p){return it.posted&&it.posted[p.k];}).length;
+  var linkHtml=it.link?'<a class="rtp-link" href="'+rtpEsc(it.link)+'" target="_blank" rel="noopener">'+rtpEsc(it.link)+'</a>':'<span style="font-size:10px;color:var(--t3);">no link</span>';
+  return '<div class="task-row rtp-row" data-tid="'+it.id+'"'+(archived?' style="opacity:.72;"':'')+'>'
+    +'<div class="rtp-row-top">'
+    +'<div class="task-info" style="min-width:0;">'
+    +'<div class="task-name" style="text-decoration:none;">'+rtpEsc(it.title)+'</div>'
+    +'<div class="task-ts" style="margin-top:1px;">'+linkHtml+'</div>'
+    +'<div class="task-ts" style="color:var(--t3);">Added '+(it.addedAt?fmtDate(it.addedAt):'?')+' \u00b7 '+posted+'/5 posted'+(archived&&it.archivedAt?' \u00b7 archived '+fmtDate(it.archivedAt):'')+'</div>'
+    +'</div>'
+    +'<button class="task-del" onclick="rtpDel(\''+it.id+'\')">&#215;</button>'
+    +'</div>'
+    +rtpPlatChips(it)
+    +rtpTagsBar(it)
+    +'</div>';
+}
+function renderRTP(){
+  var list=document.getElementById('rtpList');
+  if(!list)return;
+  rtpSyncDailyPost(); // keep today's daily posting box in step with what's posted here
+  // view toggle
+  var qv=document.getElementById('rtpQueueView'),pv=document.getElementById('rtpProjects');
+  var tq=document.getElementById('rtpTabQueue'),tp=document.getElementById('rtpTabProjects');
+  if(tq)tq.classList.toggle('active',rtpView==='queue');
+  if(tp)tp.classList.toggle('active',rtpView==='projects');
+  if(qv)qv.style.display=rtpView==='queue'?'block':'none';
+  if(pv)pv.style.display=rtpView==='projects'?'block':'none';
+
+  var active=readyToPost.filter(function(it){return !it.archivedAt;});
+  var archived=readyToPost.filter(function(it){return !!it.archivedAt;});
+  var qc=document.getElementById('rtpQueueCount');
+  if(qc)qc.textContent=active.length+' queued';
+
+  var emp=document.getElementById('rtpEmpty');
+  if(!active.length){list.innerHTML='';if(emp)emp.style.display='block';}
+  else{if(emp)emp.style.display='none';list.innerHTML=active.map(function(it){return rtpRow(it,false);}).join('');}
+  var al=document.getElementById('rtpArchList'),ae=document.getElementById('rtpArchEmpty'),ac=document.getElementById('rtpArchCount');
+  if(ac)ac.textContent=archived.length+' done';
+  if(al){
+    if(!archived.length){al.innerHTML='';if(ae)ae.style.display='block';}
+    else{if(ae)ae.style.display='none';al.innerHTML=archived.slice().sort(function(a,b){return String(b.archivedAt).localeCompare(String(a.archivedAt));}).map(function(it){return rtpRow(it,true);}).join('');}
+  }
+  if(rtpView==='projects')renderRTPProjects();
+  renderRTPStats();
+}
+function renderRTPProjects(){
+  var cont=document.getElementById('rtpProjects');
+  if(!cont)return;
+  // group order: saved projects first, then any stray tags found on items
+  var order=rtpTags.slice();
+  readyToPost.forEach(function(it){(it.tags||[]).forEach(function(t){if(order.indexOf(t)===-1)order.push(t);});});
+  var html='';
+  order.forEach(function(tag){
+    var items=readyToPost.filter(function(it){return (it.tags||[]).indexOf(tag)!==-1;});
+    var active=items.filter(function(it){return !it.archivedAt;});
+    var arch=items.filter(function(it){return !!it.archivedAt;});
+    var posts=0;items.forEach(function(it){RTP_PLATS.forEach(function(p){if(it.postedAt&&it.postedAt[p.k])posts++;});});
+    var c=rtpTagColor(tag),closed=!!rtpProjClosed[tag];
+    var body='';
+    if(!items.length)body='<div class="rtp-proj-empty">No files tagged to this project yet.</div>';
+    else{
+      var ordered=active.concat(arch.sort(function(a,b){return String(b.archivedAt).localeCompare(String(a.archivedAt));}));
+      body=ordered.map(function(it){return rtpRow(it,!!it.archivedAt);}).join('');
+    }
+    html+='<div class="rtp-proj-group">'
+      +'<div class="rtp-proj-hd" onclick="rtpToggleProj(\''+encodeURIComponent(tag)+'\')">'
+      +'<span class="rtp-proj-name"><span class="rtp-proj-swatch" style="background:'+c+'"></span>'+rtpEsc(tag)+'</span>'
+      +'<span class="rtp-proj-meta">'+items.length+' file'+(items.length===1?'':'s')+' \u00b7 '+arch.length+' done \u00b7 '+posts+' posts '+(closed?'\u25b8':'\u25be')+'</span>'
+      +'</div>'
+      +'<div class="rtp-proj-body" style="display:'+(closed?'none':'block')+'">'+body+'</div>'
+      +'</div>';
+  });
+  // untagged
+  var untagged=readyToPost.filter(function(it){return !(it.tags&&it.tags.length);});
+  if(untagged.length){
+    var closedU=!!rtpProjClosed['__untagged__'];
+    html+='<div class="rtp-proj-group">'
+      +'<div class="rtp-proj-hd" onclick="rtpToggleProj(\'__untagged__\')">'
+      +'<span class="rtp-proj-name"><span class="rtp-proj-swatch" style="background:var(--t3)"></span>Untagged</span>'
+      +'<span class="rtp-proj-meta">'+untagged.length+' file'+(untagged.length===1?'':'s')+' '+(closedU?'\u25b8':'\u25be')+'</span>'
+      +'</div>'
+      +'<div class="rtp-proj-body" style="display:'+(closedU?'none':'block')+'">'+untagged.map(function(it){return rtpRow(it,!!it.archivedAt);}).join('')+'</div>'
+      +'</div>';
+  }
+  cont.innerHTML=html||'<div class="rtp-proj-empty">No projects yet. Tag a file to start a project.</div>';
+}
+function setRtpView(v){rtpView=v;rtpTagEditId=null;renderRTP();}
+function rtpToggleProj(enc){var tag=enc==='__untagged__'?'__untagged__':decodeURIComponent(enc);rtpProjClosed[tag]=!rtpProjClosed[tag];renderRTPProjects();}
+function rtpOpenTagEditor(id){rtpTagEditId=(rtpTagEditId===id?null:id);renderRTP();}
+function rtpToggleTag(id,tagIdx){
+  var it=readyToPost.find(function(x){return x.id===id;});
+  var tag=rtpTags[tagIdx];
+  if(!it||tag==null)return;
+  if(!it.tags)it.tags=[];
+  var i=it.tags.indexOf(tag);
+  if(i===-1)it.tags.push(tag);else it.tags.splice(i,1);
+  sv('readyToPost',readyToPost);
+  renderRTP();
+}
+function rtpUntag(id,tagIdx){
+  var it=readyToPost.find(function(x){return x.id===id;});
+  if(!it||!it.tags)return;
+  it.tags.splice(tagIdx,1);
+  sv('readyToPost',readyToPost);
+  renderRTP();
+}
+function rtpAddNewTag(id){
+  var inp=document.getElementById('rtpNewTag_'+id);
+  if(!inp)return;
+  var name=(inp.value||'').trim();
+  if(!name)return;
+  var exists=rtpTags.find(function(t){return t.toLowerCase()===name.toLowerCase();});
+  if(exists)name=exists;else{rtpTags.push(name);sv('rtpTags',rtpTags);}
+  var it=readyToPost.find(function(x){return x.id===id;});
+  if(it){if(!it.tags)it.tags=[];if(it.tags.indexOf(name)===-1)it.tags.push(name);sv('readyToPost',readyToPost);}
+  renderRTP();
+}
+function rtpDeleteTag(tagIdx){
+  var tag=rtpTags[tagIdx];
+  if(tag==null)return;
+  if(!confirm('Delete the project "'+tag+'"? It will be removed from every file tagged with it. The files themselves stay.'))return;
+  rtpTags.splice(tagIdx,1);
+  sv('rtpTags',rtpTags);
+  readyToPost.forEach(function(it){if(it.tags){var i=it.tags.indexOf(tag);if(i!==-1)it.tags.splice(i,1);}});
+  sv('readyToPost',readyToPost);
+  renderRTP();
+}
+function renderRTPStats(){
+  var el=document.getElementById('rtpStats');
+  if(!el)return;
+  var b=rtpBuckets();
+  el.innerHTML=
+     '<div class="rtp-stat"><div class="rtp-stat-lbl">Files Added</div>'
+    +'<div class="rtp-stat-val"><b>'+b.addT+'</b> today <span class="rtp-sub">\u00b7 '+b.addW+' wk \u00b7 '+b.addM+' mo \u00b7 '+b.addY+' yr</span></div></div>'
+    +'<div class="rtp-stat"><div class="rtp-stat-lbl">Posts Made</div>'
+    +'<div class="rtp-stat-val"><b>'+b.postT+'</b> today <span class="rtp-sub">\u00b7 '+b.postW+' wk \u00b7 '+b.postM+' mo \u00b7 '+b.postY+' yr</span>'
+    +'<div class="rtp-cadence">Posted <b>'+b.cadence7+'</b>/7 of the last 7 days</div></div></div>';
+}
+function rtpTogglePlat(id,platKey){
+  var it=readyToPost.find(function(x){return x.id===id;});
+  if(!it)return;
+  if(!it.posted)it.posted={};
+  if(!it.postedAt)it.postedAt={};
+  if(it.posted[platKey]){delete it.posted[platKey];delete it.postedAt[platKey];}
+  else{it.posted[platKey]=true;it.postedAt[platKey]=todayKey();}
+  if(rtpAllPosted(it)){if(!it.archivedAt)it.archivedAt=todayKey();}
+  else{if(it.archivedAt)delete it.archivedAt;}
+  sv('readyToPost',readyToPost);
+  rtpSyncDailyPost();                       // update the daily box data first…
+  renderRTP();                              // …then repaint
+  if(typeof renderAllBiz==='function')renderAllBiz();     // reflect the auto-checked box
+  if(typeof renderOverall==='function')renderOverall();   // and the day's %/graph
+}
+function rtpDel(id){
+  var it=readyToPost.find(function(x){return x.id===id;});
+  if(!confirm('Remove "'+(it?it.title:'this file')+'" from the tracker? This deletes it for good.'))return;
+  readyToPost=readyToPost.filter(function(x){return x.id!==id;});
+  sv('readyToPost',readyToPost);
+  renderRTP();
+}
+function openAddRTP(){
+  openModal('Add File \u2014 Ready to Post','Title (e.g. Cindy reel \u2014 roof claim)','Link to the file (Drive / Dropbox / path)',false,function(title,link){
+    if(!title.trim())return;
+    readyToPost.unshift({id:'rtp'+Date.now(),title:title.trim(),link:(link||'').trim(),addedAt:todayKey(),addedTs:Date.now(),posted:{},postedAt:{},archivedAt:null});
+    sv('readyToPost',readyToPost);
+    renderRTP();
+  });
+}
+function toggleRtpArchive(){
+  var w=document.getElementById('rtpArchWrap'),a=document.getElementById('rtpArchArrow');
+  if(!w)return;var open=w.style.display!=='none';
+  w.style.display=open?'none':'block';if(a)a.innerHTML=open?'\u25b8':'\u25be';
+}
+window.openAddRTP=openAddRTP;window.rtpTogglePlat=rtpTogglePlat;window.rtpDel=rtpDel;window.toggleRtpArchive=toggleRtpArchive;
+window.setRtpView=setRtpView;window.rtpToggleProj=rtpToggleProj;window.rtpOpenTagEditor=rtpOpenTagEditor;window.rtpToggleTag=rtpToggleTag;window.rtpUntag=rtpUntag;window.rtpAddNewTag=rtpAddNewTag;window.rtpDeleteTag=rtpDeleteTag;
 
 // -- PIPELINE ------------------------------------------------------------------
 const PIPE_STAGES=[
@@ -7360,6 +7727,66 @@ function doExport() {
   });
   if(!mealDays.length)push('  (no meals logged in range)');
 
+  // ============================== READY TO POST ==============================
+  hdr('READY TO POST / POSTING CADENCE');
+  var rtpAll=ld('readyToPost',[]);
+  var rtpActive=rtpAll.filter(function(it){return !it.archivedAt;});
+  var rtpArch=rtpAll.filter(function(it){return !!it.archivedAt;});
+  var RTP_P=[['ig','IG'],['tiktok','TikTok'],['youtube','YouTube'],['linkedin','LinkedIn'],['facebook','Facebook']];
+  var _tk=todayKey(),_wk=weekKey(),_mo=_tk.slice(0,7),_yr=_tk.slice(0,4);
+  var aT=0,aW=0,aM=0,aY=0,pT=0,pW=0,pM=0,pY=0,pTotal=0,pRange=0,rDays={};
+  rtpAll.forEach(function(it){
+    if(it.addedAt){if(it.addedAt===_tk)aT++;if(weekKeyFor(it.addedAt)===_wk)aW++;if(it.addedAt.slice(0,7)===_mo)aM++;if(it.addedAt.slice(0,4)===_yr)aY++;}
+    RTP_P.forEach(function(pr){
+      var pd=it.postedAt&&it.postedAt[pr[0]];
+      if(!pd)return;pTotal++;
+      if(pd===_tk)pT++;if(weekKeyFor(pd)===_wk)pW++;if(pd.slice(0,7)===_mo)pM++;if(pd.slice(0,4)===_yr)pY++;
+      if(dateInRange(pd,start,end)){pRange++;rDays[pd]=1;}
+    });
+  });
+  push('Queued (not fully posted): '+rtpActive.length+' | archived (posted everywhere): '+rtpArch.length+' | total files tracked: '+rtpAll.length);
+  push('Total posts all-time: '+pTotal);
+  push('');
+  push('Files added -- today '+aT+' | this week '+aW+' | this month '+aM+' | this year '+aY);
+  push('Posts made  -- today '+pT+' | this week '+pW+' | this month '+pM+' | this year '+pY);
+  push('Posts in selected range: '+pRange+' across '+Object.keys(rDays).length+' day(s)');
+  push('');
+  push('Queue (waiting on one or more platforms):');
+  if(!rtpActive.length)push('  (queue empty)');
+  rtpActive.forEach(function(it){
+    var done=RTP_P.filter(function(pr){return it.posted&&it.posted[pr[0]];}).map(function(pr){return pr[1];});
+    var todo=RTP_P.filter(function(pr){return !(it.posted&&it.posted[pr[0]]);}).map(function(pr){return pr[1];});
+    push('  [added '+(it.addedAt||'?')+'] '+it.title+'  ('+done.length+'/5)');
+    push('      posted: '+(done.length?done.join(', '):'none')+'  |  remaining: '+(todo.length?todo.join(', '):'none'));
+    if(it.tags&&it.tags.length)push('      projects: '+it.tags.join(', '));
+    if(it.link)push('      link: '+it.link);
+  });
+  push('');
+  push('Archive (posted on all 5 platforms):');
+  if(!rtpArch.length)push('  (none archived yet)');
+  rtpArch.slice().sort(function(a,b){return String(a.archivedAt).localeCompare(String(b.archivedAt));}).forEach(function(it){
+    push('  [archived '+(it.archivedAt||'?')+'] '+it.title);
+    push('      '+RTP_P.map(function(pr){var d=it.postedAt&&it.postedAt[pr[0]];return pr[1]+' '+(d||'?');}).join('  \u00b7  '));
+    if(it.tags&&it.tags.length)push('      projects: '+it.tags.join(', '));
+    if(it.link)push('      link: '+it.link);
+  });
+
+  // by-project rollup
+  push('');
+  push('BY PROJECT / SERIES:');
+  var rtpTagList=ld('rtpTags',[]);
+  var projOrder=rtpTagList.slice();
+  rtpAll.forEach(function(it){(it.tags||[]).forEach(function(t){if(projOrder.indexOf(t)===-1)projOrder.push(t);});});
+  if(!projOrder.length)push('  (no projects yet)');
+  projOrder.forEach(function(tag){
+    var items=rtpAll.filter(function(it){return (it.tags||[]).indexOf(tag)!==-1;});
+    var doneCount=items.filter(function(it){return !!it.archivedAt;}).length;
+    var posts=0;items.forEach(function(it){RTP_P.forEach(function(pr){if(it.postedAt&&it.postedAt[pr[0]])posts++;});});
+    push('  ' + tag + ': ' + items.length + ' file(s), ' + doneCount + ' fully posted, ' + posts + ' total platform-posts');
+  });
+  var untag=rtpAll.filter(function(it){return !(it.tags&&it.tags.length);});
+  if(untag.length)push('  Untagged: '+untag.length+' file(s)');
+
   // ============================== JOURNAL ==============================
   hdr('JOURNAL ENTRIES');
   journalsInRange.forEach(function(k){
@@ -8479,6 +8906,7 @@ function renderAll(){
   safeCall(renderToday,'renderToday');
   safeCall(renderContractors,'renderContractors');
   safeCall(renderIdeas,'renderIdeas');
+  safeCall(renderRTP,'renderRTP');
   safeCall(renderAllBiz,'renderAllBiz');
   safeCall(renderOverall,'renderOverall');
   safeCall(renderGoals,'renderGoals');
@@ -8513,6 +8941,8 @@ function reloadFromStorage(){
   todayLists=ld('todayLists',{});
   contractorPays=ld('contractorPays',[]);
   contentIdeas=ld('contentIdeas',[]);
+  readyToPost=ld('readyToPost',[]);
+  rtpTags=ld('rtpTags',DEF_RTP_TAGS.slice());
   goals=normalizeGoals(ld('goals',DEF_GOALS));
   mission=ld('mission',[]);
   stopList=ld('stopList',DEF_STOP);
