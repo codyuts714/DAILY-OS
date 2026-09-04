@@ -458,6 +458,15 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .task-row.client-row{border-left:2px solid #f2c94c;padding-left:6px;background:rgba(242,201,76,.04);border-radius:4px;}
 .task-row.client-row.overdue{border-left:2px solid var(--coral);}
 .client-count{font-size:9px;font-weight:800;color:#0a0a0a;background:#f2c94c;padding:2px 7px;border-radius:9px;letter-spacing:.05em;white-space:nowrap;}
+.today-group{margin-bottom:12px;}
+.today-group:last-child{margin-bottom:0;}
+.today-group-hd{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;margin:2px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--b2);}
+.today-group-hd .tg-count{font-size:8px;font-weight:800;padding:1px 6px;border-radius:9px;letter-spacing:.05em;line-height:1.4;}
+.today-group-hd.client{color:var(--gold);}
+.today-group-hd.client .tg-count{color:#0a0a0a;background:var(--gold);}
+.today-group-hd.internal{color:var(--orange);}
+.today-group-hd.internal .tg-count{color:#0a0a0a;background:var(--orange);}
+.today-group-empty{font-size:10px;color:var(--t3);padding:3px 0 4px;font-style:italic;}
 .due-fucker{color:var(--coral);font-weight:800;letter-spacing:.06em;text-transform:uppercase;animation:duePulse 1.3s ease-in-out infinite;}
 @keyframes duePulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
@@ -3805,9 +3814,8 @@ function renderToday(){
   }
   if(!items.length){el.innerHTML='';emp.style.display='block';return;}
   emp.style.display='none';
-  // active work on top, done items sink to the bottom (dimmed) as the record
-  var displayItems=items.filter(function(x){return !x.done;}).concat(items.filter(function(x){return x.done;}));
-  el.innerHTML=displayItems.map(function(t){
+  // Build one task row's HTML (shared by both groups below).
+  function todayRowHtml(t){
     var age=todayItemAge(t);
     var overdue=!t.done&&age>=2; // on the list 3+ days
     var isClient=t.tag==='client';
@@ -3831,10 +3839,41 @@ function renderToday(){
       +timerBits
       +'<button class="tag-pill'+(isClient?' client':'')+'" onclick="todayTag(this)" title="Toggle client / internal">'+(isClient?'CLIENT':'INT')+'</button>'
       +'<button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
-  }).join('');
-  makeListDraggable(el,function(newOrderIds){
-    setTodayItems(reorderListByIds(getTodayItems(),newOrderIds));
+  }
+  // Split into two sections by the existing client/internal tag. Within each,
+  // active work sits on top and done items sink to the bottom (dimmed).
+  function todayGroupBlock(label,cls,group,listId){
+    var g=items.filter(function(x){return todayGroupOf(x)===group;});
+    var ordered=g.filter(function(x){return !x.done;}).concat(g.filter(function(x){return x.done;}));
+    var openN=g.filter(function(x){return !x.done;}).length;
+    var inner=ordered.length?ordered.map(todayRowHtml).join(''):'<div class="today-group-empty">Nothing here yet.</div>';
+    return '<div class="today-group">'
+      +'<div class="today-group-hd '+cls+'">'+label+'<span class="tg-count">'+openN+'</span></div>'
+      +'<div class="today-sublist" id="'+listId+'">'+inner+'</div>'
+      +'</div>';
+  }
+  el.innerHTML=todayGroupBlock('Priority / Client','client','client','todayListClient')
+    +todayGroupBlock('Marketing / Unpaid / Internal','internal','internal','todayListInternal');
+  [['todayListClient','client'],['todayListInternal','internal']].forEach(function(pair){
+    var sub=document.getElementById(pair[0]);
+    if(sub)makeListDraggable(sub,function(newOrderIds){setTodayGroupOrder(pair[1],newOrderIds);});
   });
+}
+// Which section an item belongs to: client-tagged -> Priority/Client,
+// everything else (internal or untagged) -> Marketing/Unpaid/Internal.
+function todayGroupOf(t){return t.tag==='client'?'client':'internal';}
+// Reorder only one section's members, slotting them back into the positions
+// that section already occupies in the stored array. The other section's items
+// keep their absolute spots, so a drag in one group never disturbs the other.
+function setTodayGroupOrder(group,newOrderIds){
+  var itemsA=getTodayItems();
+  var byId={};
+  itemsA.forEach(function(t){if(todayGroupOf(t)===group)byId[t.id]=t;});
+  var ordered=newOrderIds.map(function(id){return byId[id];}).filter(Boolean);
+  itemsA.forEach(function(t){if(todayGroupOf(t)===group&&newOrderIds.indexOf(t.id)===-1)ordered.push(t);});
+  var gi=0;
+  var result=itemsA.map(function(t){return todayGroupOf(t)===group?ordered[gi++]:t;});
+  setTodayItems(result);
 }
 function todayTag(btn){
   var id=btn.closest('.task-row').dataset.tid;
