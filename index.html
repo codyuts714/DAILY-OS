@@ -467,6 +467,8 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .today-group-hd.internal{color:var(--orange);}
 .today-group-hd.internal .tg-count{color:#0a0a0a;background:var(--orange);}
 .today-group-empty{font-size:10px;color:var(--t3);padding:3px 0 4px;font-style:italic;}
+.today-sublist{min-height:8px;border-radius:5px;transition:background .12s;}
+.today-sublist.section-drop-active{background:rgba(242,201,76,.07);box-shadow:inset 0 0 0 1px var(--y3);}
 .due-fucker{color:var(--coral);font-weight:800;letter-spacing:.06em;text-transform:uppercase;animation:duePulse 1.3s ease-in-out infinite;}
 @keyframes duePulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
@@ -3854,26 +3856,98 @@ function renderToday(){
   }
   el.innerHTML=todayGroupBlock('Priority / Client','client','client','todayListClient')
     +todayGroupBlock('Marketing / Unpaid / Internal','internal','internal','todayListInternal');
-  [['todayListClient','client'],['todayListInternal','internal']].forEach(function(pair){
-    var sub=document.getElementById(pair[0]);
-    if(sub)makeListDraggable(sub,function(newOrderIds){setTodayGroupOrder(pair[1],newOrderIds);});
-  });
+  makeTodaySectionsDraggable();
 }
 // Which section an item belongs to: client-tagged -> Priority/Client,
 // everything else (internal or untagged) -> Marketing/Unpaid/Internal.
 function todayGroupOf(t){return t.tag==='client'?'client':'internal';}
-// Reorder only one section's members, slotting them back into the positions
-// that section already occupies in the stored array. The other section's items
-// keep their absolute spots, so a drag in one group never disturbs the other.
-function setTodayGroupOrder(group,newOrderIds){
+// Rebuild the stored array straight from the DOM of both sections, giving each
+// item the tag of the section it now sits in. This is what makes a drag from
+// one section to the other re-tag the task (no pill tap, no retyping) while
+// also capturing any reorder within a section. Existing item objects are
+// reused, so timers/carried-over/timestamps all survive the move.
+function todayRebuildFromDOM(){
   var itemsA=getTodayItems();
-  var byId={};
-  itemsA.forEach(function(t){if(todayGroupOf(t)===group)byId[t.id]=t;});
-  var ordered=newOrderIds.map(function(id){return byId[id];}).filter(Boolean);
-  itemsA.forEach(function(t){if(todayGroupOf(t)===group&&newOrderIds.indexOf(t.id)===-1)ordered.push(t);});
-  var gi=0;
-  var result=itemsA.map(function(t){return todayGroupOf(t)===group?ordered[gi++]:t;});
+  var byId={};itemsA.forEach(function(t){byId[t.id]=t;});
+  var result=[];
+  [['todayListClient','client'],['todayListInternal','internal']].forEach(function(pair){
+    var sub=document.getElementById(pair[0]);if(!sub)return;
+    sub.querySelectorAll('.task-row').forEach(function(r){
+      var t=byId[r.dataset.tid];if(!t)return;
+      t.tag=pair[1];              // the section now defines the tag
+      result.push(t);delete byId[t.id];
+    });
+  });
+  itemsA.forEach(function(t){if(byId[t.id])result.push(t);}); // safety: keep any not in DOM
   setTodayItems(result);
+}
+// Drag rows within OR between the two sections. Dropping into the other section
+// changes the task's tag; dropping into an empty section works too.
+function makeTodaySectionsDraggable(){
+  var containers=[document.getElementById('todayListClient'),document.getElementById('todayListInternal')].filter(Boolean);
+  if(!containers.length)return;
+  var dragged=null;
+  function clearMarks(){
+    containers.forEach(function(c){
+      c.classList.remove('section-drop-active');
+      c.querySelectorAll('.task-row').forEach(function(r){r.classList.remove('drag-over-top','drag-over-bottom');});
+    });
+  }
+  function commit(){ todayRebuildFromDOM(); renderToday(); }
+  // Slot the dragged row into wherever (x,y) points — a row (above/below its
+  // midpoint) or a section's blank area.
+  function moveTo(x,y){
+    if(!dragged)return;
+    var node=document.elementFromPoint(x,y);
+    if(!node||!node.closest)return;
+    var row=node.closest('.task-row');
+    var cont=node.closest('.today-sublist');
+    if(row&&row!==dragged&&containers.indexOf(row.parentNode)!==-1){
+      var rect=row.getBoundingClientRect();
+      if(y<rect.top+rect.height/2)row.parentNode.insertBefore(dragged,row);
+      else row.parentNode.insertBefore(dragged,row.nextSibling);
+    }else if(cont&&containers.indexOf(cont)!==-1){
+      cont.appendChild(dragged);
+    }
+  }
+  containers.forEach(function(cont){
+    cont.addEventListener('dragover',function(e){e.preventDefault();});
+    cont.addEventListener('drop',function(e){e.preventDefault();if(!dragged)return;moveTo(e.clientX,e.clientY);clearMarks();commit();});
+    cont.querySelectorAll('.task-row').forEach(function(row){
+      row.classList.add('draggable-row');
+      row.draggable=true;
+      row.addEventListener('dragstart',function(e){dragged=row;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+      row.addEventListener('dragend',function(){row.classList.remove('dragging');clearMarks();dragged=null;});
+      row.addEventListener('dragover',function(e){
+        e.preventDefault();if(row===dragged)return;
+        var rect=row.getBoundingClientRect();var mid=rect.top+rect.height/2;
+        row.classList.remove('drag-over-top','drag-over-bottom');
+        row.classList.add(e.clientY<mid?'drag-over-top':'drag-over-bottom');
+      });
+      row.addEventListener('dragleave',function(){row.classList.remove('drag-over-top','drag-over-bottom');});
+      row.addEventListener('drop',function(e){e.preventDefault();if(!dragged)return;moveTo(e.clientX,e.clientY);clearMarks();commit();});
+      // Touch (mobile): mark targets while moving, actually move + commit on release.
+      row.addEventListener('touchstart',function(){dragged=row;row.classList.add('dragging');},{passive:true});
+      row.addEventListener('touchmove',function(e){
+        if(!dragged)return;
+        var t=e.touches[0];clearMarks();
+        var node=document.elementFromPoint(t.clientX,t.clientY);
+        var tr=node&&node.closest?node.closest('.task-row'):null;
+        var tc=node&&node.closest?node.closest('.today-sublist'):null;
+        if(tr&&tr!==dragged&&containers.indexOf(tr.parentNode)!==-1){
+          var rect=tr.getBoundingClientRect();var mid=rect.top+rect.height/2;
+          tr.classList.add(t.clientY<mid?'drag-over-top':'drag-over-bottom');
+        }else if(tc&&containers.indexOf(tc)!==-1){tc.classList.add('section-drop-active');}
+      },{passive:true});
+      row.addEventListener('touchend',function(e){
+        if(!dragged)return;
+        var t=e.changedTouches[0];
+        dragged.classList.remove('dragging');
+        moveTo(t.clientX,t.clientY);
+        clearMarks();dragged=null;commit();
+      });
+    });
+  });
 }
 function todayTag(btn){
   var id=btn.closest('.task-row').dataset.tid;
