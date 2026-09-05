@@ -457,6 +457,22 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 .tag-pill.client{color:#0a0a0a;background:#f2c94c;border-color:#f2c94c;box-shadow:0 0 6px rgba(242,201,76,.35);}
 .task-row.client-row{border-left:2px solid #f2c94c;padding-left:6px;background:rgba(242,201,76,.04);border-radius:4px;}
 .task-row.client-row.overdue{border-left:2px solid var(--coral);}
+/* -- TODAY LIST: type pills (Task / Photo Edit / Video Edit) + $ money pill -- */
+.type-pill{font-size:8px;font-weight:800;letter-spacing:.06em;padding:2px 6px;border-radius:9px;border:1px solid var(--b3);background:transparent;color:var(--t2);cursor:pointer;flex-shrink:0;margin-top:3px;text-transform:uppercase;transition:all .15s;font-family:inherit;}
+.type-pill.task{color:var(--blue);border-color:var(--blue);}
+.type-pill.photo{color:var(--teal);border-color:var(--teal);}
+.type-pill.video{color:var(--purple);border-color:var(--purple);}
+.type-pill:hover{filter:brightness(1.3);}
+.money-pill{font-size:8px;font-weight:800;letter-spacing:.03em;padding:2px 6px;border-radius:9px;border:1px solid var(--b3);background:transparent;color:var(--t2);cursor:pointer;flex-shrink:0;margin-top:3px;font-family:inherit;transition:all .15s;}
+.money-pill.has{color:#0a0a0a;background:var(--gold,#f2c94c);border-color:var(--gold,#f2c94c);box-shadow:0 0 6px rgba(242,201,76,.4);}
+.money-pill:hover{border-color:var(--gold,#f2c94c);}
+.task-row.money-row{border-left:2px solid var(--gold,#f2c94c);padding-left:6px;background:rgba(242,201,76,.07);border-radius:4px;}
+/* add-to-today modal type selector */
+.tl-type-row{display:flex;gap:6px;}
+.tl-type-opt{flex:1;padding:8px 4px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;border:1px solid var(--b3);color:var(--t2);transition:all .15s;font-family:inherit;}
+.tl-type-opt.task.active{color:#0a0a0a;background:var(--blue);border-color:var(--blue);}
+.tl-type-opt.photo.active{color:#0a0a0a;background:var(--teal);border-color:var(--teal);}
+.tl-type-opt.video.active{color:#0a0a0a;background:var(--purple);border-color:var(--purple);}
 .client-count{font-size:9px;font-weight:800;color:#0a0a0a;background:#f2c94c;padding:2px 7px;border-radius:9px;letter-spacing:.05em;white-space:nowrap;}
 .today-group{margin-bottom:12px;}
 .today-group:last-child{margin-bottom:0;}
@@ -1967,6 +1983,26 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
     <div class="modal-row">
       <button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button>
       <button class="modal-btn modal-confirm" id="modalConfirm">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add-to-Today modal: name + type (Task / Photo Edit / Video Edit) + optional $ amount -->
+<div class="modal-ov" id="tlAddOv">
+  <div class="modal">
+    <div class="modal-title">Add to Today List</div>
+    <input class="inp" id="tlAddName" placeholder="Task name...">
+    <div style="font-size:10px;color:var(--t2);margin:10px 0 5px;">Type</div>
+    <div class="tl-type-row" id="tlAddTypes">
+      <button class="tl-type-opt task active" data-type="task" onclick="tlPickType(this)">Task</button>
+      <button class="tl-type-opt photo" data-type="photo" onclick="tlPickType(this)">Photo Edit</button>
+      <button class="tl-type-opt video" data-type="video" onclick="tlPickType(this)">Video Edit</button>
+    </div>
+    <div style="font-size:10px;color:var(--t2);margin:12px 0 5px;">$ Amount <span style="color:var(--t3);">— paid work jumps to the top</span></div>
+    <input class="inp" id="tlAddAmt" inputmode="decimal" placeholder="e.g. 120 — leave blank if none">
+    <div class="modal-row">
+      <button class="modal-btn modal-cancel" onclick="closeTlAdd()">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="confirmTlAdd()">Add</button>
     </div>
   </div>
 </div>
@@ -3671,6 +3707,9 @@ window.mergeTodayLists = function(a, b) {
         if(!prev.todoId && item.todoId) prev.todoId = item.todoId;
         // tag: client wins over internal/none so client emphasis never drops in a sync
         if(item.tag === 'client' || (!prev.tag && item.tag)) prev.tag = item.tag;
+        // type + $ amount: never let a sync silently drop them (keep the larger $)
+        if(!prev.type && item.type) prev.type = item.type;
+        if(item.amount > 0 && (!(prev.amount > 0) || item.amount > prev.amount)) prev.amount = item.amount;
         // timers: keep the larger banked time; keep the earliest running start
         if(item.spentMs && (!prev.spentMs || item.spentMs > prev.spentMs)) prev.spentMs = item.spentMs;
         if(item.startAt && (!prev.startAt || item.startAt < prev.startAt)) prev.startAt = item.startAt;
@@ -3765,6 +3804,8 @@ function rolloverTodayList(){
             var carriedMs=(item.spentMs||0)+(item.startAt?Date.now()-item.startAt:0);
             var carried={id:'ty'+Date.now()+Math.floor(Math.random()*10000),name:item.name,todoId:item.todoId,tag:item.tag,done:false,carriedFrom:item.carriedFrom||k};
             if(carriedMs)carried.spentMs=carriedMs;
+            if(item.type)carried.type=item.type;      // keep Task/Photo/Video across days
+            if(item.amount>0)carried.amount=item.amount; // keep $ so paid work stays priority
             today.push(carried);
           }
         }catch(itemErr){
@@ -3821,6 +3862,9 @@ function renderToday(){
     var age=todayItemAge(t);
     var overdue=!t.done&&age>=2; // on the list 3+ days
     var isClient=t.tag==='client';
+    var typ=t.type||'task';                       // task | photo | video
+    var TYPE_LBL={task:'TASK',photo:'PHOTO',video:'VIDEO'};
+    var hasMoney=(t.amount!=null&&t.amount>0);
     var sub='';
     if(t.ts)sub='<div class="task-ts">&#10003; '+t.ts+(todayItemMs(t)?' &middot; took '+fmtDurMs(todayItemMs(t)):'')+'</div>';
     else if(overdue)sub='<div class="task-ts due-fucker">&#9888; DUE TODAY FUCKER &middot; day '+(age+1)+'</div>';
@@ -3832,13 +3876,15 @@ function renderToday(){
       timerBits='<span class="task-time'+(running?' running':'')+'" data-timer="'+t.id+'">'+(ms?fmtDurMs(ms):'')+'</span>'
         +'<button class="timer-btn'+(running?' running':'')+'" onclick="todayTimer(this)">'+(running?'&#9632; Stop':'&#9654; Start')+'</button>';
     }
-    return '<div class="task-row'+(overdue?' overdue':'')+(isClient?' client-row':'')+'"'+(t.done?' style="opacity:.5;"':'')+' data-tid="'+t.id+'">'
+    return '<div class="task-row'+(overdue?' overdue':'')+(isClient?' client-row':'')+(hasMoney?' money-row':'')+'"'+(t.done?' style="opacity:.5;"':'')+' data-tid="'+t.id+'">'
       +'<span class="drag-handle">&#8942;&#8942;</span>'
       +'<button class="chk chk-circle '+(t.done?'done':'')+'" onclick="todayChk(this)"></button>'
       +'<div class="task-info"><div class="task-name '+(t.done?'done':'')+'">'+t.name+'</div>'
       +sub
       +'</div>'
       +timerBits
+      +'<button class="type-pill '+typ+'" onclick="todayType(this)" title="Cycle type: Task / Photo Edit / Video Edit">'+TYPE_LBL[typ]+'</button>'
+      +'<button class="money-pill'+(hasMoney?' has':'')+'" onclick="todayMoney(this)" title="Set $ — paid work jumps to the top">'+(hasMoney?'$'+fmtMoney(t.amount):'$')+'</button>'
       +'<button class="tag-pill'+(isClient?' client':'')+'" onclick="todayTag(this)" title="Toggle client / internal">'+(isClient?'CLIENT':'INT')+'</button>'
       +'<button class="task-del" onclick="todayDel(this)">&#215;</button></div>';
   }
@@ -3846,7 +3892,12 @@ function renderToday(){
   // active work sits on top and done items sink to the bottom (dimmed).
   function todayGroupBlock(label,cls,group,listId){
     var g=items.filter(function(x){return todayGroupOf(x)===group;});
-    var ordered=g.filter(function(x){return !x.done;}).concat(g.filter(function(x){return x.done;}));
+    // Open items first (paid work floats to the very top, then everything else,
+    // each keeping its own drag order), then done items sink to the bottom.
+    var openItems=g.filter(function(x){return !x.done;});
+    var paid=openItems.filter(function(x){return x.amount>0;});
+    var unpaid=openItems.filter(function(x){return !(x.amount>0);});
+    var ordered=paid.concat(unpaid).concat(g.filter(function(x){return x.done;}));
     var openN=g.filter(function(x){return !x.done;}).length;
     var inner=ordered.length?ordered.map(todayRowHtml).join(''):'<div class="today-group-empty">Nothing here yet.</div>';
     return '<div class="today-group">'
@@ -4022,14 +4073,65 @@ function todayDel(btn){
   setTodayItems(items.filter(function(x){return x.id!==id;}));
   renderToday();renderTodo();
 }
+// -- TODAY LIST: type + money helpers -------------------------------------------
+// Format a $ amount cleanly: whole numbers show no decimals, else 2dp.
+function fmtMoney(n){n=Number(n)||0;return (n%1===0)?String(n):n.toFixed(2);}
+
+// Add-to-Today modal (name + Task/Photo/Video type + optional $ amount).
+let tlAddType='task';
+function tlPickType(btn){
+  tlAddType=btn.dataset.type;
+  document.querySelectorAll('#tlAddTypes .tl-type-opt').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
 function openAddToday(){
-  openModal('Add to Today List','Task name...','',false,function(n){
-    if(!n.trim())return;
+  tlAddType='task';
+  var nm=document.getElementById('tlAddName'),am=document.getElementById('tlAddAmt');
+  if(nm)nm.value='';if(am)am.value='';
+  document.querySelectorAll('#tlAddTypes .tl-type-opt').forEach(function(b){b.classList.toggle('active',b.dataset.type==='task');});
+  document.getElementById('tlAddOv').classList.add('open');
+  setTimeout(function(){nm&&nm.focus();},80);
+}
+function closeTlAdd(){document.getElementById('tlAddOv').classList.remove('open');}
+function confirmTlAdd(){
+  var n=(document.getElementById('tlAddName').value||'').trim();
+  if(!n){closeTlAdd();return;}
+  var amt=parseFloat((document.getElementById('tlAddAmt').value||'').replace(/[^0-9.]/g,''));
+  var item={id:'ty'+Date.now(),name:n,done:false,type:tlAddType};
+  if(amt&&amt>0)item.amount=amt;         // paid work — render floats it to the top
+  var items=getTodayItems();
+  items.push(item);
+  setTodayItems(items);
+  closeTlAdd();
+  renderToday();
+}
+// close on backdrop tap
+(function(){var ov=document.getElementById('tlAddOv');if(ov)ov.onclick=function(e){if(e.target===ov)closeTlAdd();};})();
+
+// Tap the type pill on a row to cycle Task -> Photo Edit -> Video Edit.
+function todayType(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  var items=getTodayItems();
+  var t=items.find(function(x){return x.id===id;});
+  if(!t)return;
+  var order=['task','photo','video'];
+  t.type=order[(order.indexOf(t.type||'task')+1)%order.length];
+  setTodayItems(items);renderToday();
+}
+// Tap the $ pill to set / edit / clear the amount. Setting one makes it priority.
+function todayMoney(btn){
+  var id=btn.closest('.task-row').dataset.tid;
+  openModal('Set $ amount','e.g. 120 — blank to clear','',false,function(v){
     var items=getTodayItems();
-    items.push({id:'ty'+Date.now(),name:n.trim(),done:false});
-    setTodayItems(items);
-    renderToday();
+    var t=items.find(function(x){return x.id===id;});
+    if(!t)return;
+    var num=parseFloat((v||'').replace(/[^0-9.]/g,''));
+    if(!num||num<=0)delete t.amount; else t.amount=num;
+    setTodayItems(items);renderToday();
   });
+  // prefill the current amount for quick edits
+  var cur=getTodayItems().find(function(x){return x.id===id;});
+  if(cur&&cur.amount>0)document.getElementById('mIn1').value=String(cur.amount);
 }
 function sendTodoToToday(btn){
   var id=btn.closest('.task-row').dataset.tid;
