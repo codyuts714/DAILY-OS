@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#0a0a0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>YOUR LIFE - YOUR TIMELINE</title>
+<title>Your Highest Timeline</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="TIMELINE">
+<meta name="apple-mobile-web-app-title" content="Highest Timeline">
 <meta name="mobile-web-app-capable" content="yes">
 <script>
 /* -- PWA: register the service worker (required for the install prompt) ------
@@ -40,7 +40,7 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>window.Chart||document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');</script>
 <script type="module">
@@ -686,7 +686,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 /* ═══════════ UTS REGIMEN — section titles + new modules ═══════════ */
 .section-divider{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:18px 0 10px;}
 .sec-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-soft);}
-.sec-headline{font-family:'Fraunces',serif;font-weight:600;font-size:24px;letter-spacing:-.012em;color:var(--gold);line-height:1;text-shadow:0 0 28px rgba(242,201,76,.16);}
+.sec-headline{font-family:var(--display);font-weight:800;font-size:23px;letter-spacing:-.012em;color:var(--gold);line-height:1;text-shadow:0 0 28px rgba(242,201,76,.16);}
 .sec-underline{width:100%;height:1px;margin-top:9px;background:linear-gradient(90deg,var(--gold-glow),transparent);}
 @media(max-width:600px){.sec-headline{font-size:22px;}}
 
@@ -694,7 +694,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 .lp-phase{border-top:1px solid var(--b);padding:11px 0 3px;}
 .lp-phase:first-child{border-top:0;}
 .lp-phase-hd{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
-.lp-num{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:14px;color:var(--gold-soft);}
+.lp-num{font-family:var(--display);font-style:italic;font-weight:600;font-size:14px;color:var(--gold-soft);}
 .lp-name{font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--t);}
 .lp-aim{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.02em;}
 .lp-item{display:flex;align-items:flex-start;gap:9px;padding:5px 0;}
@@ -879,25 +879,25 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 <style id="uts-skin">
 /* ═══════════════ UTS PORTAL SKIN — visual layer only ═══════════════ */
 :root{
-  --y:#f2c94c; --y2:rgba(242,201,76,.09); --y3:rgba(242,201,76,.3);
-  --gold:#f2c94c; --gold-soft:#d8b654; --gold-pale:#fbe8a8;
-  --gold-glow:rgba(242,201,76,.32);
-  --bg:#0b0d11; --bg2:#161a21; --bg3:#1c212a; --bg4:#232935; --bg5:#2c3340;
-  --b:#252b35; --b2:#333a47; --b3:#454e5e;
-  --t:#f3f5f8; --t2:#9aa3b2; --t3:#697282;
-  --green:#34d399; --teal:#22d3b0; --coral:#f87171;
-  --biz:#f2c94c;
-  --r:14px;
-  --display:'Rajdhani',sans-serif; --bodyfont:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --y:#ffcf2e; --y2:rgba(255,207,46,.11); --y3:rgba(255,207,46,.36);
+  --gold:#ffcf2e; --gold-soft:#eab82f; --gold-pale:#ffe488;
+  --gold-glow:rgba(255,207,46,.4);
+  /* medium graphite stage — a real grey, not black. cards float LIGHTER on top. */
+  --bg:#3c3d43; --bg2:#484a53; --bg3:#515360; --bg4:#5b5d6b; --bg5:#676978;
+  --b:#565863; --b2:#646672; --b3:#767887;
+  --t:#faf9f7; --t2:#c5c6cb; --t3:#999aa4;
+  --green:#38d9a0; --teal:#22d3b0; --coral:#f87171;
+  --biz:#ffcf2e;
+  --r:18px;
+  --display:'Montserrat',sans-serif; --bodyfont:'Montserrat',sans-serif; --mono:'JetBrains Mono',monospace;
 }
 body{
   font-family:var(--bodyfont);
   background:
-    radial-gradient(ellipse 1000px 520px at 20% -12%, rgba(242,201,76,.05), transparent 62%),
-    radial-gradient(ellipse 820px 460px at 100% -6%, rgba(88,101,242,.035), transparent 60%),
+    radial-gradient(ellipse 1200px 620px at 15% -16%, rgba(255,207,46,.07), transparent 58%),
     var(--bg);
 }
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.02;mix-blend-mode:overlay;
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.025;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .dashboard{position:relative;z-index:1}
 ::selection{background:var(--gold-glow)}
@@ -1040,6 +1040,39 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 /* keep goal-check circle readable on gold */
 .goal-pill .g-chk{border-color:var(--b3)}
 .goal-pill.done .g-chk{background:var(--green);border-color:var(--green)}
+
+/* ═══ ELEPHANT REF REFINEMENTS — flat charcoal, huge numbers, airy labels ═══ */
+/* hero numbers: big, bold, bright — the reference's "580,000 / 300kg" feel */
+.big-stat{font-weight:800;letter-spacing:-.01em;line-height:.95;text-shadow:0 0 30px rgba(255,209,44,.3)}
+.clock{font-weight:700;font-size:23px}
+.sec-pct{font-weight:800;letter-spacing:.01em}
+.corr-r,.hours-val,.ms-val{font-weight:800}
+/* labels: thin, wide, uppercase — the airy caption style from the ref */
+.card-title,.stat-lbl,.rev-stat .l,.sun-day,.choose-label,.ms-lbl{
+  text-transform:uppercase;letter-spacing:.14em;
+}
+.card-title{color:var(--t2);font-weight:600;font-size:11px}
+.card-title .dot{box-shadow:0 0 8px var(--gold-glow)}
+/* cards FLOAT: lighter than the page + soft real shadow — the big departure */
+.card{padding:16px 17px}
+.card,.week-col,.target-type,.rev-stat,.mission-banner,.goals-banner,.plan-card,.day-nav{
+  background:var(--bg2);
+  border:1px solid rgba(255,255,255,.05);
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 38px -26px rgba(0,0,0,.85);
+}
+.card:hover{border-color:var(--y3);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 20px 44px -24px rgba(0,0,0,.9)}
+/* gold progress fills — single bright accent, like the ref's ring/line art */
+.sec-fill,.prog-fill,.hours-bar{background:linear-gradient(90deg,var(--gold-soft),var(--gold))!important}
+.sec-track,.prog-track,.hours-bar-wrap{background:rgba(0,0,0,.28)}
+/* inputs/wells recede into the lighter card instead of standing out dark */
+.inp,.jta,.plan-ta,select{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.07)}
+/* sticky topbar: brighter graphite glass, matches the new stage */
+.topbar{background:rgba(72,74,83,.82);border-bottom:1px solid var(--b2)}
+/* dividers a touch wider/airier */
+.section-divider{margin:20px 0 12px}
+.sec-headline{letter-spacing:.02em}
+/* checkboxes: crisp gold tick on charcoal */
+.chk{border-radius:5px}
 </style>
 
 </head>
@@ -1050,7 +1083,7 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 <div class="topbar">
   <div class="topbar-left">
     <svg width="30" height="30" viewBox="0 0 100 100" style="flex-shrink:0;" aria-label="UTS sun logo"><polygon fill="var(--y)" points="50.0,0.0 55.6,14.4 65.5,2.4 66.3,17.9 79.4,9.5 75.5,24.5 90.5,20.6 82.1,33.7 97.6,34.5 85.6,44.4 100.0,50.0 85.6,55.6 97.6,65.5 82.1,66.3 90.5,79.4 75.5,75.5 79.4,90.5 66.3,82.1 65.5,97.6 55.6,85.6 50.0,100.0 44.4,85.6 34.5,97.6 33.7,82.1 20.6,90.5 24.5,75.5 9.5,79.4 17.9,66.3 2.4,65.5 14.4,55.6 0.0,50.0 14.4,44.4 2.4,34.5 17.9,33.7 9.5,20.6 24.5,24.5 20.6,9.5 33.7,17.9 34.5,2.4 44.4,14.4"/><circle cx="50" cy="50" r="30" fill="#fdfbf4"/><rect x="40" y="38" width="6.5" height="12" rx="3.25" fill="var(--y)"/><rect x="53.5" y="38" width="6.5" height="12" rx="3.25" fill="var(--y)"/><path d="M 38 57 A 12 12 0 0 0 62 57" stroke="var(--y)" stroke-width="6.5" stroke-linecap="round" fill="none"/></svg>
-    <div class="topbar-title">YOUR LIFE <span style="color:var(--y);">-</span> YOUR TIMELINE</div>
+    <div class="topbar-title">YOUR <span style="color:var(--y);">HIGHEST</span> TIMELINE</div>
     <a href="kundalini.html" style="font-family:var(--display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 13px;border-radius:99px;color:var(--y);background:var(--y2);border:1px solid var(--y3);text-decoration:none;white-space:nowrap;">🌀 Kundalini</a>
     <div class="clock" id="clock">00:00:00</div>
     <div class="topbar-date" id="topDate"></div>
@@ -7430,7 +7463,7 @@ function doExport() {
   var dateRange = start.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' to ' + end.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 
   // ============================== HEADER ==============================
-  push('YOUR LIFE - YOUR TIMELINE -- FULL DATA EXPORT');
+  push('YOUR HIGHEST TIMELINE -- FULL DATA EXPORT');
   push(rangeLabel + ' | ' + dateRange);
   push('Generated ' + new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));
   push('Note: weekly-scoped sections (recurring schedule, laundry, calls, content/product) cover the whole week any day in range touches.');
@@ -8045,7 +8078,7 @@ function doExportRaw(){
   }
   var out={
     _meta:{
-      app:'YOUR LIFE - YOUR TIMELINE',
+      app:'YOUR HIGHEST TIMELINE',
       exported:new Date().toISOString(),
       exportedLocal:new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}),
       keys:Object.keys(data).length,
