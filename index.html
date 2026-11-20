@@ -879,13 +879,13 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 <style id="uts-skin">
 /* ═══════════════ UTS PORTAL SKIN — visual layer only ═══════════════ */
 :root{
-  --y:#ffcf2e; --y2:rgba(255,207,46,.11); --y3:rgba(255,207,46,.36);
-  --gold:#ffcf2e; --gold-soft:#eab82f; --gold-pale:#ffe488;
-  --gold-glow:rgba(255,207,46,.4);
-  /* medium graphite stage — a real grey, not black. cards float LIGHTER on top. */
-  --bg:#3c3d43; --bg2:#484a53; --bg3:#515360; --bg4:#5b5d6b; --bg5:#676978;
-  --b:#565863; --b2:#646672; --b3:#767887;
-  --t:#faf9f7; --t2:#c5c6cb; --t3:#999aa4;
+  --y:#ffd12c; --y2:rgba(255,209,44,.10); --y3:rgba(255,209,44,.34);
+  --gold:#ffd12c; --gold-soft:#e9bd38; --gold-pale:#ffe488;
+  --gold-glow:rgba(255,209,44,.42);
+  /* true black, clean & modern. cards lift a hair off black so they read as surfaces. */
+  --bg:#080808; --bg2:#131313; --bg3:#191919; --bg4:#202020; --bg5:#292929;
+  --b:#202020; --b2:#2b2b2b; --b3:#3a3a3a;
+  --t:#f5f5f4; --t2:#8f8f8c; --t3:#5a5a58;
   --green:#38d9a0; --teal:#22d3b0; --coral:#f87171;
   --biz:#ffcf2e;
   --r:18px;
@@ -894,7 +894,7 @@ html{scrollbar-width:auto;scrollbar-color:#3d3d3d var(--bg2);}
 body{
   font-family:var(--bodyfont);
   background:
-    radial-gradient(ellipse 1200px 620px at 15% -16%, rgba(255,207,46,.07), transparent 58%),
+    radial-gradient(ellipse 1100px 560px at 50% -18%, rgba(255,209,44,.06), transparent 60%),
     var(--bg);
 }
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.025;mix-blend-mode:overlay;
@@ -1053,21 +1053,21 @@ html::-webkit-scrollbar-thumb:active{background:rgba(242,201,76,.4)}
 }
 .card-title{color:var(--t2);font-weight:600;font-size:11px}
 .card-title .dot{box-shadow:0 0 8px var(--gold-glow)}
-/* cards FLOAT: lighter than the page + soft real shadow — the big departure */
-.card{padding:16px 17px}
+/* cards: clean surfaces lifting a hair off true black — hairline border, soft depth */
+.card{padding:16px 18px}
 .card,.week-col,.target-type,.rev-stat,.mission-banner,.goals-banner,.plan-card,.day-nav{
   background:var(--bg2);
-  border:1px solid rgba(255,255,255,.05);
-  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 38px -26px rgba(0,0,0,.85);
+  border:1px solid rgba(255,255,255,.055);
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 20px 40px -30px rgba(0,0,0,.9);
 }
-.card:hover{border-color:var(--y3);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 20px 44px -24px rgba(0,0,0,.9)}
+.card:hover{border-color:rgba(255,209,44,.3)}
 /* gold progress fills — single bright accent, like the ref's ring/line art */
 .sec-fill,.prog-fill,.hours-bar{background:linear-gradient(90deg,var(--gold-soft),var(--gold))!important}
 .sec-track,.prog-track,.hours-bar-wrap{background:rgba(0,0,0,.28)}
 /* inputs/wells recede into the lighter card instead of standing out dark */
 .inp,.jta,.plan-ta,select{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.07)}
-/* sticky topbar: brighter graphite glass, matches the new stage */
-.topbar{background:rgba(72,74,83,.82);border-bottom:1px solid var(--b2)}
+/* sticky topbar: true-black glass */
+.topbar{background:rgba(8,8,8,.78);border:1px solid var(--b);border-bottom:1px solid var(--b2)}
 /* ── SECTION HEADERS → bold full-width chapter banners (strong block rhythm) ── */
 .section-divider{
   display:block;position:relative;overflow:hidden;

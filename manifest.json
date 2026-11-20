@@ -1,16 +1,23 @@
 {
   "id": "./",
-  "name": "YOUR LIFE - YOUR TIMELINE",
-  "short_name": "TIMELINE",
+  "name": "Your Highest Timeline",
+  "short_name": "Highest Timeline",
   "description": "Personal daily operating system - habits, today list, bursts, money and trends.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui", "browser"],
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "portrait-primary",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
-  "categories": ["productivity", "lifestyle"],
+  "categories": [
+    "productivity",
+    "lifestyle"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",

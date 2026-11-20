@@ -1,7 +1,7 @@
 /* YOUR LIFE - YOUR TIMELINE : service worker
    Bump CACHE_VERSION any time you redeploy index.html so phones pick up
    the new build instead of serving a stale one. */
-const CACHE_VERSION = 'ylyt-v1';
+const CACHE_VERSION = 'ylyt-v3';
 const SHELL = CACHE_VERSION + '-shell';
 
 // Everything here is relative, so it works whether the site lives at the
